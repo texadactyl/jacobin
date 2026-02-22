@@ -3276,30 +3276,20 @@ func doInvokeinterface(fr *frames.Frame, _ int64) int {
 // 0xBA INVOKEDYNAMIC
 func doInvokedynamic(fr *frames.Frame, _ int64) int {
 	CPslot := (int(fr.Meth[fr.PC+1]) * 256) + int(fr.Meth[fr.PC+2]) // next 2 bytes point to CP entry
-	CP := fr.CP.(*classloader.CPool)
-	CPentry := CP.CpIndex[CPslot]
 
-	if CPentry.Type != classloader.InvokeDynamic {
+	// the components of the InvokeDynamic entry are validated by codeCheck prior to getting here
+	// so we can call the callsite resolution method without further verifying the entries.
+	CP := fr.CP.(*classloader.CPool)
+	callSite, err := classloader.ResolveCallSite(CP, CPslot, fr)
+	if callSite == nil || err != nil {
 		globals.GetGlobalRef().ErrorGoStack = string(debug.Stack())
-		errMsg :=
-			fmt.Sprintf("INVOKEDYNAMIC: constant pool entry is (%d) rather than Constant_InvokeDynamic_info", CPentry.Type)
+		errMsg := fmt.Sprintf("INVOKEDYNAMIC: error resolving callsite")
 		status := exceptions.ThrowEx(excNames.ClassFormatError, errMsg, fr)
 		if status != exceptions.Caught {
 			return ERROR_OCCURRED // applies only if in test
-		} else {
-			return RESUME_HERE // caught
 		}
+		return RESUME_HERE // caught
 	}
-
-	id := CP.InvokeDynamics[CPentry.Slot]
-	bootstrapIndex := id.BootstrapIndex
-	bootstrap := CP.Bootstraps[bootstrapIndex]
-	if bootstrap.MethodRef < 0 { // dummy test to get a compilation
-		return ERROR_OCCURRED
-	}
-
-	// bootstrapNAT := id.NameAndType
-	
 	return 5 // the two bytes for the CP slot + 2 bytes with value 0x00 + 1 for next bytecode
 
 }

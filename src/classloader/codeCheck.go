@@ -423,7 +423,7 @@ var CheckTable = [203]BytecodeFunc{
 	checkInvokespecial,   // INVOKESPECIAL   0xB7
 	checkInvokestatic,    // INVOKESTATIC    0xB8
 	CheckInvokeinterface, // INVOKEINTERFACE 0xB9
-	Return5,              // INVOKEDYNAMIC   0xBA
+	CheckInvokedynamic,   // INVOKEDYNAMIC   0xBA
 	Return3,              // NEW             0xBB
 	Return2,              // NEWARRAY        0xBC
 	Return3,              // ANEWARRAY       0xBD
@@ -739,6 +739,57 @@ func CheckIfzero() int { // Jump if condition w.r.t 0 is met
 	}
 	StackEntries -= 1
 	return 3
+}
+
+// INVOKEDYNAMIC 0xBA
+func CheckInvokedynamic() int {
+	CPslot := int(int16(Code[PC+1])*256 + int16(Code[PC+2])) // next 2 bytes point to CP entry
+
+	// is CP slot pointing to a valid CP entry?
+	if CPslot < 1 || CPslot >= len(CP.CpIndex) {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid CP slot %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, CPslot)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	// is the CP entry of type InvokeDynamic?
+	CPentry := CP.CpIndex[CPslot]
+	if CPentry.Type != InvokeDynamic {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: Invalide CP entry type %d, should be 18",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, CPentry.Type)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	// is the CP entry slot pointing to a valid InvokeDynamic entry?
+	if CPentry.Slot >= uint16(len(CP.InvokeDynamics)) {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid InvokeDynamic slot %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, CPentry.Slot)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	// is the bootstrap method index pointed to by the InvokeDynamic entry valid?
+	CPdyn := CP.InvokeDynamics[CPentry.Slot]
+	bootstrapIndex := CPdyn.BootstrapIndex
+	if bootstrapIndex >= uint16(len(CP.Bootstraps)) {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid BootstrapIndex %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, bootstrapIndex)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	// is the bootstrap name and type index pointed to by the InvokeDynamic entry valid?
+	bootstrapNatIndex := CPdyn.NameAndType
+	if bootstrapNatIndex >= uint16(len(CP.NameAndTypes)) {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType index %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, bootstrapNatIndex)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	return 5
 }
 
 // INVOKEINTERFACE 0xB9
