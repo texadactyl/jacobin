@@ -29,9 +29,16 @@ func Load_Lang_Invoke_MethodType() {
 const methodTypeClassName = "java/lang/invoke/MethodType"
 
 // "java/lang/invoke/MethodType.fromMethodDescriptorString(Ljava/lang/String;Ljava/lang/ClassLoader;)Ljava/lang/invoke/MethodType;"
+// Create a method type, suitable for use with method handles, from a descriptor string
+//  1. Parses the descriptor: It splits the descriptor into parameter types and return type.
+//  2. Resolves types: It resolves primitive types (e.g., "I" -> int.class) and object types (e.g.,
+//     "Ljava/lang/String;" -> String.class) to their corresponding java.lang.Class objects.
+//  3. Constructs the object: It creates a new java.lang.invoke.MethodType object.
+//  4. Populates fields: It sets the rtype (return type) and ptypes (parameter types array) fields
+//     of the MethodType object, which matches the internal structure of the JDK class.
 func MethodTypeFromMethodDescriptorString(params []interface{}) interface{} {
-	descriptorObj := params[1].(*object.Object)
-	// classLoaderObj := params[0].(*object.Object) // TODO: Use this classloader for resolution
+	descriptorObj := params[0].(*object.Object)
+	// classLoaderObj := params[1].(*object.Object) // TODO: Might need later if we support custom class loaders
 
 	descriptor := object.GoStringFromStringObject(descriptorObj)
 

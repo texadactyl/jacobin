@@ -182,10 +182,9 @@ func ResolveMethodType(cp *CPool, index int, fr *frames.Frame) (*object.Object, 
 	// Create the descriptor string object
 	descriptorObj := object.StringObjectFromGoString(descriptor)
 
-	// We need a class loader. For now, we can pass null or a dummy object if the gfunction doesn't strictly require it yet.
+	// For now, we can pass nil for the class loader  b/c we don't presently support custom class loaders.
 	// The gfunction signature expects (String, ClassLoader).
-	// In our direct invocation, we pass params as a slice.
-	params := []interface{}{nil, descriptorObj} // ClassLoader (placeholder), Descriptor
+	params := []interface{}{descriptorObj, nil}
 
 	result := globals.GetGlobalRef().FuncInvokeGFunction(
 		"java/lang/invoke/MethodType.fromMethodDescriptorString(Ljava/lang/String;Ljava/lang/ClassLoader;)Ljava/lang/invoke/MethodType;",
