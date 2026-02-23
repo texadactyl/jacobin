@@ -66,6 +66,7 @@ func MTableLoadGFunctions(MTable *classloader.MT) {
 	javaLang.Load_Lang_Double()
 	javaLang.Load_Lang_Float()
 	javaLang.Load_Lang_Integer()
+	javaLang.Load_Lang_Invoke_MethodType()
 	javaLang.Load_Lang_Long()
 	javaLang.Load_Lang_Math()
 	javaLang.Load_Lang_Object()
