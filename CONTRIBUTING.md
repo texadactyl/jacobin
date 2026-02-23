@@ -115,4 +115,4 @@ file should start with an introductory block comment explaining what functionali
 implements, so that we can quickly tell whether the file is relevant to our present
 search.
 * We generally refer to the Go language as "golang," because this facilitates search
-right away if it contains the functionality we're looking for.
+
