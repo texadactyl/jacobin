@@ -2,7 +2,7 @@
 
 ## Jacobin JVM Operation
 
-The Jacobin JVM is a multi-threaded interpreter that executes Java 21 bytecode.
+The Jacobin JVM is a multi-threaded interpreter that executes Java 21 classes.
 
 ### Jacobin JVM Startup Sequence
 

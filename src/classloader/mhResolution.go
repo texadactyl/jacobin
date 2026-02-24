@@ -177,15 +177,13 @@ func ResolveMethodType(cp *CPool, index int, fr *frames.Frame) (*object.Object, 
 
 	// 2. Call java.lang.invoke.MethodType.fromMethodDescriptorString()
 	// This is the standard way to create a MethodType from a string.
-	// We invoke the gfunction logic directly.
-
 	// Create the descriptor string object
 	descriptorObj := object.StringObjectFromGoString(descriptor)
 
 	// For now, we can pass nil for the class loader  b/c we don't presently support custom class loaders.
-	// The gfunction signature expects (String, ClassLoader).
 	params := []interface{}{descriptorObj, nil}
 
+	// We invoke the gfunction logic directly.
 	result := globals.GetGlobalRef().FuncInvokeGFunction(
 		"java/lang/invoke/MethodType.fromMethodDescriptorString(Ljava/lang/String;Ljava/lang/ClassLoader;)Ljava/lang/invoke/MethodType;",
 		params,
