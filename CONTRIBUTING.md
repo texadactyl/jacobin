@@ -70,8 +70,9 @@ The main packages/directories are:
 
 * All objects are passed as pointers to `object.Object`.
 * The most common integer format is `int64`. This is the format of all user arguments and return values (int, long, short). Internally, a variey of values are employed to be efficient or convenient for interfacing with the Go run-time.
-* Booleans are also held as `int64` quantities, taking on value `types.JavaBoolTrue` (int64 1) or `types.JavaBoolFalse` (int64 0).
-* All raw strings stored in objects are `object.javaByteArray` instances, rather than golang strings, or as instances of Java string objects (as defined in `object/string.go`).
+* Booleans are handled as `int64` quantities having a value of `types.JavaBoolTrue` (int64 1) or `types.JavaBoolFalse` (int64 0).
+However, boolean arrays store booleans as golang bytes. They are converted to/from `int64`s when operated on in the JVM.
+* All raw strings stored in objects as developer-accessible values are `object.javaByteArray`s, rather than golang strings, or as instances of Java string objects (as defined in `object/string.go`).
 * Byte-format used for data are not golang `byte`s (which are unsigned) but rather `types.JavaByte`, which are signed.
 * Floating point values are `float64` whether they are Java float or double.
 * When exceptions or errors are thrown in Java methods, we first create a variable named `errMsg`, which contains error data for the user;
@@ -88,10 +89,36 @@ and no argument, `params` is an empty array.
 * When errors occur in gfunctions, they are handled by creating an `errMsg` variable, which contains
 error data for the user. This error message and the name of the exception/error to throw are returned
 using `ghelpers.GetGErrBlk(excNames.ClassNotLoadedException, errMsg)`
+* gfunctions should appear in alphabetical order in the file, with helper functions placed at the end
+after a row of `=============`
 
 ### Coding conventions for gfunction loaders of MethodSignatures
 
-*TBD*
+* gfunctions are loaded into the `MTable` by the `gfunction. MTableLoadGFunctions()`.
+* the loader calls the Loadxxx function in every gfunction file.
+* the `Loadxxx` function should be named `Load_Package_Class`; for example, `Load_Lang_UTF16()` for java.lang.UTF16
+* the `Loadxxx` function loads the gfunctions for methods specified in the list of `MethodSignatures`
+* You should create a `MethodSignatures` entry for every method of the class including constructors
+* The entry should be a `MethodSignature` struct, which contains the following fields:
+    * `name` is the fully qualifed name (FQN) of the function
+    * `GMeth` is a struct containing the following fields:
+        * `ParamSlots` is an integer indicating the number of parameters passed into the Java function
+        * `GFunction` is the name of the gfunction to be called 
+
+* When creating the gfunction for a new library class, it is preferred to create `MethodSignatures` for all
+non-private methods. Methods that are not implemented should call `ghelpers.TrapFunction` The complete list
+of possible trap functions includes: 
+* `ghelpers.TrapClass` - The entire class is not yet supported.
+* `ghelpers.TrapDeprecated` - Deprecated classes, interfaces, and functions are not supported.
+* `ghelpers.TrapFunction` - This individual function is not yet supported.
+* `ghelpers.TrapProtected` - Protected functions are not supported.
+* `ghelpers.TrapUndocumented` - Undocumented (hidden) functions are not supported.
+* `ghelpers.TrapUnicode` - References to unicode are not yet supported.
+
+When in doubt, use `ghelpers.TrapFunction`. All entries in `MethodSignatures` should be in alphabetical order by 
+the FQN of the Java method.
+
+
 
 ### Coding conventions for unit tests
 * Tests that involve any variable or reference outside the function under test should start with
@@ -109,7 +136,7 @@ see which conditions have/have not been tested without reading the code.
 
 ### General coding conventions
 * All comments should be in English.
-* We follow the `go fmt` coding style because this standard adds value to our project.
+* We follow the `go fmt` coding style.
 * All functions should have a preceding comment that explains what they do. Each 
 file should start with an introductory block comment explaining what functionality it
 implements, so that we can quickly tell whether the file is relevant to our present
