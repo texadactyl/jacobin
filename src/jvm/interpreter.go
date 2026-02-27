@@ -269,8 +269,11 @@ const ( // result values from bytecode interpretation
 	// all special result values must be greater than SPECIAL_CASE,
 	// which is the value tested against in interpret()'s principal
 	// loop to identify special cases
-	SPECIAL_CASE  = math.MaxInt32 - 10
-	MAX_COUNTDOWN = 1000
+	SPECIAL_CASE = math.MaxInt32 - 10
+	// the number of instructions to execute before allowing gosched
+	// to run, which yields the processor. Gemini recommends 1000.
+	// We need to experiment for the ideal default value, if there is one.
+	GOSCHED_COUNTDOWN = 1000
 )
 
 // the main interpreter loop. This loop takes responsibility for
@@ -315,7 +318,7 @@ func interpret(fs *list.List) {
 	}()
 
 	// the main bytecode interpreter loop
-	countDown := MAX_COUNTDOWN
+	countDown := GOSCHED_COUNTDOWN
 	for fr.PC < len(fr.Meth) {
 		if globals.TraceInst {
 			traceInfo := EmitTraceData(fr)
@@ -324,7 +327,7 @@ func interpret(fs *list.List) {
 
 		countDown--
 		if countDown < 1 {
-			countDown = MAX_COUNTDOWN
+			countDown = GOSCHED_COUNTDOWN
 			runtime.Gosched()
 		}
 		opcode := fr.Meth[fr.PC]
