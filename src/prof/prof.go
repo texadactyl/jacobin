@@ -51,6 +51,18 @@ func StopProfiling() {
 	_ = profFile.Close()
 	profFile = nil
 	profiling = false
+
+	// Create a memory profile
+	// for: go tool pprof -sample_index=alloc_objects mem.prof
+	profPath := "mem.prof"
+	fm, _ := os.Create(profPath)
+	err := pprof.WriteHeapProfile(fm)
+	if err != nil {
+		trace.Error(fmt.Sprintf("prof.StopProfiling: pprof.WriteHeapProfile failed for %s, err: %s",
+			profPath, err.Error()))
+		os.Exit(1)
+	}
+	_ = fm.Close()
 }
 
 // Exit ensures profiling is stopped and then exits with code.
