@@ -102,9 +102,7 @@ func JVMrun() int {
 	}
 
 	// load the classes in java.base (java.lang, java.util, etc.)
-	// then initialize the primitive-boxing classes
 	classloader.LoadBaseClasses() // must follow classloader.Init()
-	InitializePrimitiveWrappers() //
 
 	var mainClassNameIndex uint32
 	if globPtr.StartingJar != "" {
@@ -190,6 +188,9 @@ func JVMrun() int {
 	// and in addition execute some initialization gfunctions (e.g., in javaLangThreadGroup.go)
 	classloader.MTable = make(map[string]classloader.MTentry)
 	gfunction.MTableLoadGFunctions(&classloader.MTable)
+
+	// initialize the primitive-boxing classes
+	InitializePrimitiveWrappers()
 
 	// Initialize the initial global thread groups
 	javaLang.InitializeGlobalThreadGroups()

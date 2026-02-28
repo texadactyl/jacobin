@@ -18,6 +18,12 @@ import (
 
 func Load_Lang_Double() {
 
+	ghelpers.MethodSignatures["java/lang/Double.<clinit>()V"] =
+		ghelpers.GMeth{
+			ParamSlots: 0,
+			GFunction:  ghelpers.ClinitGeneric,
+		}
+
 	ghelpers.MethodSignatures["java/lang/Double.<init>(D)V"] =
 		ghelpers.GMeth{
 			ParamSlots: 1,

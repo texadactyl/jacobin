@@ -114,6 +114,7 @@ func TestHexHello2ValidClass(t *testing.T) {
 	t.Logf("classloader.Init ok\n")
 
 	// Load the base classes
+	classloader.LoadBaseClasses()
 	classloader.LoadClassFromNameOnly("java/lang/ThreadGroup")
 	t.Logf("Loaded ThreadGroup ok\n")
 	InitGlobalFunctionPointers()
@@ -148,6 +149,7 @@ func TestHexHello2ValidClass(t *testing.T) {
 	// Run class Hello2
 	classloader.MTable = make(map[string]classloader.MTentry)
 	gfunction.MTableLoadGFunctions(&classloader.MTable)
+	InitializePrimitiveWrappers()
 	th := javaLang.ThreadCreateNoarg(nil).(*object.Object)
 	className := "Hello2"
 	methName := "main"

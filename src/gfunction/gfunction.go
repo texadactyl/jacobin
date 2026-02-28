@@ -87,6 +87,7 @@ func MTableLoadGFunctions(MTable *classloader.MT) {
 	javaLang.Load_Lang_Thread_State()
 	javaLang.Load_Lang_Throwable()
 	javaLang.Load_Lang_UTF16()
+	javaLang.Load_Lang_Void()
 
 	// java/math/*
 	javaMath.Load_Math_Big_Decimal()

@@ -18,6 +18,12 @@ import (
 
 func Load_Lang_Float() {
 
+	ghelpers.MethodSignatures["java/lang/Float.<clinit>()V"] =
+		ghelpers.GMeth{
+			ParamSlots: 0,
+			GFunction:  ghelpers.ClinitGeneric,
+		}
+
 	ghelpers.MethodSignatures["java/lang/Float.<init>(F)V"] =
 		ghelpers.GMeth{
 			ParamSlots: 1,
