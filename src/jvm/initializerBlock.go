@@ -136,3 +136,55 @@ func runNativeInitializer(mt classloader.MTentry, k *classloader.Klass, fs *list
 	k.Data.ClInit = types.ClInitRun // flag showing we've run this class's <clinit>
 	return nil
 }
+
+// InitializePrimitiveWrappers runs the <clinit> method for all primitive wrapper classes.
+// This ensures that static fields like Integer.TYPE are populated before they are needed.
+func InitializePrimitiveWrappers() {
+	wrappers := []string{
+		"java/lang/Boolean",
+		"java/lang/Byte",
+		"java/lang/Character",
+		"java/lang/Short",
+		"java/lang/Integer",
+		"java/lang/Long",
+		"java/lang/Float",
+		"java/lang/Double",
+		"java/lang/Void",
+	}
+
+	globalPtr := globals.GetGlobalRef()
+
+	for _, className := range wrappers {
+		// Ensure the class is loaded first (it should be, via LoadBaseClasses, but safe to check)
+		k := classloader.MethAreaFetch(className)
+		if k == nil {
+			// Should not happen if LoadBaseClasses ran, but log if it does
+			if globals.TraceClass {
+				trace.Trace(fmt.Sprintf("InitializePrimitiveWrappers: Class %s not found in MethArea", className))
+			}
+			continue
+		}
+
+		// If already initialized, skip
+		if k.Data.ClInit == types.ClInitRun {
+			continue
+		}
+
+		// Invoke the gfunction for <clinit>
+		// Note: This assumes the wrapper classes have native <clinit> implementations registered as gfunctions.
+		// If they are standard Java classes, this approach relies on FuncInvokeGFunction handling the lookup correctly.
+		// Based on the prompt, we are using the gfunction mechanism.
+		fqn := className + ".<clinit>()V"
+		
+		// We pass nil for params as <clinit> takes no arguments.
+		// We ignore the return value as <clinit> is void.
+		_ = globalPtr.FuncInvokeGFunction(fqn, nil)
+
+		// Mark as initialized
+		k.Data.ClInit = types.ClInitRun
+		
+		if globals.TraceClass {
+			trace.Trace(fmt.Sprintf("InitializePrimitiveWrappers: Initialized %s", className))
+		}
+	}
+}

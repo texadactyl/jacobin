@@ -100,7 +100,11 @@ func JVMrun() int {
 	if err != nil {
 		return shutdown.Exit(shutdown.JVM_EXCEPTION)
 	}
+
+	// load the classes in java.base (java.lang, java.util, etc.)
+	// then initialize the primitive-boxing classes
 	classloader.LoadBaseClasses() // must follow classloader.Init()
+	InitializePrimitiveWrappers() //
 
 	var mainClassNameIndex uint32
 	if globPtr.StartingJar != "" {
