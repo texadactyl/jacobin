@@ -8,10 +8,12 @@ package javaLang
 
 import (
 	"fmt"
+	"jacobin/src/classloader"
 	"jacobin/src/excNames"
 	"jacobin/src/gfunction/ghelpers"
 	"jacobin/src/globals"
 	"jacobin/src/object"
+	"jacobin/src/statics"
 	"jacobin/src/types"
 	"math/bits"
 	"strconv"
@@ -23,7 +25,7 @@ func Load_Lang_Integer() {
 	ghelpers.MethodSignatures["java/lang/Integer.<clinit>()V"] =
 		ghelpers.GMeth{
 			ParamSlots: 0,
-			GFunction:  ghelpers.ClinitGeneric,
+			GFunction:  integerClinit,
 		}
 
 	ghelpers.MethodSignatures["java/lang/Integer.bitCount(I)I"] =
@@ -347,6 +349,74 @@ func Load_Lang_Integer() {
 }
 
 var classNameInteger = "java/lang/Integer"
+
+// integerClinit initializes the static fields of java.lang.Integer.
+// Specifically, it sets the TYPE field to the primitive class for "int".
+func integerClinit(params []interface{}) interface{} {
+	// Create the primitive class object for "int"
+	primName := "int"
+	primClassObj := object.MakeJlcObject(&primName)
+
+	// Register it in the JLCmap so it can be found by name "int"
+	globals.JlcMapLock.Lock()
+	globals.JLCmap[primName] = primClassObj
+	globals.JlcMapLock.Unlock()
+
+	// Set the static field Integer.TYPE to this object
+	// Note: We need to set it on the java.lang.Integer class itself.
+	// The statics package handles the storage of static fields.
+	statics.AddStatic("java/lang/Integer.TYPE", statics.Static{
+		Type:  types.Ref,
+		Value: primClassObj,
+	})
+
+	// Also update the Jlc entry for Integer to include this static field in its Statics list
+	// This is needed for introspection.
+	globals.JlcMapLock.RLock()
+	integerJlc, ok := globals.JLCmap[classNameInteger].(*classloader.Jlc)
+	globals.JlcMapLock.RUnlock()
+
+	if ok {
+		// The Statics slice stores strings like "NameDesc"
+		// For TYPE, the name is "TYPE" and the descriptor is "Ljava/lang/Class;"
+		fieldName := "TYPE"
+		fieldDesc := "Ljava/lang/Class;"
+		entry := fieldName + fieldDesc
+
+		// Check if it's already there to avoid duplicates
+		found := false
+		integerJlc.Lock.Lock()
+		for _, s := range integerJlc.Statics {
+			if s == entry {
+				found = true
+				break
+			}
+		}
+		if !found {
+			integerJlc.Statics = append(integerJlc.Statics, entry)
+
+			// Also need to ensure the field metadata is in the Klass structure
+			// This is usually done during class loading, but since TYPE is often
+			// injected or handled specially for primitives, we might need to ensure
+			// it exists in the FieldTable of the Class object if we want reflection to find it.
+
+			// However, statics.AddStatic handles the value storage.
+			// The Jlc.Statics list is what reflection iterates over.
+			// So adding it here should be sufficient for getFields() etc. to see it,
+			// provided the reflection logic looks up the value in statics.
+		}
+		integerJlc.Lock.Unlock()
+	} else {
+		// This should not happen if LoadBaseClasses ran and loaded Integer
+		// But if it does, we can't update the Jlc.
+		// We might want to log a warning.
+		if globals.TraceClass {
+			// trace.Warning("integerClinit: java/lang/Integer not found in JLCmap")
+		}
+	}
+
+	return nil
+}
 
 // "java/lang/Integer.byteValue()B"
 func integerByteValue(params []interface{}) interface{} {
