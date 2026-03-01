@@ -12,7 +12,6 @@ import (
 	"jacobin/src/classloader"
 	"jacobin/src/excNames"
 	"jacobin/src/gfunction/ghelpers"
-	"jacobin/src/globals"
 	"jacobin/src/object"
 	"jacobin/src/shutdown"
 	"jacobin/src/statics"
@@ -438,12 +437,12 @@ func classGetInterfaces(params []interface{}) interface{} {
 	// copy the pointers to java/lang/Class instances of the interfaces into the array
 	// after making sure that the interfaces have been loaded
 	interfacesArray := object.Make1DimRefArray("java/lang/Class", int64(len(klass.Interfaces)))
-	rawArray := interfacesArray.FieldTable["value"].Fvalue.([]*object.Object)
+	rawArray := interfacesArray.FieldTable["value"].Fvalue.([]*classloader.Jlc)
 	for i := 0; i < len(klass.Interfaces); i++ {
 		index = uint32(klass.Interfaces[i])
 		interfaceName = *stringPool.GetStringPointer(index)
-		_, _ = simpleClassLoadByName(interfaceName)
-		rawArray[i] = globals.JLCmap[interfaceName].(*object.Object)
+		// _, _ = simpleClassLoadByName(interfaceName)
+		rawArray[i] = classloader.JLCmap[interfaceName]
 	}
 
 	return interfacesArray
@@ -722,7 +721,7 @@ func classGetSuperclass(params []interface{}) interface{} {
 
 	// if the object is an array, return Object.class
 	if classIsArray(params).(int64) == types.JavaBoolTrue {
-		return globals.JLCmap["java/lang/Object"]
+		return classloader.JLCmap["java/lang/Object"]
 	}
 
 	// if the object is an interface, the superclass is null
@@ -750,7 +749,7 @@ func classGetSuperclass(params []interface{}) interface{} {
 	scNameIndex := klassPtr.SuperclassIndex
 	scName := *stringPool.GetStringPointer(scNameIndex)
 
-	scClass := globals.JLCmap[scName]
+	scClass := classloader.JLCmap[scName]
 	return scClass
 }
 

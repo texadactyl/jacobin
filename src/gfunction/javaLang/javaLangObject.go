@@ -14,10 +14,10 @@ import (
 	"jacobin/src/frames"
 	"jacobin/src/gfunction/ghelpers"
 	"jacobin/src/gfunction/javaUtil"
-	"jacobin/src/globals"
 	"jacobin/src/object"
 	"jacobin/src/stringPool"
 	"jacobin/src/types"
+	"jacobin/src/util"
 	"strings"
 	"sync/atomic"
 	"unsafe"
@@ -116,8 +116,8 @@ func objectClinitInit(params []interface{}) interface{} {
 }
 
 // objectGetClass implements "java/lang/Object.getClass()Ljava/lang/Class;"
-// It returns a pointer to the skeletal Class object for this object,
-// which is located in the global JLC table (JLC = java/lang/Class).
+// It returns a pointer to a Class object for this object, with fields derived
+// from the entry in the classloader.JLC table (JLC = java/lang/Class).
 func ObjectGetClass(params []interface{}) interface{} {
 	objPtr := params[0].(*object.Object)
 	if objPtr == nil || objPtr.KlassName == types.InvalidStringIndex {
@@ -125,15 +125,12 @@ func ObjectGetClass(params []interface{}) interface{} {
 		return ghelpers.GetGErrBlk(excNames.IllegalArgumentException, errMsg)
 	}
 
-	jlc := globals.JLCmap[*stringPool.GetStringPointer(objPtr.KlassName)]
+	jlc := classloader.JLCmap[*stringPool.GetStringPointer(objPtr.KlassName)]
 	if jlc == nil {
 		errMsg := fmt.Sprintf("java/lang/Object.getClass: Class %s not loaded",
 			object.GoStringFromStringPoolIndex(objPtr.KlassName))
 		return ghelpers.GetGErrBlk(excNames.ClassNotLoadedException, errMsg)
 	} else {
-		return jlc
-	}
-	/*
 		name := object.GoStringFromStringPoolIndex(objPtr.KlassName)
 
 		if strings.HasPrefix(name, types.Array) { // arrays are handled differently
@@ -157,61 +154,65 @@ func ObjectGetClass(params []interface{}) interface{} {
 		}
 
 		// create the empty java.lang.Class structure
-		jlc := object.MakeEmptyObject()
+		jlcObj := object.MakeEmptyObject()
 
 		// points to the internal metaspace representation of the class (in methArea)
 		// HotSpot uses a hidden field named _klass for this. So do we.
-		jlc.FieldTable = make(map[string]object.Field)
-		jlc.FieldTable["_klass"] = object.Field{
+		jlcObj.FieldTable = make(map[string]object.Field)
+		jlcObj.FieldTable["_klass"] = object.Field{
 			Ftype:  types.RawGoPointer,
-			Fvalue: content,
+			Fvalue: jlc.KlassPtr,
 		}
 
 		className := util.ConvertInternalClassNameToUserFormat(name) // FQN uses . not /
-		jlc.FieldTable["name"] = object.Field{
+		jlcObj.FieldTable["name"] = object.Field{
 			Ftype:  types.Ref,
 			Fvalue: object.StringObjectFromGoString(className),
 		}
 
-		jlc.FieldTable["classLoader"] = object.Field{
+		jlcObj.FieldTable["classLoader"] = object.Field{
 			Ftype:  types.Ref,
 			Fvalue: object.StringObjectFromGoString(obj.Loader),
 		}
 
 		objData := *obj.Data
-		jlc.FieldTable["constantPool"] = object.Field{
+		jlcObj.FieldTable["constantPool"] = object.Field{
 			Ftype:  types.Struct,
 			Fvalue: objData.CP,
 		}
 
-		jlc.FieldTable["superClass"] = object.Field{
+		jlcObj.FieldTable["superClass"] = object.Field{
 			Ftype:  types.GolangString,
 			Fvalue: object.GoStringFromStringPoolIndex(objData.SuperclassIndex),
 		}
 
-		jlc.FieldTable["fields"] = object.Field{
+		jlcObj.FieldTable["fields"] = object.Field{
 			Ftype:  types.Struct,
 			Fvalue: objData.Fields,
 		}
 
-		jlc.FieldTable["interfaces"] = object.Field{
+		jlcObj.FieldTable["interfaces"] = object.Field{
 			Ftype:  types.Struct,
 			Fvalue: objData.Interfaces,
 		}
 
-		jlc.FieldTable["methods"] = object.Field{
+		jlcObj.FieldTable["methods"] = object.Field{
 			Ftype:  types.Struct,
 			Fvalue: objData.MethodTable,
 		}
 
-		jlc.FieldTable["modifiers"] = object.Field{
+		jlcObj.FieldTable["modifiers"] = object.Field{
 			Ftype:  types.Struct,
 			Fvalue: objData.Access,
 		}
 
-		return jlc
+		jlcObj.FieldTable["statics"] = object.Field{
+			Ftype:  types.StringArray,
+			Fvalue: jlc.Statics,
+		}
 
-	*/
+		return jlcObj
+	}
 }
 
 // "java/lang/Object.toString()Ljava/lang/String;"

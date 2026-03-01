@@ -134,10 +134,6 @@ var StringPoolList []string
 var StringPoolNext uint32
 var StringPoolLock sync.RWMutex
 
-// ----- map of java/lang/Class instances for statics and instrospection
-var JLCmap map[string]any // map of FQN class names to their java/lang/Class instance
-var JlcMapLock sync.RWMutex
-
 // LoaderWg is a wait group for various channels used for parallel loading of classes.
 var LoaderWg sync.WaitGroup
 
@@ -184,9 +180,6 @@ func InitGlobals(progName string) Globals {
 		Version:              config.GetJacobinVersion(), // gets version and build #
 		VmModel:              "server",
 	}
-
-	// ----- map of java/lang/Class instances for statics and instrospection
-	JLCmap = make(map[string]any, 2000) // map of FQN class name to its java/lang/Class instance
 
 	// ----- G function alternative processing flag
 	Galt = false
