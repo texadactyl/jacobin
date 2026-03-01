@@ -385,50 +385,55 @@ func CkSyncStaticMeth(fram *frames.Frame) error {
 	if fram.AccessFlags&classloader.ACC_SYNCHRONIZED > 0 {
 
 		// Look for the synchronized static entry in the JLCmap.
-		globals.JlcMapLock.RLock()
-		jlc, found := globals.JLCmap[fram.ClName]
-		globals.JlcMapLock.RUnlock()
-		if !found {
+		classloader.JlcMapLock.RLock()
+		jlc, found := classloader.JLCmap[fram.ClName]
+		classloader.JlcMapLock.RUnlock()
+		if !found || jlc == nil { // second test for nil is to keep golang happy that jlc is not used below
 			fqn := fram.ClName + "." + fram.MethName + fram.MethType
 			errMsg := fmt.Sprintf("CkSyncStaticMeth: error running initializer block in %s", fqn)
 			return errors.New(errMsg)
 		}
 
+		/* is this still needed?
 		// Do first-time processing if necessary.
 		var obj *object.Object
 		switch jlc.(type) {
 		case *object.Object:
 			// Not the first time for this class name.
 			// Fetch the lockable object.
-			globals.JlcMapLock.RLock()
+			classloader.JlcMapLock.RLock()
 			obj = jlc.(*object.Object)
-			globals.JlcMapLock.RUnlock()
+			classloader.JlcMapLock.RUnlock()
 		case *classloader.Jlc:
 			// First time for this class name.
 			// Convert JLCmap data to the lockable object.
 			jlc = jlc.(*classloader.Jlc)
 			obj = object.MakeOneFieldObject(fram.ClName, "jlc", types.Ref, jlc)
-			globals.JlcMapLock.Lock()
-			globals.JLCmap[fram.ClName] = obj
-			globals.JlcMapLock.Unlock()
+			classloader.JlcMapLock.Lock()
+			classloader.JLCmap[fram.ClName] = obj
+			classloader.JlcMapLock.Unlock()
+		}
+		*/
+
+		/* TODO: update to reflect the new implementation of JLCmap
+			// Lock the class-object.
+			err := obj.ObjLock(int32(fram.Thread))
+			if err != nil {
+				fqn := fram.ClName + "." + fram.MethName + fram.MethType
+				errMsg := fmt.Sprintf("CkSyncStaticMeth: ObjLock error, PC: %d, FQN: %s", fram.PC, fqn)
+				return errors.New(errMsg)
+			}
+			if globals.TraceInst {
+				traceInfo := fmt.Sprintf("\tCkSyncStaticMeth: Locked class-object %s", fram.ClName)
+				trace.Trace(traceInfo)
+			}
+
+			// Save class-name object pointer in the frame for return and catch-frame processing.
+			fram.ObjSync = obj
 		}
 
-		// Lock the class-object.
-		err := obj.ObjLock(int32(fram.Thread))
-		if err != nil {
-			fqn := fram.ClName + "." + fram.MethName + fram.MethType
-			errMsg := fmt.Sprintf("CkSyncStaticMeth: ObjLock error, PC: %d, FQN: %s", fram.PC, fqn)
-			return errors.New(errMsg)
-		}
-		if globals.TraceInst {
-			traceInfo := fmt.Sprintf("\tCkSyncStaticMeth: Locked class-object %s", fram.ClName)
-			trace.Trace(traceInfo)
-		}
-
-		// Save class-name object pointer in the frame for return and catch-frame processing.
-		fram.ObjSync = obj
+		*/
 	}
-
 	// Success.
 	return nil
 

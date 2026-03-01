@@ -354,20 +354,19 @@ var classNameInteger = "java/lang/Integer"
 // integerClinit initializes the static fields of java.lang.Integer.
 // Specifically, it sets the TYPE field to the primitive class for "int".
 func integerClinit(params []interface{}) interface{} {
-	// Create the primitive class object for "int"
-	primName := "int"
-	primClassObj := object.MakeJlcObject(&primName)
+	// Create the primitive java/lang/Class instance for "int"
+	// primName := "int"
+	// primClassObj := object.MakeJlcObject(&primName)
+	primClassObj := classloader.MakeJlcEntry("int")
 
 	// Register it in the JLCmap so it can be found by name "int"
 	classloader.JlcMapLock.Lock()
-	classloader.JLCmap[primName].Type = primClassObj
+	classloader.JLCmap["int"] = primClassObj
 	classloader.JlcMapLock.Unlock()
 
 	// Set the static field Integer.TYPE to this object
-	// Note: We need to set it on the java.lang.Integer class itself.
-	// The statics package handles the storage of static fields.
 	_ = statics.AddStatic("java/lang/Integer.TYPE", statics.Static{
-		Type:  types.Ref,
+		Type:  types.Jlc,
 		Value: primClassObj,
 	})
 
@@ -381,7 +380,7 @@ func integerClinit(params []interface{}) interface{} {
 		// The Statics slice stores strings like "NameDesc"
 		// For TYPE, the name is "TYPE" and the descriptor is "Ljava/lang/Class;"
 		fieldName := "TYPE"
-		fieldDesc := "Ljava/lang/Class;"
+		fieldDesc := types.Jlc
 		entry := fieldName + fieldDesc
 
 		// Check if it's already there to avoid duplicates
@@ -403,7 +402,6 @@ func integerClinit(params []interface{}) interface{} {
 			trace.Warning("integerClinit: java/lang/Integer not found in JLCmap")
 		}
 	}
-
 	return nil
 }
 

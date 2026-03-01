@@ -32,3 +32,15 @@ func InitJlcMap() {
 	defer JlcMapLock.Unlock()
 	JLCmap = make(map[string]*Jlc, 2000)
 }
+
+// MakeJlcEntry creates a new JLC entry for a class.
+func MakeJlcEntry(className string) *Jlc {
+	jlc := Jlc{}
+	klass := MethAreaFetch(className)
+	if klass != nil {
+		jlc.KlassPtr = klass.Data
+	}
+	jlc.Statics = make([]string, 0)
+
+	return &jlc
+}

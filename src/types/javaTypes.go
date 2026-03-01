@@ -43,6 +43,7 @@ const MultiArray = "[["
 const RawGoPointer = "p"
 const Interface = "i"
 const NonArrayObject = "n"
+const Jlc = "j"
 
 const Static = "X"
 const StaticDouble = "XD"

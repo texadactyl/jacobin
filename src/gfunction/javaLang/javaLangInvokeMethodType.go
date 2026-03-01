@@ -54,7 +54,7 @@ func MethodTypeFromMethodDescriptorString(params []interface{}) interface{} {
 
 	// Create a Java array of Class objects for the parameters
 	paramArray := object.Make1DimRefArray("java/lang/Class", int64(len(paramTypes)))
-	rawPtypeArray := paramArray.FieldTable["value"].Fvalue.([]*object.Object)
+	rawPtypeArray := paramArray.FieldTable["value"].Fvalue.([]*classloader.Jlc)
 	copy(rawPtypeArray, paramTypes)
 
 	// Set the fields of the MethodType object.
@@ -66,8 +66,9 @@ func MethodTypeFromMethodDescriptorString(params []interface{}) interface{} {
 }
 
 // parseDescriptorToClasses parses a method descriptor string and resolves each type
-// to its corresponding java.lang.Class object.
-func parseDescriptorToClasses(descriptor string) (returnType *object.Object, paramTypes []*object.Object, err error) {
+// to its corresponding java.lang.Class object. Returns the return type of the method and the parameter types
+// as pointers to java.lang.Class instances.
+func parseDescriptorToClasses(descriptor string) (returnType *classloader.Jlc, paramTypes []*classloader.Jlc, err error) {
 	if len(descriptor) == 0 || descriptor[0] != '(' {
 		return nil, nil, fmt.Errorf("invalid method descriptor: %s", descriptor)
 	}
@@ -82,7 +83,7 @@ func parseDescriptorToClasses(descriptor string) (returnType *object.Object, par
 	returnStr := descriptor[endParen+1:]
 
 	// Parse parameter types
-	paramTypes = make([]*object.Object, 0)
+	paramTypes = make([]*classloader.Jlc, 0)
 	for i := 0; i < len(paramStr); {
 		typeStr, width := getNextTypeDescriptor(paramStr[i:])
 		if width == 0 {
@@ -141,7 +142,7 @@ func getNextTypeDescriptor(d string) (string, int) {
 }
 
 // resolveTypeDescriptor converts a type descriptor string into a java.lang.Class object.
-func resolveTypeDescriptor(typeStr string) (*object.Object, error) {
+func resolveTypeDescriptor(typeStr string) (*classloader.Jlc, error) {
 	var className string
 	var isPrimitive bool
 
@@ -183,16 +184,14 @@ func resolveTypeDescriptor(typeStr string) (*object.Object, error) {
 			// Trigger static initialization which should populate the TYPE field.
 			k := classloader.MethAreaFetch(className)
 			if k.Data.ClInit == types.ClInitNotRun {
-				// This is tricky. We can't easily run a <clinit> from here.
-				// Let's assume for now it's pre-loaded or loaded on first access correctly.
-				// A more robust solution would be to trigger the <clinit> here.
+				globals.GetGlobalRef().FuncInvokeGFunction(k.Data.Name+".<clinit>()V", nil)
 			}
 			staticField, ok = statics.QueryStatic(className, "TYPE")
 			if !ok {
 				return nil, fmt.Errorf("primitive TYPE field not found for %s", className)
 			}
 		}
-		return staticField.Value.(*object.Object), nil
+		return staticField.Value.(*classloader.Jlc), nil
 	}
 
 	// For non-primitive types, load the class and get its Class object.
@@ -200,14 +199,14 @@ func resolveTypeDescriptor(typeStr string) (*object.Object, error) {
 		return nil, fmt.Errorf("could not load class for descriptor %s: %v", className, err)
 	}
 
-	globals.JlcMapLock.RLock()
-	jlc, ok := globals.JLCmap[className]
-	globals.JlcMapLock.RUnlock()
+	classloader.JlcMapLock.RLock()
+	jlc, ok := classloader.JLCmap[className]
+	classloader.JlcMapLock.RUnlock()
 
 	if !ok {
 		return nil, fmt.Errorf("Class object not found in JLCmap for %s", className)
 	}
 
 	// The JLC object itself is the java.lang.Class instance.
-	return jlc.(*object.Object), nil
+	return jlc, nil
 }
