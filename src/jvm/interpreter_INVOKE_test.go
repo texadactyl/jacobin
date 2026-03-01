@@ -633,7 +633,7 @@ func TestNewInvokeStaticGmethodNoParams(t *testing.T) {
 		Statics:  []string{},
 		KlassPtr: nil,
 	}
-	globals.JLCmap[className] = &jlc
+	classloader.JLCmap[className] = &jlc
 
 	fs := frames.CreateFrameStack()
 	fs.PushFront(&f) // push the new frame
@@ -735,7 +735,7 @@ func TestNewInvokeStaticGmethodErrorReturn(t *testing.T) {
 		Statics:  []string{},
 		KlassPtr: nil,
 	}
-	globals.JLCmap[className] = &jlc
+	classloader.JLCmap[className] = &jlc
 
 	fs := frames.CreateFrameStack()
 	fs.PushFront(&f) // push the new frame
