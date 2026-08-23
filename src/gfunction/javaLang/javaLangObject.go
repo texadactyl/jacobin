@@ -25,8 +25,11 @@ import (
 
 func Load_Lang_Object() {
 
-	// --- Already implemented ---
 	ghelpers.MethodSignatures["java/lang/Object.<clinit>()V"] =
+		// Through JDK 13, java/lang/Object.<clinit>()V existed and it
+		// called registerNatives() -- our equivalent of load libary. As of
+		// JDK 14, there is no longer a <clinit>() method in java/lang/Object.
+		// In both cases, we simply return immediately.
 		ghelpers.GMeth{ParamSlots: 0, GFunction: ghelpers.ClinitGeneric}
 
 	ghelpers.MethodSignatures["java/lang/Object.<init>()V"] =
@@ -130,7 +133,7 @@ func ObjectGetClass(params []interface{}) interface{} {
 		return ghelpers.GetGErrBlk(excNames.ClassNotLoadedException, errMsg)
 	}
 	return klass.Data.ClassObject
-	
+
 	/*
 		jlc := classloader.JLCmap[*stringPool.GetStringPointer(objPtr.KlassName)]
 		if jlc == nil {
