@@ -424,7 +424,7 @@ func doSipush(fr *frames.Frame, _ int64) int {
 		wbytes[6] = wbyte1
 		wbytes[7] = wbyte2
 		// Form an int64 from the wbytes array
-		// If you know C, this is equivalent to memcpy(&wint64, &wbytes, 8)
+		// In C programming, this is equivalent to memcpy(&wint64, &wbytes, 8)
 		wint64 = int64(binary.BigEndian.Uint64(wbytes))
 	} else {
 		// Not negative (left-most bit off) : just cast wbyte as an int64
@@ -699,7 +699,7 @@ func doBaload(fr *frames.Frame, _ int64) int {
 				}
 				value := byteArray[index]
 				pushValue = int64(value)
-			case []byte: // TODO: Go byte array? Convert it to a JavaByte array
+			case []byte:
 				byteArray =
 					object.JavaByteArrayFromGoByteArray(fvalue.([]byte))
 				size := int64(len(byteArray))
@@ -711,7 +711,7 @@ func doBaload(fr *frames.Frame, _ int64) int {
 				pushValue = int64(value)
 			}
 		}
-	case []int8: // TODO: Raw JavaByte arrays?
+	case []int8:
 		arr := ref.([]types.JavaByte)
 		size := int64(len(arr))
 		ret := doBaload_index_vs_size(fr, index, size)
@@ -1107,9 +1107,7 @@ func doBastore(fr *frames.Frame, _ int64) int {
 			return ERROR_OCCURRED // applies only if in test
 		}
 		return RESUME_HERE // caught
-
 	}
-
 	return 1
 }
 
@@ -2040,8 +2038,8 @@ func doRet(fr *frames.Frame, _ int64) int {
 }
 
 // 0xAA TABLESWITCH switch based on table of offsets
+// https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.tableswitch
 func doTableswitch(fr *frames.Frame, _ int64) int {
-	// https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.tableswitch
 	basePC := fr.PC // where we are when the processing begins
 
 	paddingBytes := 4 - ((fr.PC + 1) % 4)
@@ -2081,8 +2079,8 @@ func doTableswitch(fr *frames.Frame, _ int64) int {
 }
 
 // 0xAB LOOKUPSWITCH switch using lookup table
+// https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.lookupswitch
 func doLookupswitch(fr *frames.Frame, _ int64) int {
-	// https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html#jvms-6.5.lookupswitch
 	basePC := fr.PC // where we are when the processing begins
 
 	paddingBytes := 4 - ((fr.PC + 1) % 4)
@@ -2434,28 +2432,6 @@ func doGetfield(fr *frames.Frame, _ int64) int {
 		}
 		return RESUME_HERE
 	}
-
-	/* JACOBIN-824: Temporarily commenting out the following lines
-	obj := *ref.(*object.Object)
-	var fieldType string
-	var fieldValue interface{}
-	var objField object.Field
-	var ok bool
-
-	if obj.KlassName == types.StringPoolThreadIndex {
-		runnable := obj.FieldTable["target"].Fvalue.(*object.Object)
-		objField, ok = runnable.FieldTable[fieldName]
-	} else {
-		objField, ok = obj.FieldTable[fieldName]
-	}
-	if !ok {
-		errMsg := fmt.Sprintf("GETFIELD PC=%d: Missing field (%s) in FieldTable", fr.PC, fieldName)
-		status := exceptions.ThrowEx(excNames.IllegalArgumentException, errMsg, fr)
-		if status != exceptions.Caught {
-			return ERROR_OCCURRED // applies only if in test
-		}
-	}
-	*/
 
 	fieldType = objField.Ftype
 	if fieldType == types.StringIndex {
@@ -2960,7 +2936,6 @@ func invokeVirtualGfunction(fr *frames.Frame,
 
 	// Execute the G function.
 	ret := gfunction.RunGfunction(
-		// mtEntry, fr.FrameStack, className, methodName, methodType, &params, true, globals.TraceInst)
 		mtEntry, fr.FrameStack, &params, true, globals.TraceInst)
 	if ret != nil {
 		switch ret.(type) {
@@ -2969,12 +2944,6 @@ func invokeVirtualGfunction(fr *frames.Frame,
 				return ERROR_OCCURRED
 			}
 			if errors.Is(ret.(error), gfunction.CaughtGfunctionException) {
-				// return 3 // 2 for CP slot + 1 for next bytecode
-				// per JACOBIN-59x, we return RESUME_HERE telling
-				// the interpreter that the fr.PC has been set to a new position
-				// from which processing should continue. This is used primarily
-				// when a frame has caught an exception and we're pointing the
-				// interpreter to the first bytecode in the exception handler.
 				return RESUME_HERE // caught
 			}
 		default: // if it's not an error, then it's a legitimate return value, which we simply push
@@ -2982,9 +2951,7 @@ func invokeVirtualGfunction(fr *frames.Frame,
 		}
 		// any exception will already have been handled.
 	}
-
 	return 3 // 2 for CP slot + 1 for next bytecode
-
 }
 
 // OxB7 INVOKESPECIAL
@@ -3002,13 +2969,6 @@ func doInvokespecial(fr *frames.Frame, _ int64) int {
 		className, methodName, methodType, fqn = // fqn is the fully qualified name of the method
 			classloader.GetMethInfoFromCPmethref(CP, CPslot)
 	}
-
-	// if it's a call to java/lang/Object."<init>"()V, which happens frequently,
-	// that function simply returns. So test for it here and if it is, skip the rest
-	// fullConstructorName := className + "." + methodName + methodType
-	// if fqn == "java/lang/Object.<init>()V" { // the java/lang/Object plain constructor just returns
-	//	return 3 // 2 for the CPslot + 1 for next bytecode
-	// }
 
 	mtEntry, err := classloader.FetchMethodAndCP(className, methodName, methodType)
 	if err != nil || mtEntry.Meth == nil {
@@ -3043,7 +3003,6 @@ func doInvokespecial(fr *frames.Frame, _ int64) int {
 		}
 
 		ret := gfunction.RunGfunction(
-			// mtEntry, fr.FrameStack, className, methodName, methodType, &params, true, globals.TraceInst)
 			mtEntry, fr.FrameStack, &params, true, globals.TraceInst)
 		if ret != nil {
 			switch ret.(type) {
@@ -3198,7 +3157,6 @@ processMTentry: // at this point, we have the mtEntry
 			trace.Trace(infoMsg)
 		}
 
-		// ret := gfunction.RunGfunction(mtEntry, fr.FrameStack, className, methodName, methodType, &params, false, globals.TraceInst)
 		ret := gfunction.RunGfunction(mtEntry, fr.FrameStack, &params, false, globals.TraceInst)
 		if ret != nil {
 			switch ret.(type) {
@@ -3379,8 +3337,6 @@ func doInvokeinterface(fr *frames.Frame, _ int64) int {
 			trace.Trace(infoMsg)
 		}
 		ret := gfunction.RunGfunction(
-			// mtEntry, fr.FrameStack, interfaceName, interfaceMethodName, interfaceMethodType, &params, true,
-			// globals.TraceVerbose)
 			mtEntry, fr.FrameStack, &params, true,
 			globals.TraceVerbose)
 		if ret != nil {
@@ -3625,11 +3581,6 @@ func doAthrow(fr *frames.Frame, _ int64) int {
 	exceptionClass := *(stringPool.GetStringPointer(objectRef.KlassName))
 	exceptionName := strings.Replace(exceptionClass, "/", ".", -1)
 
-	// get the PC of the exception and check for any catch blocks
-	// if f.ExceptionPC == -1 {
-	//	f.ExceptionPC = f.PC
-	// }
-
 	// find the frame with a valid catch block for this exception, if any
 	catchFrame, handlerBytecode := exceptions.FindCatchFrame(fr.FrameStack, exceptionName, fr.ExceptionPC)
 	// if there is no catch block, then print out the data we have (conforming
@@ -3780,9 +3731,8 @@ func doCheckcast(fr *frames.Frame, _ int64) int {
 	// * INSTANCEOF: Pops the objectRef and pushes a result of types.JavaBoolTrue (if an instance of) or types.JavaBoolFalse (if not).
 	// * Both return 3 (2 for CPslot + 1 for next byte) or some sort of error.
 	//
-	// Because doCheckcast uses the same middle logic as doInstanceof,
-	// any change here should probably be made to doInstanceof
-	// and vice versa!
+	// Because doCheckcast() uses the same middle logic as doInstanceof(),
+	// any change here should probably be made to doInstanceof() and vice versa
 
 	ref := peek(fr) // peek b/c the objectRef is *not* removed from the op stack
 	if ref == nil { // if ref is nil, just carry on
@@ -3881,12 +3831,10 @@ func doCheckcast(fr *frames.Frame, _ int64) int {
 
 // 0xC1 INSTANCEOF validate the type of object (if not nil or null)
 func doInstanceof(fr *frames.Frame, _ int64) int {
-	// See detailed design documentation in doCheckcast.
+	// See detailed design documentation in doCheckcast().
 	//
-	// Because doInstanceof uses the same middle logic as doCheckcast,
-	// any change here should probably be made to doCheckcast
-	// and vice versa.
-	//
+	// Because doInstanceof() uses the same middle logic as doCheckcast(),
+	// any change here should probably be made to doCheckcast() and vice versa.
 	ref := pop(fr)
 	if ref == nil || object.IsNull(ref) {
 		if globals.TraceVerbose {
@@ -3920,7 +3868,6 @@ func doInstanceof(fr *frames.Frame, _ int64) int {
 	// now, get the class we're casting the object to.
 	CPslot := (int(fr.Meth[fr.PC+1]) * 256) + int(fr.Meth[fr.PC+2])
 	CP := fr.CP.(*classloader.CPool)
-	// CPentry := CP.CpIndex[CPslot]
 	classNamePtr := classloader.FetchCPentry(CP, CPslot)
 	targetClassName := *(classNamePtr.StringVal)
 
@@ -3982,7 +3929,6 @@ func doInstanceof(fr *frames.Frame, _ int64) int {
 
 // 0xC2 MONITORENTER: Lock an object.
 // note: set mtrdebug to true to enable tracing/debugging
-
 func doMonitorenter(fr *frames.Frame, _ int64) int {
 	// Check stack size.
 	if fr.TOS < 0 {
