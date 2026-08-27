@@ -1016,16 +1016,22 @@ func CheckInvokedynamic() int {
 		return ERROR_OCCURRED
 	}
 
-	/* This appears to be giving wrong results.
 	// is the bootstrap name and type index pointed to by the InvokeDynamic entry valid?
 	bootstrapNatIndex := CPdyn.NameAndType
-	if bootstrapNatIndex >= uint16(len(CP.NameAndTypes)) {
+	if int(bootstrapNatIndex) >= len(CP.CpIndex) {
 		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType index %d",
 			excNames.JVMexceptionNames[excNames.VerifyError], PC, bootstrapNatIndex)
 		trace.Error(errMsg)
 		return ERROR_OCCURRED
 	}
-	*/
+
+	bootstrapNat := CP.CpIndex[bootstrapNatIndex]
+	if bootstrapNat.Type != NameAndType {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType index %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, bootstrapNatIndex)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
 
 	return 5
 }
