@@ -3385,7 +3385,6 @@ func doInvokedynamic(fr *frames.Frame, _ int64) int {
 		return RESUME_HERE // caught
 	}
 	return 5 // the two bytes for the CP slot + 2 bytes with value 0x00 + 1 for next bytecode
-
 }
 
 // 0xBB NEW create a new object

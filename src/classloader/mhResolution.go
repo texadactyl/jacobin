@@ -369,41 +369,39 @@ func ResolveMethodType(cp *CPool, index int, fr *frames.Frame) (*object.Object, 
 func ResolveCallSite(cp *CPool, index int, fr *frames.Frame) (*object.Object, error) {
 	// index is the index into the constant pool for the CONSTANT_InvokeDynamic_info entry
 
-	// 1. Fetch the InvokeDynamic entry (it was previously validated in codeCheck.go)
+	// Fetch the InvokeDynamic entry (it was previously validated in codeCheck.go)
 	idEntry := FetchCPentry(cp, index)
 
 	// idEntry.AddrVal.entry1 is the bootstrap_method_attr_index
-	// idEntry.AddrVal.entry2 is the name_and_type_index
+	// idEntry.AddrVal.entry2 is the name_and_type_index for the CallSite
 	bsmIndex := int(idEntry.AddrVal.entry1)
 	natIndex := int(idEntry.AddrVal.entry2)
 
-	// 2. Get the Bootstrap Method info from the class attributes
-
-	// In interpreter.go, fr.CP is an interface{}, usually *classloader.CPool.
-	// The frame also has the class name fr.ClName. We can look up the class in MethArea.
+	// Get the Bootstrap Method info from the class attributes
 	klass := MethAreaFetch(fr.ClName)
 	if klass == nil {
 		return nil, fmt.Errorf("ResolveCallSite: could not find class %s", fr.ClName)
 	}
 
-	bsm := cp.Bootstraps[bsmIndex]
+	// Resolve the NameAndType (method name and type for the CallSite)
+	// natIndex points to NameAndType entry
+	methName, methType := GetNATfieldsFromCPindex(cp, natIndex)
+	if methName == "" || methType == "" {
+		return nil, fmt.Errorf("ResolveCallSite: could not resolve NameAndType entry at index %d", natIndex)
+	}
 
+	// Resolve the Bootstrap Method Handle
+	// bsm.MethodRef is an index into the Constant Pool (MethodHandle)
+	bsm := cp.Bootstraps[bsmIndex]
 	if globals.TraceClass {
 		trace.Trace(fmt.Sprintf("ResolveCallSite: BSM index=%d, MethodRef=%d, ArgCount=%d",
 			bsmIndex, bsm.MethodRef, len(bsm.Args)))
 	}
 
-	// 3. Resolve the Bootstrap Method Handle
-	// bsm.MethodRef is an index into the Constant Pool (MethodHandle)
 	bsmHandle, err := ResolveMethodHandle(cp, int(bsm.MethodRef), fr)
 	if err != nil {
 		return nil, err
 	}
-
-	// 4. Resolve the NameAndType (method name and type for the CallSite)
-	// natIndex points to NameAndType entry
-	// We need to create a String for the name and a MethodType for the type.
-	// ...
 
 	// 5. Resolve Static Arguments
 	// bsm.Args is a list of indices into the Constant Pool.

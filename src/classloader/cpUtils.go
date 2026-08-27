@@ -229,3 +229,20 @@ func GetClassNameFromCPclassref(CP *CPool, cpIndex uint16) string {
 		return *entry.StringVal
 	}
 }
+
+// GetNATfieldsFromCPindex accepts a CP index that points to a name-and-type (NAT) entry
+// in the constant pool, and it returns the name and type of the target method. Note
+// there is no error checking here.
+func GetNATfieldsFromCPindex(CP *CPool, cpIndex int) (name, signature string) {
+	nameAndTypeIndex := CP.CpIndex[cpIndex].Slot
+	nameAndType := CP.NameAndTypes[nameAndTypeIndex]
+	methNameCPindex := nameAndType.NameIndex
+	methNameUTF8index := CP.CpIndex[methNameCPindex].Slot
+	name = CP.Utf8Refs[methNameUTF8index]
+
+	methSigCPindex := nameAndType.DescIndex
+	methSigUTF8index := CP.CpIndex[methSigCPindex].Slot
+	signature = CP.Utf8Refs[methSigUTF8index]
+
+	return name, signature
+}
