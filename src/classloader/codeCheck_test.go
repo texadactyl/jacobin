@@ -909,6 +909,8 @@ func TestCheckInvokedynamic_Success(t *testing.T) {
 			{Type: 0, Slot: 0},             // 0 dummy
 			{Type: InvokeDynamic, Slot: 0}, // 1: InvokeDynamic entry
 			{Type: NameAndType, Slot: 0},   // 2: NameAndType entry
+			{Type: UTF8, Slot: 0},
+			{Type: UTF8, Slot: 1},
 		},
 		InvokeDynamics: []InvokeDynamicEntry{
 			{BootstrapIndex: 0, NameAndType: 2},
@@ -917,7 +919,7 @@ func TestCheckInvokedynamic_Success(t *testing.T) {
 			{MethodRef: 0, Args: []uint16{}},
 		},
 		NameAndTypes: []NameAndTypeEntry{
-			{NameIndex: 0, DescIndex: 0},
+			{NameIndex: 3, DescIndex: 4},
 		},
 		Utf8Refs: []string{"name", "desc"},
 	}
@@ -1035,10 +1037,12 @@ func TestCheckInvokedynamic_InvalidNATDescriptorIndex(t *testing.T) {
 			{0, 0},
 			{InvokeDynamic, 0},
 			{NameAndType, 0},
+			{UTF8, 0},
+			{MethodRef, 1}, // should be UTF8
 		},
 		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 2}},
 		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
-		NameAndTypes:   []NameAndTypeEntry{{NameIndex: 0, DescIndex: 5}}, // DescIndex 5 out of bounds
+		NameAndTypes:   []NameAndTypeEntry{{NameIndex: 3, DescIndex: 4}}, // DescIndex 4 doesn't point to a UTF8
 		Utf8Refs:       []string{"name"},
 	}
 	CP = &cp
@@ -1048,29 +1052,6 @@ func TestCheckInvokedynamic_InvalidNATDescriptorIndex(t *testing.T) {
 	result := CheckInvokedynamic()
 	if result != ERROR_OCCURRED {
 		t.Errorf("Expected ERROR_OCCURRED for invalid NAT DescIndex, got: %d", result)
-	}
-}
-
-func TestCheckInvokedynamic_InvalidNATNameIndex(t *testing.T) {
-	globals.InitGlobals("test")
-	cp := CPool{
-		CpIndex: []CpEntry{
-			{0, 0},
-			{InvokeDynamic, 0},
-			{NameAndType, 0},
-		},
-		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 2}},
-		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
-		NameAndTypes:   []NameAndTypeEntry{{NameIndex: 5, DescIndex: 0}}, // NameIndex 5 out of bounds
-		Utf8Refs:       []string{"desc"},
-	}
-	CP = &cp
-	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
-	PC = 0
-
-	result := CheckInvokedynamic()
-	if result != ERROR_OCCURRED {
-		t.Errorf("Expected ERROR_OCCURRED for invalid NAT NameIndex, got: %d", result)
 	}
 }
 

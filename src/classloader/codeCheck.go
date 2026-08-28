@@ -1033,23 +1033,26 @@ func CheckInvokedynamic() int {
 		return ERROR_OCCURRED
 	}
 
-	// finally, we have the NAT entry that points to two UTF-8 string entries
+	// finally, we have the NAT entry that points to two UTF-8 string entries, DescIndex
+	// and NameIndex, which are entries in CpIndex that point to UTF8 entries.
 	// make sure that the indices into CP.Utf8Refs are valid
 	NAT := CP.NameAndTypes[bootstrapNat.Slot]
-	if int(NAT.DescIndex) >= len(CP.Utf8Refs) {
-		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType descriptor index %d",
-			excNames.JVMexceptionNames[excNames.VerifyError], PC, NAT.DescIndex)
+	name := CP.CpIndex[NAT.NameIndex]
+	desc := CP.CpIndex[NAT.DescIndex]
+	if name.Type != UTF8 || desc.Type != UTF8 {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType name or descriptor field at %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, bootstrapNatIndex)
 		trace.Error(errMsg)
 		return ERROR_OCCURRED
 	}
 
-	if int(NAT.NameIndex) >= len(CP.Utf8Refs) {
-		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType name index %d",
-			excNames.JVMexceptionNames[excNames.VerifyError], PC, NAT.DescIndex)
-		trace.Error(errMsg)
-		return ERROR_OCCURRED
-	}
-
+	// 	if int(NAT.NameIndex) >= len(CP.Utf8Refs) {
+	// 		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType name index %d",
+	// 			excNames.JVMexceptionNames[excNames.VerifyError], PC, NAT.DescIndex)
+	// 		trace.Error(errMsg)
+	// 		return ERROR_OCCURRED
+	// 	}
+	//
 	return 5
 }
 
