@@ -965,10 +965,11 @@ func CheckIf() int { // most IF* bytecodes come here. Jump if condition is met
 	return 3
 }
 
+// IF_ZERO
 func CheckIfzero() int { // Jump if condition w.r.t 0 is met
 	jumpSize := int(int16(Code[PC+1])*256 + int16(Code[PC+2]))
 	if PC+jumpSize < 0 || PC+jumpSize >= len(Code) {
-		errMsg := fmt.Sprintf("%s:\n IF* test at %d: illegal jump to %d",
+		errMsg := fmt.Sprintf("%s:\n IF_ZERO test at %d: illegal jump to %d",
 			excNames.JVMexceptionNames[excNames.VerifyError], PC, PC+jumpSize)
 		trace.Error(errMsg)
 		return ERROR_OCCURRED
@@ -1045,14 +1046,6 @@ func CheckInvokedynamic() int {
 		trace.Error(errMsg)
 		return ERROR_OCCURRED
 	}
-
-	// 	if int(NAT.NameIndex) >= len(CP.Utf8Refs) {
-	// 		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType name index %d",
-	// 			excNames.JVMexceptionNames[excNames.VerifyError], PC, NAT.DescIndex)
-	// 		trace.Error(errMsg)
-	// 		return ERROR_OCCURRED
-	// 	}
-	//
 	return 5
 }
 
