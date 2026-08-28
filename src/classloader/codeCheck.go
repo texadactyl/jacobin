@@ -699,13 +699,13 @@ func CheckCodeValidity(codePtr *[]byte, cp *CPool, maxStack int, access AccessFl
 	wideInEffect = false
 
 	if globals.TraceCodeCheck {
-		fmt.Fprintf(os.Stderr, "\nCode check for method: %s\n", methName)
+		_, _ = fmt.Fprintf(os.Stderr, "\nCode check for method: %s\n", methName)
 	}
 
 	for PC < len(code) {
 		opcode := code[PC]
 		if globals.TraceCodeCheck {
-			fmt.Fprintf(os.Stderr, "PC: %03d %-14s (%02X)\n", PC, BytecodeNames[opcode], opcode)
+			_, _ = fmt.Fprintf(os.Stderr, "PC: %03d %-14s (%02X)\n", PC, BytecodeNames[opcode], opcode)
 		}
 
 		ret := CheckTable[opcode]()
@@ -1029,6 +1029,23 @@ func CheckInvokedynamic() int {
 	if bootstrapNat.Type != NameAndType {
 		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType index %d",
 			excNames.JVMexceptionNames[excNames.VerifyError], PC, bootstrapNatIndex)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	// finally, we have the NAT entry that points to two UTF-8 string entries
+	// make sure that the indices into CP.Utf8Refs are valid
+	NAT := CP.NameAndTypes[bootstrapNat.Slot]
+	if int(NAT.DescIndex) >= len(CP.Utf8Refs) {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType descriptor index %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, NAT.DescIndex)
+		trace.Error(errMsg)
+		return ERROR_OCCURRED
+	}
+
+	if int(NAT.NameIndex) >= len(CP.Utf8Refs) {
+		errMsg := fmt.Sprintf("%s:\n INVOKEDYNAMIC at %d: invalid NameAndType name index %d",
+			excNames.JVMexceptionNames[excNames.VerifyError], PC, NAT.DescIndex)
 		trace.Error(errMsg)
 		return ERROR_OCCURRED
 	}

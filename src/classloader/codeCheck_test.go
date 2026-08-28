@@ -899,6 +899,181 @@ func TestCheckIfeq_HighLevel(t *testing.T) {
 	}
 }
 
+// INVOKEDYNAMIC 0xBA
+func TestCheckInvokedynamic_Success(t *testing.T) {
+	globals.InitGlobals("test")
+
+	// Setup a valid CP
+	cp := CPool{
+		CpIndex: []CpEntry{
+			{Type: 0, Slot: 0},             // 0 dummy
+			{Type: InvokeDynamic, Slot: 0}, // 1: InvokeDynamic entry
+			{Type: NameAndType, Slot: 0},   // 2: NameAndType entry
+		},
+		InvokeDynamics: []InvokeDynamicEntry{
+			{BootstrapIndex: 0, NameAndType: 2},
+		},
+		Bootstraps: []BootstrapMethod{
+			{MethodRef: 0, Args: []uint16{}},
+		},
+		NameAndTypes: []NameAndTypeEntry{
+			{NameIndex: 0, DescIndex: 0},
+		},
+		Utf8Refs: []string{"name", "desc"},
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != 5 {
+		t.Errorf("Expected return value 5, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidCPslot(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := createBasicCP() // CP with only 10 entries (0-9)
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0xFF, 0x00, 0x00} // Slot 255
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid CP slot, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidEntryType(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := createCPWithEntry(1, 99) // Type 99 (invalid)
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid CP entry type, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidInvokeDynamicSlot(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := CPool{
+		CpIndex:        []CpEntry{{0, 0}, {InvokeDynamic, 1}}, // Slot 1 is out of bounds
+		InvokeDynamics: []InvokeDynamicEntry{},                // Empty
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid InvokeDynamic slot, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidBootstrapIndex(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := CPool{
+		CpIndex:        []CpEntry{{0, 0}, {InvokeDynamic, 0}},
+		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 5, NameAndType: 0}}, // BSM 5 out of bounds
+		Bootstraps:     []BootstrapMethod{},
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid BootstrapIndex, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidNameAndTypeIndex(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := CPool{
+		CpIndex:        []CpEntry{{0, 0}, {InvokeDynamic, 0}},
+		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 5}}, // NAT 5 out of bounds
+		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid NAT index, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidNameAndTypeType(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := CPool{
+		CpIndex: []CpEntry{
+			{0, 0},
+			{InvokeDynamic, 0}, // Slot 1 points to InvokeDynamic
+			{0, 0},             // Slot 2: NAT index 2 points here (not NAT type)
+		},
+		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 2}},
+		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid NAT type, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidNATDescriptorIndex(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := CPool{
+		CpIndex: []CpEntry{
+			{0, 0},
+			{InvokeDynamic, 0},
+			{NameAndType, 0},
+		},
+		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 2}},
+		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
+		NameAndTypes:   []NameAndTypeEntry{{NameIndex: 0, DescIndex: 5}}, // DescIndex 5 out of bounds
+		Utf8Refs:       []string{"name"},
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid NAT DescIndex, got: %d", result)
+	}
+}
+
+func TestCheckInvokedynamic_InvalidNATNameIndex(t *testing.T) {
+	globals.InitGlobals("test")
+	cp := CPool{
+		CpIndex: []CpEntry{
+			{0, 0},
+			{InvokeDynamic, 0},
+			{NameAndType, 0},
+		},
+		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 2}},
+		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
+		NameAndTypes:   []NameAndTypeEntry{{NameIndex: 5, DescIndex: 0}}, // NameIndex 5 out of bounds
+		Utf8Refs:       []string{"desc"},
+	}
+	CP = &cp
+	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
+	PC = 0
+
+	result := CheckInvokedynamic()
+	if result != ERROR_OCCURRED {
+		t.Errorf("Expected ERROR_OCCURRED for invalid NAT NameIndex, got: %d", result)
+	}
+}
+
 // INVOKEINTERFACE
 func TestCheckInvokeinterface_HighLevel(t *testing.T) {
 	globals.InitGlobals("test")
@@ -1100,7 +1275,6 @@ func TestCheckInvokevirtual_InvalidCPSlot(t *testing.T) {
 }
 
 // INVOKEVIRTUAL bytecode with valid method ref
-func TestCheckInvokevirtual_ValidMethodRef(t *testing.T) {}
 func TestNewInvokevirtualInvalidMethRef(t *testing.T) {
 	globals.InitGlobals("test")
 
