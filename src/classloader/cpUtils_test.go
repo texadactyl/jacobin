@@ -348,53 +348,31 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 	}
 }
 
-//  GetMethInfoFromCPinterfaceRef()
-/* needs work to make workable
-func TestMethInfoFromCPinterfaceRefValid(t *testing.T) {
+func TestGetNATfieldsFromCPindex(t *testing.T) {
 	globals.InitGlobals("test")
 
-	// Initialize classloaders and method area
-	err := Init()
-	if err != nil {
-		t.Errorf("Failure to load classes in TestMeInfoFromMethRefValid")
+	// Set up a Constant Pool (CP) with necessary entries
+	CPo := CPool{
+		CpIndex: []CpEntry{
+			{Type: 0, Slot: 0},           // Slot 0: Dummy entry
+			{Type: NameAndType, Slot: 0}, // Slot 1: Points to NameAndTypes[0]
+			{Type: UTF8, Slot: 0},        // Slot 2: Points to Utf8Refs[0]
+			{Type: UTF8, Slot: 1},        // Slot 3: Points to Utf8Refs[1]
+		},
+		NameAndTypes: []NameAndTypeEntry{
+			{NameIndex: 2, DescIndex: 3}, // Slot 0: Name and Desc indices
+		},
+		Utf8Refs: []string{"methodName", "()V"}, // UTF8 strings
 	}
-	LoadBaseClasses() // must follow classloader.Init()
 
-	f := frames.CreateFrame(4)
-	f.Meth = append(f.Meth, 0x00)
-	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
+	// Call the function under test
+	name, sig := GetNATfieldsFromCPindex(&CPo, 1)
 
-	CP := CPool{}
-	CP.CpIndex = make([]CpEntry, 10)
-	CP.CpIndex[0] = CpEntry{Type: 0, Slot: 0}
-	CP.CpIndex[1] = CpEntry{Type: MethodRef, Slot: 0}
-
-	CP.MethodRefs = make([]MethodRefEntry, 1)
-	CP.MethodRefs[0] = MethodRefEntry{ClassIndex: 2, NameAndType: 3}
-
-	CP.CpIndex[2] = CpEntry{Type: ClassRef, Slot: 0}
-	CP.ClassRefs = make([]uint32, 4)
-	CP.ClassRefs[0] = types.StringPoolObjectIndex
-
-	CP.CpIndex[3] = CpEntry{Type: NameAndType, Slot: 0}
-	CP.NameAndTypes = make([]NameAndTypeEntry, 4)
-	CP.NameAndTypes[0] = NameAndTypeEntry{
-		NameIndex: 4,
-		DescIndex: 5,
+	// Assert the results
+	if name != "methodName" {
+		t.Errorf("Expected name 'methodName', got '%s'", name)
 	}
-	CP.CpIndex[4] = CpEntry{Type: UTF8, Slot: 0} // method name
-	CP.Utf8Refs = make([]string, 4)
-	CP.Utf8Refs[0] = "<init>"
-
-	CP.CpIndex[5] = CpEntry{Type: UTF8, Slot: 1} // method name
-	CP.Utf8Refs[1] = "()V"
-
-	f.CP = &CP
-
-	_, b, c := GetMethInfoFromCPinterfaceRef(&CP, 1)
-	// _, s2, s3, _ := GetMethInfoFromCPmethref(&CP, 1)
-	if b != "<init>" && c != "()V" {
-		t.Errorf("Expect to get a method: <init>()V, got %s%s", b, c)
+	if sig != "()V" {
+		t.Errorf("Expected signature '()V', got '%s'", sig)
 	}
 }
-*/
