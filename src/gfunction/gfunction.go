@@ -15,6 +15,7 @@ import (
 	"jacobin/src/gfunction/javaIo"
 	"jacobin/src/gfunction/javaLang"
 	"jacobin/src/gfunction/javaMath"
+	"jacobin/src/gfunction/javaNet"
 	"jacobin/src/gfunction/javaNio"
 	"jacobin/src/gfunction/javaSecurity"
 	"jacobin/src/gfunction/javaText"
@@ -107,6 +108,10 @@ func MTableLoadGFunctions(MTable *classloader.MT) {
 	javaMath.Load_Math_Big_Integer()
 	javaMath.Load_Math_Math_Context()
 	javaMath.Load_Math_Rounding_Mode()
+
+	// java/net/*
+	javaNet.Load_Net_Http_HttpClient()
+	javaNet.Load_Net_Http_HttpRequest()
 
 	// java/nio/*
 	javaNio.Load_Nio_File_Attribute_BasicFileAttributes()
