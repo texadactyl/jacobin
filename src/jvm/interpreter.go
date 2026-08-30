@@ -2609,7 +2609,9 @@ func doInvokeVirtual(fr *frames.Frame, _ int64) int {
 	shouldCacheMeth = false
 	if globals.CacheMeths { // this is the optimized and default path
 		if entry.Type == classloader.CachedMeth {
+			CP.Mutex.RLock()
 			mtEntry = CP.CachedMethods[entry.Slot]
+			CP.Mutex.RUnlock()
 			goto processMTentry
 		} else { // it's our first time running this method, mark the method for caching
 			shouldCacheMeth = true // and proceed with standard method lookup
@@ -3068,7 +3070,9 @@ func doInvokestatic(fr *frames.Frame, _ int64) int {
 	shouldCacheMeth = false
 	if globals.CacheMeths { // this is the optimized and default path
 		if entry.Type == classloader.CachedMeth {
+			CP.Mutex.RLock()
 			mtEntry = CP.CachedMethods[entry.Slot]
+			CP.Mutex.RUnlock()
 			goto processMTentry // don't check if ClInit has been run b/c this must be the 2nd (or later) run of this method
 		} else { // it's our first time running this method, mark the method for caching
 			shouldCacheMeth = true // and proceed with standard method lookup
