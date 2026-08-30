@@ -99,20 +99,20 @@ func resolveFieldHandle(cp *CPool, refIndex int, isStatic bool, isSetter bool, f
 
 	// 2. Get java.lang.Class object for the defining class.
 	// getClassObj expects a descriptor, and className is an internal name (e.g. "java/lang/Object").
-	defClassObj, err := getClassObj("L" + className + ";")
+	defClassObj, err := getClassObj("L"+className+";", fr)
 	if err != nil {
 		return nil, fmt.Errorf("resolveFieldHandle: could not get Class object for %s: %w", className, err)
 	}
 
 	// 3A. Get java.lang.Class object for the field's type. fieldType is already a descriptor.
-	fieldTypeObj, err := getClassObj(fieldType)
+	fieldTypeObj, err := getClassObj(fieldType, fr)
 	if err != nil { // in case the class has not been loaded, try to load it
 		err = LoadClassFromNameOnly(className)
 		if err != nil {
 			return nil, fmt.Errorf("resolveFieldHandle: could not get Class object %s for field type %s",
 				className, fieldType)
 		} else { // check once again now that we know the class is loaded
-			fieldTypeObj, err = getClassObj(fieldType)
+			fieldTypeObj, err = getClassObj(fieldType, fr)
 			if err != nil {
 				return nil, fmt.Errorf("resolveFieldHandle: could not get Class object %s for field type %s",
 					className, fieldType)
@@ -130,7 +130,7 @@ func resolveFieldHandle(cp *CPool, refIndex int, isStatic bool, isSetter bool, f
 	}
 
 	// 4. Get java.lang.Class object for the caller class (for access checks).
-	callerClassObj, err := getClassObj("L" + fr.ClName + ";")
+	callerClassObj, err := getClassObj("L"+fr.ClName+";", fr)
 	if err != nil {
 		return nil, fmt.Errorf("resolveFieldHandle: could not get Class object for caller %s: %w", fr.ClName, err)
 	}
@@ -288,7 +288,8 @@ func resolveMethodHandleEntry(cp *CPool, refIndex int, isStatic bool, isSpecial 
 	}
 
 	// 2. Get java.lang.Class object for the defining class.
-	defClassObj, err := getClassObj("L" + className + ";")
+	defClassObj, err := getClassObj("L"+className+";", fr) // <<< where elkins 455 test bombs
+	// defClassObj, err := getClassObj(className) // <<< where elkins 455 test bombs
 	if err != nil {
 		return nil, fmt.Errorf("resolveMethodHandleEntry: could not get Class object for %s: %w", className, err)
 	}
@@ -300,7 +301,7 @@ func resolveMethodHandleEntry(cp *CPool, refIndex int, isStatic bool, isSpecial 
 	}
 
 	// 4. Get java.lang.Class object for the caller class (for access checks).
-	callerClassObj, err := getClassObj("L" + fr.ClName + ";")
+	callerClassObj, err := getClassObj("L"+fr.ClName+";", fr)
 	if err != nil {
 		return nil, fmt.Errorf("resolveMethodHandleEntry: could not get Class object for caller %s: %w", fr.ClName, err)
 	}
@@ -449,7 +450,7 @@ func getMethodTypeObject(descriptor string, fr *frames.Frame) (*object.Object, e
 // getClassObj gets a java.lang.Class object for a given class name or descriptor.
 // It handles primitive types, array types, and object types by calling the equivalent
 // of Class.forName() via a gfunction.
-func getClassObj(descriptor string) (*object.Object, error) {
+func getClassObj(descriptor string, fr *frames.Frame) (*object.Object, error) {
 	// Check for primitive types (single-character descriptors). The VM pre-loads
 	// Class objects for primitive types (e.g., Integer.TYPE).
 	if len(descriptor) == 1 {
@@ -483,11 +484,11 @@ func getClassObj(descriptor string) (*object.Object, error) {
 
 	// We use the gfunction for Class.forName(String, boolean, ClassLoader).
 	// We must initialize the class, as per JVM spec for 'ldc' resolution.
-	// TODO: Pass the correct class loader. For now, nil uses the bootstrap loader.
 	params := []interface{}{
 		nameObj,
-		true, // initialize
-		nil,  // class loader
+		types.JavaBoolTrue, // initialize the class -- not sure we need this
+		nil,                // class loader (default to bootstrap loader)
+		fr.FrameStack,
 	}
 	gfuncName := "java/lang/Class.forName(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;"
 

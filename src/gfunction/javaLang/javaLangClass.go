@@ -1,17 +1,19 @@
 /*
  * Jacobin VM - A Java virtual machine
- * Copyright (c) 2023-6 by  the Jacobin authors. Consult jacobin.org.
+ * Copyright (c) 2023-6 by the Jacobin authors. Consult jacobin.org.
  * Licensed under Mozilla Public License 2.0 (MPL 2.0) All rights reserved.
  */
 
 package javaLang
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
 	"jacobin/src/classloader"
 	"jacobin/src/excNames"
 	"jacobin/src/gfunction/ghelpers"
+	"jacobin/src/globals"
 	"jacobin/src/object"
 	"jacobin/src/shutdown"
 	"jacobin/src/statics"
@@ -68,6 +70,8 @@ func Load_Lang_Class() {
 		ghelpers.GMeth{ParamSlots: 0, GFunction: classGetAssertionsEnabledStatus}
 	ghelpers.MethodSignatures["java/lang/Class.desiredAssertionStatus0()Z"] =
 		ghelpers.GMeth{ParamSlots: 0, GFunction: classGetAssertionsEnabledStatus}
+	ghelpers.MethodSignatures["java/lang/Class.forName(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;"] =
+		ghelpers.GMeth{ParamSlots: 3, GFunction: classForNameLZL}
 	ghelpers.MethodSignatures["java/lang/Class.getCanonicalName()Ljava/lang/String;"] =
 		ghelpers.GMeth{ParamSlots: 0, GFunction: classGetCanonicalName}
 	ghelpers.MethodSignatures["java/lang/Class.getComponentType()Ljava/lang/Class;"] =
@@ -124,7 +128,6 @@ func Load_Lang_Class() {
 	addTrap("java/lang/Class.describeConstable()Ljava/util/Optional;", 0)
 	addTrap("java/lang/Class.forName(Ljava/lang/Module;Ljava/lang/String;)Ljava/lang/Class;", 2)
 	addTrap("java/lang/Class.forName(Ljava/lang/String;)Ljava/lang/Class;", 1)
-	addTrap("java/lang/Class.forName(Ljava/lang/String;ZLjava/lang/ClassLoader;)Ljava/lang/Class;", 3)
 	addTrap("java/lang/Class.getAnnotatedInterfaces()[Ljava/lang/reflect/AnnotatedType;", 0)
 	addTrap("java/lang/Class.getAnnotatedSuperclass()Ljava/lang/reflect/AnnotatedType;", 0)
 	addTrap("java/lang/Class.getAnnotation(Ljava/lang/Class;)Ljava/lang/annotation/Annotation;", 1)
@@ -225,6 +228,69 @@ func classDescriptorString(params []interface{}) interface{} {
 	// For reference types, wrap with L and ;
 	descriptor := "L" + name + ";"
 	return object.StringObjectFromGoString(descriptor)
+}
+
+// From the Javadoc located at:
+// https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html#forName(java.lang.String,boolean,java.lang.ClassLoader)
+//
+// Returns the Class object associated with the class or interface with the given
+// string name, using the given class loader. Given the binary name for a class
+// or interface, this method attempts to locate and load the class or interface.
+// The specified class loader is used to load the class or interface. If the
+// parameter loader is null, the class is loaded through the bootstrap class loader.
+// The class is initialized only if the initialize parameter is true and if it
+// has not been initialized earlier.
+
+// This method cannot be used to obtain any of the Class objects representing
+// primitive types or void, hidden classes or interfaces, or array classes
+// whose element type is a hidden class or interface. If name denotes a primitive
+// type or void, for example I, an attempt will be made to locate a user-defined
+// class in the unnamed package whose name is I instead.
+//
+// To obtain the Class object associated with an array class, the name consists
+// of one or more '[' representing the depth of the array nesting, followed by
+// the element type as encoded in the table specified in Class.getName().
+func classForNameLZL(params []interface{}) interface{} {
+	// params[0] - className (String object)
+	// params[1] - initialize (boolean - as int64(1) or int64(0))
+	// params[2] - loader (ClassLoader object)
+	// params[3] - fs (frame stack, provided for use in initialization)
+
+	// 1. Extract the class name string
+	classNameObj := params[0].(*object.Object)
+	className := object.GoStringFromStringObject(classNameObj)
+	className = strings.ReplaceAll(className, ".", "/")
+
+	// Load the class
+	err := classloader.LoadClassFromNameOnly(className)
+	if err != nil {
+		return ghelpers.GetGErrBlk(excNames.ClassNotFoundException, err.Error())
+	}
+	err = classloader.WaitForClassStatus(className)
+	if err != nil {
+		return ghelpers.GetGErrBlk(excNames.ClassNotFoundException, err.Error())
+	}
+
+	// Fetch the class from Method Area
+	k := classloader.MethAreaFetch(className)
+	if k == nil {
+		return ghelpers.GetGErrBlk(excNames.ClassNotFoundException, "Class not found: "+className)
+	}
+
+	// Handle initialization, if any
+	initialize := params[1].(int64)
+
+	if initialize == types.JavaBoolTrue && k.Data.ClInit == types.ClInitNotRun {
+		// Use the hook to run the initialization block
+		fs := params[3].(*list.List)
+		_, err := globals.GetGlobalRef().FuncInstantiateClass(className, fs)
+		if err != nil {
+			return ghelpers.GetGErrBlk(excNames.ExceptionInInitializerError,
+				err.Error())
+		}
+	}
+
+	return k.Data.ClassObject
 }
 
 // returns boolean indicating whether assertions are enabled or not.
