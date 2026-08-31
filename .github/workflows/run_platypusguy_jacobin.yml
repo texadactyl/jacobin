@@ -96,6 +96,7 @@ jobs:
     - name: Run Test Cases
       run: |
         set -e
+        cd jacotest.go
         pwd
         java --version
         javac --version
@@ -104,12 +105,14 @@ jobs:
     - name: Summary of Results
       run: |
         set -e
+        cd jacotest.go
         pwd
         jacotest -r 3
         cp logs/passfail.txt passfail-${{ matrix.os }}.txt
 
     - name: Create Output Env Names
       run: |
+        cd jacotest.go
         echo "REPORT_NAME=jacotest-summary-${{ matrix.os }}-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
         echo "LOGS_NAME=jacotest-logs-${{ matrix.os }}-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
       
@@ -149,11 +152,13 @@ jobs:
       
       - name: List downloaded files
         run: |
+          cd jacotest.go
           echo "Downloaded files:"
           find collected-results -type f
       
       - name: Concatenate combined passfail results
         run: |
+          cd jacotest.go
           export LIST_ALL="results_list.txt"
           touch $LIST_ALL
           for os_dir in collected-results/passfail-*; do
@@ -165,6 +170,7 @@ jobs:
       - name: Produce combined CSV
         continue-on-error: true
         run: |
+          cd jacotest.go
           export LIST_ALL="results_list.txt"
           export CSV="combined.csv"
           cat $LIST_ALL | python3 py/combinedCsv.py > $CSV
