@@ -80,6 +80,7 @@ jobs:
         else
             go build -o "$HOME/go/bin/jacobin" .
         fi
+        cd ..
         jacobin -h
         
     - name: Setup Jacotest
