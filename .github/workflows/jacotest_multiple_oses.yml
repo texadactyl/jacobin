@@ -92,7 +92,7 @@ jobs:
         go install -v .
         cd ..
         jacotest -h
-
+        
     - name: Run Test Cases
       run: |
         set -e
@@ -101,15 +101,15 @@ jobs:
         java --version
         javac --version
         jacotest -c -x -t 120 || true
-
+        
     - name: Summary of Results
       run: |
         set -e
         cd jacotest.go
         pwd
         jacotest -r 3
-        cp logs/passfail.txt passfail-${{ matrix.os }}.txt
-
+        cp logs/passfail.txt "$GITHUB_WORKSPACE/passfail-${{ matrix.os }}.txt"
+        
     - name: Create Output Env Names
       run: |
         cd jacotest.go
@@ -136,6 +136,7 @@ jobs:
         name: passfail-${{ matrix.os }}
         path: passfail-${{ matrix.os }}.txt
         retention-days: 1
+        if-no-files-found: error
 
   process-collection:
     needs: run-on-oses
@@ -179,5 +180,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: combined-csv
-          path: $CSV
+          path: ${{ env.CSV }}
           retention-days: 7
