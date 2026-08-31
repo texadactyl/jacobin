@@ -144,22 +144,28 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       
+      - name: Set up environment variables
+        shell: bash
+        run: |
+          echo "COLLECTED_RESULTS=${{ github.workspace }}/collected-results" >> "$GITHUB_ENV"
+          echo "LIST_ALL=${{ github.workspace }}/results_list.txt" >> "$GITHUB_ENV"
+          echo "CSV=${{ github.workspace }}/combined.csv" >> "$GITHUB_ENV"
+        
       - name: Download all passfail artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: passfail-*
-          path: collected-results/
+          path: $COLLECTED_RESULTS
       
       - name: List downloaded files
         run: |
           echo "Downloaded files:"
-          find collected-results -type f
+          find $COLLECTED_RESULTS -type f
       
       - name: Concatenate combined passfail results
         run: |
-          export LIST_ALL="results_list.txt"
           touch $LIST_ALL
-          for os_dir in collected-results/passfail-*; do
+          for os_dir in $COLLECTED_RESULTS/passfail-*; do
             os_name=$(basename "$os_dir")
             os_name=${os_name#passfail-}
             cat "$os_dir"/*.txt  | sed 's/^/'$os_name' /' >> $LIST_ALL
@@ -167,13 +173,11 @@ jobs:
           
       - name: Produce combined CSV
         run: |
-          export LIST_ALL="results_list.txt"
-          export CSV="combined.csv"
           cat $LIST_ALL | python3 py/combinedCsv.py > $CSV
       
       - name: Upload combined CSV
         uses: actions/upload-artifact@v4
         with:
           name: combined-csv
-          path: combined.csv
+          path: $CSV
           retention-days: 7
