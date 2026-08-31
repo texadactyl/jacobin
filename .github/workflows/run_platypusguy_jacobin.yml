@@ -72,10 +72,15 @@ jobs:
         architecture: 'arm64'             # key: choose arm64
 
     - name: Setup Jacotest
+      shell: bash
       run: |
-        cd src
-        go get
-        go install -v .
+        git clone https://github.com/texadactyl/jacotest.go
+        cd jacotest.go/src
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+            go build -o "$HOME/go/bin/jacotest.exe" .
+        else
+            go build -o "$HOME/go/bin/jacotest" .
+        fi
         cd ..
         jacotest -h
 
