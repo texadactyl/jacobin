@@ -152,13 +152,11 @@ jobs:
       
       - name: List downloaded files
         run: |
-          cd jacotest.go
           echo "Downloaded files:"
           find collected-results -type f
       
       - name: Concatenate combined passfail results
         run: |
-          cd jacotest.go
           export LIST_ALL="results_list.txt"
           touch $LIST_ALL
           for os_dir in collected-results/passfail-*; do
@@ -168,9 +166,7 @@ jobs:
           done
           
       - name: Produce combined CSV
-        continue-on-error: true
         run: |
-          cd jacotest.go
           export LIST_ALL="results_list.txt"
           export CSV="combined.csv"
           cat $LIST_ALL | python3 py/combinedCsv.py > $CSV
