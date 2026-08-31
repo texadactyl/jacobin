@@ -120,16 +120,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.REPORT_NAME }}
-        path: reports
-        retention-days: 7  # can be 1 to 90
+        path: jacotest.go/reports
+        retention-days: 7
 
     - name: Create Logs Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.LOGS_NAME }}
-        path: logs
-        retention-days: 7  # can be 1 to 90
-
+        path: jacotest.go/logs
+        retention-days: 7
+        
     - name: Upload OS-specific passfail file
       uses: actions/upload-artifact@v4
       with:
