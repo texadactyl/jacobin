@@ -172,6 +172,14 @@ jobs:
             cat "$os_dir"/*.txt  | sed 's/^/'$os_name' /' >> $LIST_ALL
           done
           
+      - uses: actions/checkout@v5
+
+      - name: Checkout jacotest.go
+        uses: actions/checkout@v5
+        with:
+          repository: texadactyl/jacotest.go
+          path: jacotest.go      
+          
       - name: Produce combined CSV
         run: |
           cat $LIST_ALL | python3 jacotest.go/py/combinedCsv.py > $CSV
