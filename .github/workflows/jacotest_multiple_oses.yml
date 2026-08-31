@@ -100,7 +100,7 @@ jobs:
         pwd
         java --version
         javac --version
-        jacotest -c -x -t 120 -X 3 || true
+        jacotest -c -x -t 120 || true
         
     - name: Summary of Results
       run: |
