@@ -80,9 +80,8 @@ func GetStringIndex(arg *string) uint32 {
 		return index // Found it!
 	}
 
-	// Not found. Lock and defer unlock.
+	// Not found. Lock, add, update.
 	globals.StringPoolLock.Lock()
-	defer globals.StringPoolLock.Unlock()
 
 	// Add it to the map and the list.
 	index = globals.StringPoolNext
@@ -91,6 +90,7 @@ func GetStringIndex(arg *string) uint32 {
 
 	// Increment the next available index.
 	globals.StringPoolNext++
+	globals.StringPoolLock.Unlock()
 
 	return index
 }
@@ -98,11 +98,16 @@ func GetStringIndex(arg *string) uint32 {
 // GetStringPointer retrieves a pointer to the string at the index into the string pool slice
 // Returns nil on index out of range (which is the only possible error)
 func GetStringPointer(index uint32) *string {
+	globals.StringPoolLock.Lock()
+
 	if index < globals.StringPoolNext {
-		return &globals.StringPoolList[index]
-	} else {
-		return nil
+		strPtr := &globals.StringPoolList[index]
+		globals.StringPoolLock.Unlock()
+		return strPtr
 	}
+
+	globals.StringPoolLock.Unlock()
+	return nil
 }
 
 // GetStringPoolSize() uint32: Get the current string Pool size.

@@ -95,9 +95,8 @@ type Globals struct {
 	JvmFrameStackShown bool
 	GoStackShown       bool
 
-	// Random object mutex
+	// Random object mutex for random number generation
 	RandomLock sync.Mutex
-
 
 	// ---- misc properties
 	FileEncoding     string // what file encoding are we using?
@@ -115,6 +114,9 @@ type Globals struct {
 	FuncThrowException   func(int, string) bool
 	FuncFillInStackTrace func([]any) any
 }
+
+// ---- Lock for updating some globals fields
+var GlobalsLock sync.RWMutex
 
 // ---- JJ options
 var Galt bool // gfunction alternative processing flag -- used strictly for testing

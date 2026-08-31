@@ -314,7 +314,10 @@ func interpret(fs *list.List) {
 		if r := recover(); r != nil {
 			stack := string(debug.Stack())
 
+			globals.GlobalsLock.Lock()
 			glob.ErrorGoStack = stack
+			globals.GlobalsLock.Unlock()
+
 			exceptions.ShowPanicCause(r)
 
 			// Create a dummy exception object and then load it with

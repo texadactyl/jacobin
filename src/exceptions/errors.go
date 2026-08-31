@@ -23,7 +23,7 @@ const RESUME_HERE = math.MaxInt32 - 1
 // routines for formatting error data when an error occurs inside the JVM
 
 // Prints out the frame stack
-func ShowFrameStack(source interface{}) {
+func ShowFrameStack(source any) {
 	if globals.GetGlobalRef().JvmFrameStackShown == false {
 		var entries *[]string
 		switch source.(type) {
@@ -75,9 +75,12 @@ func GrabFrameStack(fs *list.List) *[]string {
 // covering our bases nonetheless.
 func ShowPanicCause(reason any) {
 	// don't show the cause a second time
+	globals.GlobalsLock.Lock()
 	if globals.GetGlobalRef().PanicCauseShown {
+		globals.GlobalsLock.Unlock()
 		return
 	}
+	globals.GlobalsLock.Unlock()
 
 	// show the event that caused the panic
 	if reason != nil {
