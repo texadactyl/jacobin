@@ -87,9 +87,7 @@ jobs:
       run: |
         set -ex
         git clone https://github.com/texadactyl/jacotest.go
-        cd jacotest.go
-        echo "JACOTEST=`pwd`" >> $GITHUB_ENV
-        cd src
+        cd jacotest.go/src
         go get
         go install -v .
         cd ..
@@ -176,7 +174,7 @@ jobs:
           
       - name: Produce combined CSV
         run: |
-          cat $LIST_ALL | python3 $JACOTEST/py/combinedCsv.py > $CSV
+          cat $LIST_ALL | python3 jacotest.go/py/combinedCsv.py > $CSV
       
       - name: Upload combined CSV
         uses: actions/upload-artifact@v4
