@@ -155,7 +155,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: passfail-*
-          path: $COLLECTED_RESULTS
+          path: ${{ env.COLLECTED_RESULTS }}
       
       - name: List downloaded files
         run: |
