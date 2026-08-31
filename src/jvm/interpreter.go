@@ -2604,7 +2604,9 @@ func doInvokeVirtual(fr *frames.Frame, _ int64) int {
 	var err error
 	CPslot := (int(fr.Meth[fr.PC+1]) * 256) + int(fr.Meth[fr.PC+2]) // next 2 bytes point to CP entry
 	CP := fr.CP.(*classloader.CPool)                                // codeCheck.go ensures that CPslot is a valid index to a methodRef
+	CP.Mutex.RLock()
 	entry := CP.CpIndex[CPslot]
+	CP.Mutex.RUnlock()
 
 	shouldCacheMeth = false
 	if globals.CacheMeths { // this is the optimized and default path
@@ -3065,7 +3067,9 @@ func doInvokestatic(fr *frames.Frame, _ int64) int {
 	CPslot := (int(fr.Meth[fr.PC+1]) * 256) + int(fr.Meth[fr.PC+2]) // next 2 bytes point to CP entry
 	// we don't verify the validity of the CP slot b/c that's done in codeCheck.
 	CP := fr.CP.(*classloader.CPool)
+	CP.Mutex.RLock()
 	entry := CP.CpIndex[CPslot]
+	CP.Mutex.RUnlock()
 
 	shouldCacheMeth = false
 	if globals.CacheMeths { // this is the optimized and default path

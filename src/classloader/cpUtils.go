@@ -55,11 +55,11 @@ var IS_CLASS_REF = 5
 //  3. three fields that hold an int64, float64, or 64-bit address, respectively.
 //     The calling function checks the RetType field to determine which
 //     of these three fields holds the returned value.
-func FetchCPentry(cpp *CPool, index int) CpType {
-	if cpp == nil {
+func FetchCPentry(cp *CPool, index int) CpType {
+	if cp == nil {
 		return CpType{EntryType: 0, RetType: IS_ERROR}
 	}
-	cp := *cpp
+
 	// if index is out of range, return error
 	if index < 1 || index >= len(cp.CpIndex) {
 		return CpType{EntryType: 0, RetType: IS_ERROR}
@@ -181,9 +181,11 @@ func FetchCPentry(cpp *CPool, index int) CpType {
 // fully qualified name (FQN).
 //
 // Note that checks on the validity of the cpIndex are performed in codeCheck.go.
-func GetMethInfoFromCPmethref(CP *CPool, cpIndex int) (string, string,
-	string, string) {
+func GetMethInfoFromCPmethref(CP *CPool, cpIndex int) (string, string, string, string) {
+	CP.Mutex.Lock()
 	meth := CP.ResolvedMethodRefs[CP.CpIndex[cpIndex].Slot]
+	CP.Mutex.Unlock()
+
 	cls := *stringPool.GetStringPointer(meth.ClassIndex)
 	mth := *stringPool.GetStringPointer(meth.NameIndex)
 	typ := *stringPool.GetStringPointer(meth.TypeIndex)
