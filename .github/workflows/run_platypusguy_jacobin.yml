@@ -90,6 +90,7 @@ jobs:
         cd jacotest.go/src
         go get
         go install -v .
+        cd ..
         jacotest -h
 
     - name: Run Test Cases
