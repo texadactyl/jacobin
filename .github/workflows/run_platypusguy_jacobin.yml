@@ -71,19 +71,6 @@ jobs:
         java-version: '21'                # or whichever you choose
         architecture: 'arm64'             # key: choose arm64
 
-    - name: Setup Jacotest
-      shell: bash
-      run: |
-        git clone https://github.com/texadactyl/jacotest.go
-        cd jacotest.go/src
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-            go build -o "$HOME/go/bin/jacotest.exe" .
-        else
-            go build -o "$HOME/go/bin/jacotest" .
-        fi
-        cd ..
-        jacotest -h
-
     - name: Setup Jacobin
       run: |
         set -ex
