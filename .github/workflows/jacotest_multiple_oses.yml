@@ -179,6 +179,7 @@ jobs:
           path: jacotest.go      
           
       - name: Produce combined CSV
+        continue-on-error: true
         run: |
           cat $LIST_ALL | python3 jacotest.go/py/combinedCsv.py > $CSV
       
