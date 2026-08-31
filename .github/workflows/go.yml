@@ -1,4 +1,4 @@
-name: Go build and test
+name: Go build and run unit tests
 env:
   GO111MODULE: "on"
 on:
@@ -31,7 +31,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@main
       with:
-        go-version: '1.26.1'
+        go-version: '1.26.x'
         cache: true
         cache-dependency-path: "**/go.sum"
       
