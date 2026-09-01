@@ -1,22 +1,6 @@
 name: Jacotest on multiple O/Ses
 
 on:
-
-  push:
-    paths-ignore:
-      - '**.md'
-      - '**.py'
-      - '**.txt'
-      - '**.yml'
-    branches: [ "main" ]
-    
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - '**.py'
-      - '**.txt'
-      - '**.yml'
-    branches: [ "main" ]
     
   workflow_dispatch:
 
