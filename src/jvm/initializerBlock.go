@@ -29,7 +29,9 @@ import (
 func runInitializationBlock(k *classloader.Klass, superClasses []string, fs *list.List) error {
 	if superClasses == nil || len(superClasses) == 0 {
 		// show we're running <clinit>. This prevents circularity errors.
+		k.Data.CP.Mutex.Lock()
 		k.Data.ClInit = types.ClInitInProgress
+		k.Data.CP.Mutex.Unlock()
 
 		// if no superclasses were previously looked up
 		// get list of the superclasses up to but not including java.lang.Object
@@ -139,7 +141,9 @@ func runJavaInitializer(m classloader.MData, k *classloader.Klass, fs *list.List
 
 func runNativeInitializer(mt classloader.MTentry, k *classloader.Klass, fs *list.List) error {
 	_ = gfunction.RunGfunction(mt, fs, nil, false, false)
+	k.Data.CP.Mutex.Lock()
 	k.Data.ClInit = types.ClInitRun // flag showing we've run this class's <clinit>
+	k.Data.CP.Mutex.Unlock()
 	return nil
 }
 

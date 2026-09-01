@@ -103,11 +103,17 @@ func ShowGoStackTrace(stackInfo any) {
 	var stack string
 
 	global := globals.GetGlobalRef()
-	if global.GoStackShown {
+
+	globals.GlobalsLock.Lock()
+	goStackShown := global.GoStackShown
+	panicCauseShown := global.PanicCauseShown
+	globals.GlobalsLock.Unlock()
+	
+	if goStackShown {
 		return
 	}
 
-	if stackInfo != nil && global.PanicCauseShown == false {
+	if stackInfo != nil && panicCauseShown == false {
 		ShowPanicCause(stackInfo)
 	}
 
@@ -137,7 +143,9 @@ func ShowGoStackTrace(stackInfo any) {
 			break
 		}
 	}
+	globals.GlobalsLock.Lock()
 	global.GoStackShown = true
+	globals.GlobalsLock.Unlock()
 }
 
 // GetExceptionNameFromClassName extracts the name of the exception from the name of the exception class

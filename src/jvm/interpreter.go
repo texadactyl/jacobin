@@ -3065,6 +3065,7 @@ func doInvokestatic(fr *frames.Frame, _ int64) int {
 	var mtEntry classloader.MTentry
 	var shouldCacheMeth bool
 	var k *classloader.Klass
+	var clInitRun byte
 	var err error
 
 	CPslot := (int(fr.Meth[fr.PC+1]) * 256) + int(fr.Meth[fr.PC+2]) // next 2 bytes point to CP entry
@@ -3116,7 +3117,11 @@ func doInvokestatic(fr *frames.Frame, _ int64) int {
 	// make sure that its static intializer block (if any) has been run. At this point,
 	// all we know is that the class exists and has been loaded.
 	k = classloader.MethAreaFetch(className)
-	if k.Data.ClInit == types.ClInitNotRun {
+	k.Data.CP.Mutex.Lock()
+	clInitRun = k.Data.ClInit
+	k.Data.CP.Mutex.Unlock()
+
+	if clInitRun == types.ClInitNotRun {
 		err = runInitializationBlock(k, nil, fr.FrameStack)
 		if err != nil {
 			globals.GetGlobalRef().ErrorGoStack = string(debug.Stack())

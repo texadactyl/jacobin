@@ -195,7 +195,9 @@ func ThrowEx(which int, msg string, f *frames.Frame) bool {
 		// the cause of a golang panic, because if we got here, there
 		// was no panic, rather just an uncaught exception. So we show
 		// the golang stack without implying there was a panic.
+		globals.GlobalsLock.Lock()
 		glob.PanicCauseShown = true
+		globals.GlobalsLock.Unlock()
 		ShowGoStackTrace("")
 	}
 
