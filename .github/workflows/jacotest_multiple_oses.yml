@@ -1,0 +1,191 @@
+name: Jacotest on multiple O/Ses
+
+on:
+
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.py'
+      - '**.txt'
+      - '**.yml'
+    branches: [ "main" ]
+    
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**.py'
+      - '**.txt'
+      - '**.yml'
+    branches: [ "main" ]
+    
+  workflow_dispatch:
+
+jobs:
+
+  run-on-oses:
+    strategy:
+      matrix:        
+        os: [macos-26-intel, macos-latest, ubuntu-24.04-arm, ubuntu-latest, windows-11-arm, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up TEMP and TMP
+      shell: bash
+      run: |
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          mkdir -p "D:\\ramdisk_tmp"
+          subst R: "D:\\ramdisk_tmp"
+          mkdir -p "R:\\tmp"
+          echo "TEMP=R:\\tmp" >> "$GITHUB_ENV"
+          echo "TMP=R:\\tmp" >> "$GITHUB_ENV"
+        fi
+        
+    - name: Setup Go
+      uses: actions/setup-go@main
+      with:
+          go-version: '1.27.x'
+          cache: true
+          cache-dependency-path: "**/go.sum"
+          
+    - name: Add HOME/go/bin to PATH
+      run: echo "$HOME/go/bin" >> $GITHUB_PATH
+
+    - name: Setup JDK, not Windows ARM64
+      if: matrix.os != 'windows-11-arm'
+      uses: actions/setup-java@main
+      with:
+        distribution: 'oracle'
+        java-version: '21'
+
+    - name: Set up JDK on Windows ARM64
+      if: matrix.os == 'windows-11-arm'
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'           # or 'adopt', 'microsoft'
+        java-version: '21'                # 
+        architecture: 'arm64'             #
+
+    - name: Setup Jacobin
+      run: |
+        set -ex
+        cd src
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+            go build -o "$HOME/go/bin/jacobin.exe" .
+        else
+            go build -o "$HOME/go/bin/jacobin" .
+        fi
+        cd ..
+        jacobin -h
+        
+    - name: Setup Jacotest
+      run: |
+        set -ex
+        git clone https://github.com/texadactyl/jacotest.go
+        cd jacotest.go/src
+        go get
+        go install -v .
+        cd ..
+        jacotest -h
+        
+    - name: Run Test Cases
+      run: |
+        set -e
+        cd jacotest.go
+        pwd
+        java --version
+        javac --version
+        jacotest -c -x -t 120 || true
+        
+    - name: Summary of Results
+      run: |
+        set -e
+        cd jacotest.go
+        pwd
+        jacotest -r 3
+        cp logs/passfail.txt "$GITHUB_WORKSPACE/passfail-${{ matrix.os }}.txt"
+        
+    - name: Create Output Env Names
+      run: |
+        cd jacotest.go
+        echo "REPORT_NAME=jacotest-summary-${{ matrix.os }}-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+        echo "LOGS_NAME=jacotest-logs-${{ matrix.os }}-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+      
+    - name: Create Summary Artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ env.REPORT_NAME }}
+        path: jacotest.go/reports
+        retention-days: 7
+
+    - name: Create Logs Artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ env.LOGS_NAME }}
+        path: jacotest.go/logs
+        retention-days: 7
+        
+    - name: Upload OS-specific passfail file
+      uses: actions/upload-artifact@v6
+      with:
+        name: passfail-${{ matrix.os }}
+        path: passfail-${{ matrix.os }}.txt
+        retention-days: 1
+        if-no-files-found: error
+
+  process-collection:
+    needs: run-on-oses
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Set up environment variables
+        shell: bash
+        run: |
+          echo "COLLECTED_RESULTS=${{ github.workspace }}/collected-results" >> "$GITHUB_ENV"
+          echo "LIST_ALL=${{ github.workspace }}/results_list.txt" >> "$GITHUB_ENV"
+          echo "CSV=${{ github.workspace }}/combined.csv" >> "$GITHUB_ENV"
+        
+      - name: Download all passfail artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: passfail-*
+          path: ${{ env.COLLECTED_RESULTS }}
+      
+      - name: List downloaded files
+        run: |
+          echo "Downloaded files:"
+          find $COLLECTED_RESULTS -type f
+      
+      - name: Concatenate combined passfail results
+        run: |
+          touch $LIST_ALL
+          for os_dir in $COLLECTED_RESULTS/passfail-*; do
+            os_name=$(basename "$os_dir")
+            os_name=${os_name#passfail-}
+            cat "$os_dir"/*.txt  | sed 's/^/'$os_name' /' >> $LIST_ALL
+          done
+          
+      - name: Checkout jacotest.go
+        uses: actions/checkout@v5
+        with:
+          repository: texadactyl/jacotest.go
+          path: jacotest.go      
+          
+      - name: Produce combined CSV
+        continue-on-error: true
+        run: |
+          cat $LIST_ALL | python3 jacotest.go/py/combinedCsv.py > $CSV
+      
+      - name: Upload combined CSV
+        uses: actions/upload-artifact@v6
+        with:
+          name: combined-csv
+          path: ${{ env.CSV }}
+          retention-days: 7
