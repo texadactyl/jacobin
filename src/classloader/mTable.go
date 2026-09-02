@@ -73,11 +73,9 @@ var MTmutex sync.RWMutex
 
 // adds an entry to the MTable, using a mutex
 func AddEntry(tbl *MT, key string, mte MTentry) {
-	mt := *tbl
-
 	MTmutex.Lock()
-	defer MTmutex.Unlock()
-	mt[key] = mte
+	(*tbl)[key] = mte
+	MTmutex.Unlock()
 }
 
 // GetMtableEntry returns the entry for the given key, or a nil entry if it doesn't exist.
