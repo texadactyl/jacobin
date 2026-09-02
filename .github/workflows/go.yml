@@ -1,8 +1,8 @@
 name: Go build and run unit tests
-env:
-  GO111MODULE: "on"
+
 on:
   workflow_dispatch:
+  
   push:
     paths-ignore:
       - '**.md'
@@ -10,6 +10,7 @@ on:
       - '**.txt'
       - '**.yml'
     branches: [ "main" ]
+    
   pull_request:
     paths-ignore:
       - '**.md'
