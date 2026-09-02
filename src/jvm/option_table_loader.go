@@ -64,7 +64,7 @@ import (
 //
 
 // LoadOptionsTable loads the table with all the options Jacobin recognizes.
-func LoadOptionsTable(Global globals.Globals) {
+func LoadOptionsTable(Global *globals.Globals) {
 
 	classpath := globals.Option{true, false, 4, getClasspath}
 	Global.Options["-classpath"] = classpath

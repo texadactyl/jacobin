@@ -153,7 +153,7 @@ var global Globals
 var OnWindows = runtime.GOOS == "windows"
 
 // InitGlobals initializes the global values that are known at start-up
-func InitGlobals(progName string) Globals {
+func InitGlobals(progName string) *Globals {
 
 	global = Globals{ // in alpha order
 		ArrayAddressList:     InitArrayAddressList(),
@@ -249,7 +249,7 @@ func InitGlobals(progName string) Globals {
 	global.Threads = make(map[int]interface{})
 	global.ThreadGroups = make(map[string]interface{})
 
-	return global
+	return &global
 }
 
 // InitClasspath initializes the classpath from the CLASSPATH environment variable.

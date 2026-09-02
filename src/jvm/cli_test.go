@@ -61,7 +61,7 @@ func TestHandleUsageMessage(t *testing.T) {
 	os.Stderr = w
 
 	args := []string{"jacobin", "-help"}
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	// restore stderr to what it was before
 	_ = w.Close()
@@ -97,7 +97,7 @@ func TestShowUsageMessageExitsProperlyWith__Help(t *testing.T) {
 	_, w, _ := os.Pipe()
 	os.Stderr = w
 
-	_, _ = showHelpStdoutAndExit(0, "--help", &global)
+	_, _ = showHelpStdoutAndExit(0, "--help", global)
 
 	_ = wout.Close()
 	os.Stdout = normalStdout
@@ -125,7 +125,7 @@ func TestShowVersionMessage(t *testing.T) {
 	LoadOptionsTable(global)
 	args := []string{"jacobin", "-showversion", " clas"}
 
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	// restore stderr to what it was before
 	_ = w.Close()
@@ -150,7 +150,7 @@ func TestShow__VersionUsingOptionTable(t *testing.T) {
 	r, wout, _ := os.Pipe()
 	os.Stdout = wout
 
-	_, _ = versionStdoutThenExit(0, "--version", &global)
+	_, _ = versionStdoutThenExit(0, "--version", global)
 
 	_ = wout.Close()
 	os.Stdout = normalStdout
@@ -184,7 +184,7 @@ func TestInvalidTraceSelection(t *testing.T) {
 
 	options := "-trace:inst" + TraceSep + "class" + TraceSep + "mickey"
 	args := []string{"jacobin", options}
-	err = HandleCli(args, &global)
+	err = HandleCli(args, global)
 
 	_ = werr.Close()
 	_ = wout.Close()
@@ -213,7 +213,7 @@ func TestValidTraceSelection(t *testing.T) {
 
 	options := "-trace:inst" + TraceSep + "class" + TraceSep + "inst"
 	args := []string{"jacobin", options}
-	err = HandleCli(args, &global)
+	err = HandleCli(args, global)
 
 	_ = werr.Close()
 	_ = wout.Close()
@@ -244,7 +244,7 @@ func TestSpecifyClientVM(t *testing.T) {
 	os.Stdout = w
 
 	args := []string{"jacobin", "-client"}
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	// restore stdout to what it was before
 	_ = w.Close()
@@ -272,7 +272,7 @@ func TestSpecifyValidButUnsupportedOption(t *testing.T) {
 	os.Stderr = w
 
 	args := []string{"jacobin", "--dry-run", " class"}
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	// restore stderr to what it was before
 	_ = w.Close()
@@ -343,7 +343,7 @@ func TestFoundClassFileWithNoArgs(t *testing.T) {
 	LoadOptionsTable(global)
 
 	args := []string{"jacobin", "a.class"}
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	if global.StartingClass != "a.class" {
 		t.Errorf("Expected global.StartingClass = \"a.class\", observed: \"%s\"", global.StartingClass)
@@ -360,7 +360,7 @@ func TestFoundClassFileWithArgs(t *testing.T) {
 	LoadOptionsTable(global)
 
 	args := []string{"jacobin", "a.class", "apple", "banana", "peach"}
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	if global.StartingClass != "a.class" {
 		t.Errorf("Expected global.StartingClass = \"a.class\", observed: \"%s\"", global.StartingClass)
@@ -389,7 +389,7 @@ func TestFoundClassFileWithArgsAlt(t *testing.T) {
 	LoadOptionsTable(global)
 
 	args := []string{"jacobin", "Starter", "--double-dash", "apple", "banana", "peach"} // no .class suffix
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	if global.StartingClass != "Starter.class" {
 		t.Errorf("Expected global.StartingClass = \"Starter.class\", observed: \"%s\"", global.StartingClass)
@@ -424,10 +424,10 @@ func _execWithClasspath(t *testing.T, optName string, withEqSign bool) {
 
 	if withEqSign {
 		args := []string{"jacobin", "-trace=inst", "-JJ:galt", optName + "=" + classpath, "-strictJDK", "Starter", "--double-dash", "apple", "banana", "peach"}
-		_ = HandleCli(args, &global)
+		_ = HandleCli(args, global)
 	} else {
 		args := []string{"jacobin", "-trace=inst", "-JJ:galt", optName, classpath, "-strictJDK", "Starter", "--double-dash", "apple", "banana", "peach"}
-		_ = HandleCli(args, &global)
+		_ = HandleCli(args, global)
 	}
 
 	if global.StartingClass != "Starter.class" {
@@ -493,7 +493,7 @@ func TestClassFileColonIFilePath(t *testing.T) {
 	os.Stdout = w
 
 	args := []string{"jacobin", "d:a.class"}
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	_ = w.Close()
 	os.Stdout = normalStdout
@@ -523,7 +523,7 @@ func TestGetJarFilename(t *testing.T) {
 
 	args := []string{"jacobin", "-jar", "pinkle.jar", "appArg1"}
 
-	_ = HandleCli(args, &global)
+	_ = HandleCli(args, global)
 
 	_ = w.Close()
 	_ = wout.Close()
@@ -545,7 +545,7 @@ func TestMissingJARfilename(t *testing.T) {
 	LoadOptionsTable(global)
 	global.Args = []string{"jacobin", "-jar"}
 
-	_, err := getJarFilename(1, "-jar", &global)
+	_, err := getJarFilename(1, "-jar", global)
 	if err != os.ErrInvalid {
 		t.Error("Missing JAR filename after -jar did not trigger the right error")
 	}

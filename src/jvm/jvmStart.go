@@ -83,7 +83,7 @@ func JVMrun() int {
 	expandClasspth(globPtr)
 
 	// handle the command-line interface (CLI) -- i.e., process the args
-	LoadOptionsTable(*globPtr)
+	LoadOptionsTable(globPtr)
 	err := HandleCli(os.Args, globPtr)
 	if err != nil {
 		return shutdown.Exit(shutdown.JVM_EXCEPTION)

@@ -21,7 +21,7 @@ func TestEnableAssertions(t *testing.T) {
 
 	global.Args = []string{"-ea"}
 
-	pos, err := enableAssertions(0, "", &global)
+	pos, err := enableAssertions(0, "", global)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -113,7 +113,7 @@ func TestGetClasspathValidInput(t *testing.T) {
 	pathArg := "a" + separator + "b" + separator + "c"
 	global.Args = []string{"-cp", pathArg}
 
-	pos, err := getClasspath(0, pathArg, &global)
+	pos, err := getClasspath(0, pathArg, global)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -137,7 +137,7 @@ func TestGetClasspathMissingArgument(t *testing.T) {
 	global := globals.InitGlobals("test")
 	global.Args = []string{"-cp"}
 
-	pos, err := getClasspath(0, "", &global)
+	pos, err := getClasspath(0, "", global)
 	if err == nil || err.Error() != "missing classpath after -cp or -classpath option" {
 		t.Errorf("Expected error for missing classpath, got: %v", err)
 	}
@@ -151,7 +151,7 @@ func TestGetJarFilenameValid(t *testing.T) {
 	global := globals.InitGlobals("test")
 	global.Args = []string{"-jar", "filename.jar"}
 
-	pos, _ := getJarFilename(0, "", &global)
+	pos, _ := getJarFilename(0, "", global)
 	if global.StartingJar != "filename.jar" {
 		t.Errorf("Did not get expected JAR file name, got: %s", global.StartingJar)
 	}
@@ -165,7 +165,7 @@ func TestGetJarFilenameWithAppArgs(t *testing.T) {
 	global := globals.InitGlobals("test")
 	global.Args = []string{"-jar", "filename.jar", "arg1", "arg2"}
 
-	pos, _ := getJarFilename(0, "", &global)
+	pos, _ := getJarFilename(0, "", global)
 	if global.StartingJar != "filename.jar" {
 		t.Errorf("Did not get expected JAR file name, got: %s", global.StartingJar)
 	}
@@ -182,7 +182,7 @@ func TestGetJarFilenameMissingArgument(t *testing.T) {
 	global := globals.InitGlobals("test")
 	global.Args = []string{"-jar"}
 
-	pos, err := getJarFilename(0, "", &global)
+	pos, err := getJarFilename(0, "", global)
 	if err != os.ErrInvalid {
 		t.Errorf("Expected error for missing jar file name, got: %v", err)
 	}
