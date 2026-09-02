@@ -15,8 +15,8 @@ import (
 )
 
 // ResolveCPinterfaceRefs resolves the interface references in the constant pool of a class
-func ResolveCPinterfaceRefs(cpp *CPool) error {
-	cp := *cpp
+func ResolveCPinterfaceRefs(cp *CPool) error {
+	// cp := *cpp
 	if cp.CpIndex == nil || cp.MethodRefs == nil {
 		return errors.New("invalid constant pool or class data passed to classloader.ResolveCPmethRefs()")
 	}
@@ -48,7 +48,7 @@ func ResolveCPinterfaceRefs(cpp *CPool) error {
 		fqn := *stringPool.GetStringPointer(resEntry.ClassIndex) + "." + methName + methSig
 		resEntry.FQNameIndex = stringPool.GetStringIndex(&fqn)
 
-		cpp.ResolvedInterfaceRefs = append(cpp.ResolvedInterfaceRefs, resEntry)
+		cp.ResolvedInterfaceRefs = append(cp.ResolvedInterfaceRefs, resEntry)
 		if globals.TraceClass {
 			msg := fmt.Sprintf("ResolveCPinterfaceRefs: Resolved interface ref: %s", fqn)
 			trace.Trace(msg)
@@ -58,8 +58,7 @@ func ResolveCPinterfaceRefs(cpp *CPool) error {
 }
 
 // ResolveCPmethRefs resolves the method references in the constant pool of a class
-func ResolveCPmethRefs(cpp *CPool) error {
-	cp := *cpp
+func ResolveCPmethRefs(cp *CPool) error {
 	if cp.CpIndex == nil || cp.MethodRefs == nil {
 		return errors.New("invalid constant pool or class data passed to classloader.ResolveCPmethRefs()")
 	}
@@ -91,7 +90,7 @@ func ResolveCPmethRefs(cpp *CPool) error {
 		fqn := *stringPool.GetStringPointer(resEntry.ClassIndex) + "." + methName + methSig
 		resEntry.FQNameIndex = stringPool.GetStringIndex(&fqn)
 
-		cpp.ResolvedMethodRefs = append(cpp.ResolvedMethodRefs, resEntry)
+		cp.ResolvedMethodRefs = append(cp.ResolvedMethodRefs, resEntry)
 		if globals.TraceClass {
 			msg := fmt.Sprintf("ResolveCPmethRefs: Resolved method ref: %s", fqn)
 			trace.Trace(msg)

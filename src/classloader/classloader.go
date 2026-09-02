@@ -540,7 +540,7 @@ func ParseAndPostClass(cl *Classloader, filename string, rawBytes []byte) (uint3
 	eKF := Klass{
 		Status: 'F', // F = format-checked
 		Loader: cl.Name,
-		Data:   &classToPost,
+		Data:   classToPost,
 	}
 	MethAreaInsert(fullyParsedClass.className, &eKF)
 
@@ -559,7 +559,7 @@ func ParseAndPostClass(cl *Classloader, filename string, rawBytes []byte) (uint3
 // classloader.MethArea). This mostly involves copying the data, converting most indexes
 // to uint16 and removing some fields we needed in parsing, but which are no longer required.
 // Returns: class data as it is posted to the method area.
-func convertToPostableClass(fullyParsedClass *ParsedClass) ClData {
+func convertToPostableClass(fullyParsedClass *ParsedClass) *ClData {
 	kd := ClData{}
 
 	kd.Name = fullyParsedClass.className // eventually to be deleted in favor of class index
@@ -910,7 +910,7 @@ func convertToPostableClass(fullyParsedClass *ParsedClass) ClData {
 	_ = ResolveCPmethRefs(&kd.CP)
 	_ = ResolveCPinterfaceRefs(&kd.CP)
 
-	return kd
+	return &kd
 }
 
 // GetCountOfLoadedClasses returns the number of classes loaded
