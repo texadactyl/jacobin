@@ -31,7 +31,7 @@ func WalkBaseJmod() error {
 	}
 
 	// Get the lib/classlist (bootstrap set of classes) if it exists
-	bootstrapSet := getClasslist(*zipReader)
+	bootstrapSet := getClasslist(zipReader)
 	useBootstrapSet := len(bootstrapSet) > 0
 
 	// For each class file in the base jmod,
@@ -83,7 +83,7 @@ func WalkBaseJmod() error {
 // There is a lib/classlist under the Java installation.
 // However, that file only has entries from jmods/java.base.jmod and this classlist is duplicated as a member in that file.
 // So, this function uses jmods/java.base.jmod to fetch the bootstrap map.
-func getClasslist(reader zip.Reader) map[string]struct{} {
+func getClasslist(reader *zip.Reader) map[string]struct{} {
 	classSet := make(map[string]struct{})
 
 	classlist, err := reader.Open("lib/classlist")
