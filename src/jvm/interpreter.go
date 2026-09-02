@@ -3312,14 +3312,13 @@ func doInvokeinterface(fr *frames.Frame, _ int64) int {
 		return ERROR_OCCURRED
 	}
 
-	clData := *class.Data
 	if mtEntry.MType == 'J' {
 		var className string
 		entry := mtEntry.Meth.(classloader.JmEntry)
 		if entry.AccessFlags&classloader.ACC_PRIVATE > 0 {
 			className = interfaceName
 		} else {
-			className = clData.Name
+			className = (*class.Data).Name
 		}
 		// the args and the objRef are popped off the stack by following call
 		fram, err := createAndInitNewFrame(
@@ -3339,7 +3338,7 @@ func doInvokeinterface(fr *frames.Frame, _ int64) int {
 	} else if mtEntry.MType == 'G' { // it's a gfunction (i.e., a native function implemented in golang)
 		gmethData := mtEntry.Meth.(ghelpers.GMeth)
 		paramCount := gmethData.ParamSlots
-		var params []interface{}
+		var params []any
 		for i := 0; i < paramCount; i++ {
 			params = append(params, pop(fr))
 		}
@@ -3374,7 +3373,7 @@ func doInvokeinterface(fr *frames.Frame, _ int64) int {
 
 	// Impossible return point unless there is a preceding software error.
 	globals.GetGlobalRef().ErrorGoStack = string(debug.Stack())
-	errMsg := "INVOKEINTERFACE: Logic error creating frame in: " + clData.Name + "." +
+	errMsg := "INVOKEINTERFACE: Logic error creating frame in: " + (*class.Data).Name + "." +
 		interfaceMethodName + interfaceMethodType
 	status := exceptions.ThrowEx(excNames.VirtualMachineError, errMsg, fr)
 	if status != exceptions.Caught {

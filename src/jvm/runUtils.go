@@ -765,9 +765,8 @@ func locateInterfaceMeth(
 // goes through the set of interfaces that a class implements and returns them as an array of strings
 func getClassInterfaces(class *classloader.Klass) []string {
 	interfaces := []string{}
-	clData := *class.Data
-	for i := 0; i < len(clData.Interfaces); i++ {
-		index := uint32(clData.Interfaces[i])
+	for i := 0; i < len((*class.Data).Interfaces); i++ {
+		index := uint32((*class.Data).Interfaces[i])
 		interfaces = append(interfaces, *stringPool.GetStringPointer(index))
 	}
 	return interfaces
