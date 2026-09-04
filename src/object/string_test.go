@@ -22,7 +22,7 @@ import (
 func TestNewStringObject(t *testing.T) {
 	globals.InitGlobals("test")
 
-	str := *NewStringObject()
+	str := NewStringObject()
 	klassStr := *(stringPool.GetStringPointer(str.KlassName))
 	if klassStr != types.StringClassName {
 		t.Errorf("Klass should be java/lang/String, observed: %s", klassStr)

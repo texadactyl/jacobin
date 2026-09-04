@@ -59,15 +59,15 @@ func ensureClassWithSuper(name string, super string) {
 // and the object that remains on the stack (should be unchanged on success).
 func runCheckcast(t *testing.T, obj interface{}, targetName string) (ok bool, top interface{}, pc int) {
 	fr := newFrame(opcodes.CHECKCAST)
-	setCPClassRefFor(&fr, targetName)
-	push(&fr, obj)
+	setCPClassRefFor(fr, targetName)
+	push(fr, obj)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&fr)
+	fs.PushFront(fr)
 	interpret(fs)
 	pc = fr.PC
 	// If no exception occurred, CHECKCAST leaves the object on the stack unchanged.
 	if fr.TOS >= 0 {
-		top = peek(&fr)
+		top = peek(fr)
 		ok = true
 	} else {
 		ok = false

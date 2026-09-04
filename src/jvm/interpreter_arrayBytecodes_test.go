@@ -37,7 +37,7 @@ func TestNewAaload(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.ANEWARRAY)
-	push(&f, int64(30)) // make an array of 30 elements
+	push(f, int64(30)) // make an array of 30 elements
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // use the classRef at CP[1] as the type of reference
 
@@ -52,7 +52,7 @@ func TestNewAaload(t *testing.T) {
 	f.CP = &CP
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -66,27 +66,27 @@ func TestNewAaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.AASTORE)
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // in array[20]
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // in array[20]
 	oPtr := object.MakeEmptyObject()
-	push(&f, oPtr) // the value we're storing
+	push(f, oPtr) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.AALOAD) // now fetch the value in array[20]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	os.Stderr = normalStderr
 
-	res := pop(&f)
+	res := pop(f)
 	if res != oPtr {
 		t.Errorf("AALOAD: Expected loaded array value = %v, got: %v", oPtr, res)
 	}
@@ -106,10 +106,10 @@ func TestNewAaloadWithNil(t *testing.T) {
 	fs := frames.CreateFrameStack()
 
 	f := newFrame(opcodes.AALOAD)
-	push(&f, nil)       // push the reference to the array -- here nil
-	push(&f, int64(20)) // index to array[20]
+	push(f, nil)       // push the reference to the array -- here nil
+	push(f, int64(20)) // index to array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	_ = w.Close()
@@ -138,9 +138,9 @@ func TestAaloadInvalidSubscript(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.AALOAD) // now fetch the value
-	push(&f, refArr)              // push the reference to the array
-	push(&f, int64(200))          // get contents in array[200] which is invalid
-	ret := doAaload(&f, 0)
+	push(f, refArr)              // push the reference to the array
+	push(f, int64(200))          // get contents in array[200] which is invalid
+	ret := doAaload(f, 0)
 
 	// restore stderr to what they were before
 	_ = w.Close()
@@ -166,7 +166,7 @@ func TestAaloadInvalidSubscript(t *testing.T) {
 func TestNewAastore(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.ANEWARRAY)
-	push(&f, int64(30)) // make an array of 30 elements
+	push(f, int64(30)) // make an array of 30 elements
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // use the classRef at CP[2] as the type of reference
 
@@ -182,7 +182,7 @@ func TestNewAastore(t *testing.T) {
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("TestAastore: Top of stack, expected 0, got: %d", f.TOS)
@@ -198,17 +198,17 @@ func TestNewAastore(t *testing.T) {
 	statics.LoadStaticsString()
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 	f = newFrame(opcodes.AASTORE)
 
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // index to array[20]
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // index to array[20]
 	// objRef := object.NewStringFromGoString("test")
 	objRef := object.StringObjectFromGoString("test")
-	push(&f, objRef) // store the address of a string
+	push(f, objRef) // store the address of a string
 
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// now retrieve the updated element
@@ -224,9 +224,9 @@ func TestNewAastoreInvalid1(t *testing.T) {
 	globals.InitStringPool()
 	f := newFrame(opcodes.AASTORE)
 	obj := object.Make1DimArray(object.T_REF, 10)
-	push(&f, (*object.Object)(nil)) // this should point to an array, will here cause the error
-	push(&f, int64(30))             // the index into the array
-	push(&f, obj)                   // the value to insert
+	push(f, (*object.Object)(nil)) // this should point to an array, will here cause the error
+	push(f, int64(30))             // the index into the array
+	push(f, obj)                   // the value to insert
 
 	globals.InitGlobals("test")
 	trace.Init()
@@ -239,7 +239,7 @@ func TestNewAastoreInvalid1(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -262,9 +262,9 @@ func TestNewAastoreInvalid2(t *testing.T) {
 
 	o := object.Make1DimArray(object.T_INT, 10)
 	f := newFrame(opcodes.AASTORE)
-	push(&f, o)        // this should point to an array of refs, not ints, will here cause the error
-	push(&f, int64(5)) // the index into the array
-	push(&f, o)        // the value to insert
+	push(f, o)        // this should point to an array of refs, not ints, will here cause the error
+	push(f, int64(5)) // the index into the array
+	push(f, o)        // the value to insert
 
 	trace.Init()
 	globals.InitGlobals("test")
@@ -277,7 +277,7 @@ func TestNewAastoreInvalid2(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -300,9 +300,9 @@ func TestNewAastoreInvalid3(t *testing.T) {
 	objType := types.ObjectClassName
 	o := object.Make1DimRefArray(objType, 10)
 	f := newFrame(opcodes.AASTORE)
-	push(&f, o)         // an array of 10 ints, not floats
-	push(&f, int64(30)) // the index into the array: it's too big, causing error
-	push(&f, o)         // the value to insert
+	push(f, o)         // an array of 10 ints, not floats
+	push(f, int64(30)) // the index into the array: it's too big, causing error
+	push(f, o)         // the value to insert
 
 	trace.Init()
 	globals.InitGlobals("test")
@@ -315,7 +315,7 @@ func TestNewAastoreInvalid3(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -339,12 +339,12 @@ func TestNewAastoreNullValue(t *testing.T) {
 	objType := types.ObjectClassName
 	o := object.Make1DimRefArray(objType, 10)
 	f := newFrame(opcodes.AASTORE)
-	push(&f, o)        // valid array
-	push(&f, int64(5)) // valid index
-	push(&f, nil)      // null value to insert - this should now be valid
+	push(f, o)        // valid array
+	push(f, int64(5)) // valid index
+	push(f, nil)      // null value to insert - this should now be valid
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// Verify that the value was stored
@@ -361,9 +361,9 @@ func TestNewAastoreInvalidArgumentType(t *testing.T) {
 	objType := types.ObjectClassName
 	o := object.Make1DimRefArray(objType, 10)
 	f := newFrame(opcodes.AASTORE)
-	push(&f, o)                      // valid array
-	push(&f, int64(5))               // valid index
-	push(&f, "not an object.Object") // invalid type - this triggers the error
+	push(f, o)                      // valid array
+	push(f, int64(5))               // valid index
+	push(f, "not an object.Object") // invalid type - this triggers the error
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -375,7 +375,7 @@ func TestNewAastoreInvalidArgumentType(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -396,7 +396,7 @@ func TestNewAastoreInvalidArgumentType(t *testing.T) {
 // ANEWARRAY: creation of array for references to strings
 func TestNewAnewrray(t *testing.T) {
 	f := newFrame(opcodes.ANEWARRAY)
-	push(&f, int64(13)) // make an array of 13 elements
+	push(f, int64(13)) // make an array of 13 elements
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // use the classRef at CP[1] as the type of reference
 
@@ -413,7 +413,7 @@ func TestNewAnewrray(t *testing.T) {
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -439,7 +439,7 @@ func TestNewAnewrray(t *testing.T) {
 // ANEWARRAY: creation of array for references; test contents of Klass field
 func TestNewAnewrrayKlassField(t *testing.T) {
 	f := newFrame(opcodes.ANEWARRAY)
-	push(&f, int64(13)) // make an array of 13 elements
+	push(f, int64(13)) // make an array of 13 elements
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x02) // use the classRef at CP[2] as the type of reference
 
@@ -458,7 +458,7 @@ func TestNewAnewrrayKlassField(t *testing.T) {
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -491,12 +491,12 @@ func TestNewAnewrrayInvalidSize(t *testing.T) {
 	r, w, _ := os.Pipe()
 	os.Stderr = w
 
-	push(&f, int64(-1)) // make the array an invalid size
+	push(f, int64(-1)) // make the array an invalid size
 
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -519,12 +519,12 @@ func TestNewAnewrrayInvalidSize(t *testing.T) {
 // in the global array address list
 func TestNewByteArrayLength(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(13))                    // make the array 13 elements big
+	push(f, int64(13))                    // make the array 13 elements big
 	f.Meth = append(f.Meth, object.T_BYTE) // make it an array of bytes
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -538,15 +538,15 @@ func TestNewByteArrayLength(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f)
+	ptr := pop(f)
 
 	f = newFrame(opcodes.ARRAYLENGTH)
-	push(&f, ptr) // push the reference to the array
+	push(f, ptr) // push the reference to the array
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	size := pop(&f).(int64)
+	size := pop(f).(int64)
 	if size != 13 {
 		t.Errorf("ARRAYLENGTH: Expecting array length of 13, got %d", size)
 	}
@@ -555,12 +555,12 @@ func TestNewByteArrayLength(t *testing.T) {
 // ARRAYLENGTH: Test length of int array
 func TestNewIntArrayLength(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(22))                   // make the array 22 elements big
+	push(f, int64(22))                   // make the array 22 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of ints
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -574,16 +574,16 @@ func TestNewIntArrayLength(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f)
+	ptr := pop(f)
 
 	f = newFrame(opcodes.ARRAYLENGTH)
 	// uptr := uintptr(unsafe.Pointer(ptr))
-	push(&f, ptr) // push the reference to the array
+	push(f, ptr) // push the reference to the array
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	size := pop(&f).(int64)
+	size := pop(f).(int64)
 	if size != 22 {
 		t.Errorf("ARRAYLENGTH: Expecting array length of 13, got %d", size)
 	}
@@ -592,12 +592,12 @@ func TestNewIntArrayLength(t *testing.T) {
 // ARRAYLENGTH: Test length of float array
 func TestNewFloatArrayLength(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(34))                      // make the array 34 elements big
+	push(f, int64(34))                      // make the array 34 elements big
 	f.Meth = append(f.Meth, object.T_DOUBLE) // make it an array of doubles
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -611,16 +611,16 @@ func TestNewFloatArrayLength(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f)
+	ptr := pop(f)
 
 	f = newFrame(opcodes.ARRAYLENGTH)
 	// uptr := uintptr(unsafe.Pointer(ptr))
-	push(&f, ptr) // push the reference to the array
+	push(f, ptr) // push the reference to the array
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	size := pop(&f).(int64)
+	size := pop(f).(int64)
 	if size != 34 {
 		t.Errorf("ARRAYLENGTH: Expecting array length of 34, got %d", size)
 	}
@@ -629,12 +629,12 @@ func TestNewFloatArrayLength(t *testing.T) {
 // ARRAYLENGTH: Test length of array of longs
 func TestNewLongArrayLength(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(34))                    // make the array 34 elements big
+	push(f, int64(34))                    // make the array 34 elements big
 	f.Meth = append(f.Meth, object.T_LONG) // make it an array of longs
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -648,16 +648,16 @@ func TestNewLongArrayLength(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f)
+	ptr := pop(f)
 
 	f = newFrame(opcodes.ARRAYLENGTH)
 	// uptr := uintptr(unsafe.Pointer(ptr))
-	push(&f, ptr) // push the reference to the array
+	push(f, ptr) // push the reference to the array
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	size := pop(&f).(int64)
+	size := pop(f).(int64)
 	if size != 34 {
 		t.Errorf("ARRAYLENGTH: Expecting array length of 34, got %d", size)
 	}
@@ -666,12 +666,12 @@ func TestNewLongArrayLength(t *testing.T) {
 // ARRAYLENGTH: Test length of array of references
 func TestNewRefArrayLength(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(34))                   // make the array 34 elements big
+	push(f, int64(34))                   // make the array 34 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of references
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -685,16 +685,16 @@ func TestNewRefArrayLength(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f)
+	ptr := pop(f)
 
 	f = newFrame(opcodes.ARRAYLENGTH)
 	// uptr := uintptr(unsafe.Pointer(ptr))
-	push(&f, ptr) // push the reference to the array
+	push(f, ptr) // push the reference to the array
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	size := pop(&f).(int64)
+	size := pop(f).(int64)
 	if size != 34 {
 		t.Errorf("ARRAYLENGTH: Expecting array length of 34, got %d", size)
 	}
@@ -710,9 +710,9 @@ func TestNewRawByteArrayLength(t *testing.T) {
 
 	array := []byte{'a', 'b', 'c'}
 	f := newFrame(opcodes.ARRAYLENGTH)
-	push(&f, &array) // push the reference to the array
+	push(f, &array) // push the reference to the array
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	_ = w.Close()
@@ -725,7 +725,7 @@ func TestNewRawByteArrayLength(t *testing.T) {
 		t.Errorf("ARRAYLENGTH: Got unexpected error message: %s", errMsg)
 	}
 
-	length := pop(&f).(int64)
+	length := pop(f).(int64)
 	if length != 3 {
 		t.Errorf("ARRAYLENGTH: Expecting length of 3, got: %d", length)
 	}
@@ -740,9 +740,9 @@ func TestNewRawInt8ArrayLength(t *testing.T) {
 
 	array := []uint8{'a', 'b', 'c'}
 	f := newFrame(opcodes.ARRAYLENGTH)
-	push(&f, &array) // push the reference to the array
+	push(f, &array) // push the reference to the array
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	_ = w.Close()
@@ -755,7 +755,7 @@ func TestNewRawInt8ArrayLength(t *testing.T) {
 		t.Errorf("TestRawInt8ArrayLength: Got unexpected error message: %s", errMsg)
 	}
 
-	length := pop(&f).(int64)
+	length := pop(f).(int64)
 	if length != 3 {
 		t.Errorf("TestRawInt8ArrayLength: Expecting length of 3, got: %d", length)
 	}
@@ -769,9 +769,9 @@ func TestNewNilArrayLength(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.ARRAYLENGTH)
-	push(&f, nil) // push the reference to the array
+	push(f, nil) // push the reference to the array
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	_ = w.Close()
@@ -793,12 +793,12 @@ func TestNewNilArrayLength(t *testing.T) {
 // The logic here is effectively identical to IALOAD. This code also tests BASTORE.
 func TestNewBaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_BYTE) // make it an array of bytes
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // NEWARRAY
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -812,24 +812,24 @@ func TestNewBaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f)
+	ptr := pop(f)
 
 	f = newFrame(opcodes.BASTORE)
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // in array[20] (smaller than the original which was [30])
-	push(&f, byte(100)) // the value we're storing
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // in array[20] (smaller than the original which was [30])
+	push(f, byte(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute BASTORE
 
 	f = newFrame(opcodes.BALOAD) // now fetch the value in array[20]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute BALOAD
 
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if res != 100 {
 		t.Errorf("BALOAD: Expected loaded array value of 100, got: %d", res)
 	}
@@ -849,10 +849,10 @@ func TestNewBaloadNilArray(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.BALOAD)
-	push(&f, object.Null) // push the reference to the array, here nil
-	push(&f, int64(20))   // get contents in array[20]
+	push(f, object.Null) // push the reference to the array, here nil
+	push(f, int64(20))   // get contents in array[20]
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode -- should generate exception
 
 	// restore stderr to what they were before
@@ -871,7 +871,7 @@ func TestNewBaloadNilArray(t *testing.T) {
 // BALOAD: using an invalid subscript into the array
 func TestNewBaloadInvalidSubscript(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_BYTE) // make it an array of bytes
 
 	normalStderr := os.Stderr
@@ -881,23 +881,23 @@ func TestNewBaloadInvalidSubscript(t *testing.T) {
 	globals.InitGlobals("test")
 	trace.Init()
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // NEWARRAY
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.BALOAD) // now fetch the value
 	f.ClName = "foo"
 	f.MethName = "bar"
 	f.MethType = "()V"
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(200)) // get contents in array[200] which is invalid
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(200)) // get contents in array[200] which is invalid
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute BALOAD
 
 	// restore stderr to what they were before
@@ -922,14 +922,14 @@ func TestNewBaloadInt8Array(t *testing.T) {
 	int8Array[20] = 100
 
 	f := newFrame(opcodes.BALOAD)
-	push(&f, int8Array) // push the direct int8 array reference
-	push(&f, int64(20)) // index to array[20]
+	push(f, int8Array) // push the direct int8 array reference
+	push(f, int64(20)) // index to array[20]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if res != 100 {
 		t.Errorf("BALOAD: Expected loaded array value of 100, got: %d", res)
 	}
@@ -953,11 +953,11 @@ func TestNewBaloadInvalidType(t *testing.T) {
 	os.Stdout = wout
 
 	f := newFrame(opcodes.BALOAD)
-	push(&f, "not a valid array") // push an invalid type (string instead of array)
-	push(&f, int64(20))           // index
+	push(f, "not a valid array") // push an invalid type (string instead of array)
+	push(f, int64(20))           // index
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode -- should generate exception
 
 	// restore stderr and stdout to what they were before
@@ -981,12 +981,12 @@ func TestNewBaloadInvalidType(t *testing.T) {
 // Note the value we store must be an int64 value--not a byte
 func TestNewBastore(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_BYTE) // make it an array of bytes
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1000,14 +1000,14 @@ func TestNewBastore(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.BASTORE)
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // in array[20]
-	push(&f, byte(100)) // the value we're storing
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // in array[20]
+	push(f, byte(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	o := ptr.FieldTable["value"]
@@ -1024,12 +1024,12 @@ func TestNewBastore(t *testing.T) {
 // BASTORE: Tests whether storing an int64 into a byte array does the right thing
 func TestNewBastoreInt64(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_BYTE) // make it an array of bytes
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1043,14 +1043,14 @@ func TestNewBastoreInt64(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.BASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	o := ptr.FieldTable["value"]
@@ -1067,9 +1067,9 @@ func TestNewBastoreInt64(t *testing.T) {
 // BASTORE: Test error conditions: invalid array address
 func TestNewBastoreInvalid1(t *testing.T) {
 	f := newFrame(opcodes.BASTORE)
-	push(&f, (*object.Object)(nil)) // this should point to an array, will here cause the error
-	push(&f, int64(30))             // the index into the array
-	push(&f, int64(20))             // the value to insert
+	push(f, (*object.Object)(nil)) // this should point to an array, will here cause the error
+	push(f, int64(30))             // the index into the array
+	push(f, int64(20))             // the value to insert
 
 	trace.Init()
 	globals.InitGlobals("test")
@@ -1082,7 +1082,7 @@ func TestNewBastoreInvalid1(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1105,9 +1105,9 @@ func TestNewBastoreInvalid2(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.BASTORE)
 	o := object.Make1DimArray(object.T_FLOAT, 10)
-	push(&f, o)         // this should point to an array of ints, not floats, will here cause the error
-	push(&f, int64(30)) // the index into the array
-	push(&f, int64(20)) // the value to insert
+	push(f, o)         // this should point to an array of ints, not floats, will here cause the error
+	push(f, int64(30)) // the index into the array
+	push(f, int64(20)) // the value to insert
 
 	trace.Init()
 	globals.InitGlobals("test")
@@ -1120,7 +1120,7 @@ func TestNewBastoreInvalid2(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1144,9 +1144,9 @@ func TestNewBastoreInvalid3(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_BYTE, 10)
 	f := newFrame(opcodes.BASTORE)
-	push(&f, o)         // an array of 10 ints, not floats
-	push(&f, int64(30)) // the index into the array: it's too big, causing error
-	push(&f, int64(20)) // the value to insert
+	push(f, o)         // an array of 10 ints, not floats
+	push(f, int64(30)) // the index into the array: it's too big, causing error
+	push(f, int64(20)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1158,7 +1158,7 @@ func TestNewBastoreInvalid3(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1184,12 +1184,12 @@ func TestNewBastoreJavaByteArray(t *testing.T) {
 	javaByteArray := make([]types.JavaByte, 30)
 
 	f := newFrame(opcodes.BASTORE)
-	push(&f, javaByteArray) // push the direct JavaByte array reference
-	push(&f, int64(20))     // in array[20]
-	push(&f, int64(100))    // the value we're storing
+	push(f, javaByteArray) // push the direct JavaByte array reference
+	push(f, int64(20))     // in array[20]
+	push(f, int64(100))    // the value we're storing
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// Verify the value was stored correctly
@@ -1213,9 +1213,9 @@ func TestNewBastoreInvalidType(t *testing.T) {
 	f := newFrame(opcodes.BASTORE)
 
 	// Push an unexpected type (e.g., a string instead of an array)
-	push(&f, "not an array") // this will trigger the default case
-	push(&f, int64(20))      // the index into the array
-	push(&f, int64(100))     // the value to insert
+	push(f, "not an array") // this will trigger the default case
+	push(f, int64(20))      // the index into the array
+	push(f, int64(100))     // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1227,7 +1227,7 @@ func TestNewBastoreInvalidType(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1250,12 +1250,12 @@ func TestNewBastoreInvalidType(t *testing.T) {
 // the logic here is effectively identical to IALOAD. This code also tests CASTORE.
 func TestNewCaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_CHAR) // make it an array of chars
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1269,24 +1269,24 @@ func TestNewCaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.CASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.CALOAD) // now fetch the value in array[20]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if res != 100 {
 		t.Errorf("CALOAD: Expected loaded array value of 100, got: %d", res)
 	}
@@ -1299,12 +1299,12 @@ func TestNewCaload(t *testing.T) {
 // DALOAD: Test fetching and pushing the value of an element in an float array
 func TestNewDaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                      // make the array 30 elements big
+	push(f, int64(30))                      // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_DOUBLE) // make it an array of doubles
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1318,24 +1318,24 @@ func TestNewDaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.DASTORE)
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // in array[20]
-	push(&f, 100.0)     // the value we're storing
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // in array[20]
+	push(f, 100.0)     // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.DALOAD) // now fetch the value in array[30]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	res := pop(&f).(float64)
+	res := pop(f).(float64)
 	if res != 100.0 {
 		t.Errorf("FALOAD: Expected loaded array value of 100, got: %e", res)
 	}
@@ -1355,10 +1355,10 @@ func TestNewDaloadNilArray(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.DALOAD)
-	push(&f, object.Null) // push the reference to the array, here nil
-	push(&f, int64(20))   // get contents in array[20]
+	push(f, object.Null) // push the reference to the array, here nil
+	push(f, int64(20))   // get contents in array[20]
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode -- should generate exception
 
 	// restore stderr to what they were before
@@ -1377,7 +1377,7 @@ func TestNewDaloadNilArray(t *testing.T) {
 // DALOAD: using an invalid subscript into the array
 func TestNewLaDoadInvalidSubscript(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                      // make the array 30 elements big
+	push(f, int64(30))                      // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_DOUBLE) // make it an array of doubles
 
 	normalStderr := os.Stderr
@@ -1387,20 +1387,20 @@ func TestNewLaDoadInvalidSubscript(t *testing.T) {
 	globals.InitGlobals("test")
 	trace.Init()
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.DALOAD) // now fetch the value
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(200))         // get contents in array[200] which is invalid
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(200))         // get contents in array[200] which is invalid
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// restore stderr to what they were before
@@ -1420,12 +1420,12 @@ func TestNewLaDoadInvalidSubscript(t *testing.T) {
 // See comments for IASTORE for the logic of this test
 func TestNewDastore(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                      // make the array 30 elements big
+	push(f, int64(30))                      // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_DOUBLE) // make it an array of doubles
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1439,14 +1439,14 @@ func TestNewDastore(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.DASTORE)
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // in array[20]
-	push(&f, 100_000_000_000.25) // the value we're storing
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // in array[20]
+	push(f, 100_000_000_000.25) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 	if f.TOS != -1 {
 		t.Errorf("Top of stack, expected -1, got: %d", f.TOS)
@@ -1468,9 +1468,9 @@ func TestNewDastore(t *testing.T) {
 func TestNewDastoreInvalid1(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.DASTORE)
-	push(&f, (*object.Object)(nil)) // this should point to an array, will here cause the error
-	push(&f, int64(30))             // the index into the array
-	push(&f, float64(20.0))         // the value to insert
+	push(f, (*object.Object)(nil)) // this should point to an array, will here cause the error
+	push(f, int64(30))             // the index into the array
+	push(f, float64(20.0))         // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1482,7 +1482,7 @@ func TestNewDastoreInvalid1(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1505,9 +1505,9 @@ func TestNewDastoreInvalid2(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_INT, 10)
 	f := newFrame(opcodes.DASTORE)
-	push(&f, o)             // this should point to an array of floats, not ints, will here cause the error
-	push(&f, int64(30))     // the index into the array
-	push(&f, float64(20.0)) // the value to insert
+	push(f, o)             // this should point to an array of floats, not ints, will here cause the error
+	push(f, int64(30))     // the index into the array
+	push(f, float64(20.0)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1519,7 +1519,7 @@ func TestNewDastoreInvalid2(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1543,9 +1543,9 @@ func TestNewDastoreInvalid3(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_FLOAT, 10)
 	f := newFrame(opcodes.DASTORE)
-	push(&f, o)             // an array of 10 ints, not floats
-	push(&f, int64(30))     // the index into the array: it's too big, causing error
-	push(&f, float64(20.0)) // the value to insert
+	push(f, o)             // an array of 10 ints, not floats
+	push(f, int64(30))     // the index into the array: it's too big, causing error
+	push(f, float64(20.0)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1557,7 +1557,7 @@ func TestNewDastoreInvalid3(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1578,12 +1578,12 @@ func TestNewDastoreInvalid3(t *testing.T) {
 // FALOAD: Test fetching and pushing the value of an element in an float array
 func TestNewFaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                     // make the array 30 elements big
+	push(f, int64(30))                     // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_FLOAT) // make it an array of floats
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1597,24 +1597,24 @@ func TestNewFaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.FASTORE)
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // in array[20]
-	push(&f, 100.0)     // the value we're storing
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // in array[20]
+	push(f, 100.0)     // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.FALOAD) // now fetch the value in array[30]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	res := pop(&f).(float64)
+	res := pop(f).(float64)
 	if res != 100.0 {
 		t.Errorf("FALOAD: Expected loaded array value of 100, got: %e", res)
 	}
@@ -1628,19 +1628,19 @@ func TestNewFaload(t *testing.T) {
 func TestFaLoadWithRawFloatArray(t *testing.T) {
 	f := newFrame(opcodes.FALOAD)
 	fArray := []float64{1.0, 2.0, 3.0, 4.0, 50.}
-	push(&f, fArray)   // push the reference to the array, here a raw byte array
-	push(&f, int64(2)) // get contents in array[2]
+	push(f, fArray)   // push the reference to the array, here a raw byte array
+	push(f, int64(2)) // get contents in array[2]
 
 	globals.InitGlobals("test")
 
 	// execute the bytecode
-	ret := doFaload(&f, 0)
+	ret := doFaload(f, 0)
 
 	if ret != 1 {
 		t.Errorf("FALOAD: Expected error return of 1, got %d", ret)
 	}
 
-	fl := pop(&f).(float64)
+	fl := pop(f).(float64)
 	if fl != 3.0 {
 		t.Errorf("FALOAD: Expected 3.0, got %f", fl)
 	}
@@ -1656,10 +1656,10 @@ func TestNewFaloadNilArray(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.FALOAD)
-	push(&f, object.Null) // push the reference to the array, here nil
-	push(&f, int64(20))   // get contents in array[20]
+	push(f, object.Null) // push the reference to the array, here nil
+	push(f, int64(20))   // get contents in array[20]
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode -- should generate exception
 
 	// restore stderr to what they were before
@@ -1678,7 +1678,7 @@ func TestNewFaloadNilArray(t *testing.T) {
 // FALOAD: using an invalid subscript into the array
 func TestNewFaloadInvalidSubscript(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                     // make the array 30 elements big
+	push(f, int64(30))                     // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_FLOAT) // make it an array of floats
 
 	normalStderr := os.Stderr
@@ -1688,20 +1688,20 @@ func TestNewFaloadInvalidSubscript(t *testing.T) {
 	globals.InitGlobals("test")
 	trace.Init()
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.FALOAD) // now fetch the value
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(200))         // get contents in array[200] which is invalid
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(200))         // get contents in array[200] which is invalid
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// restore stderr to what they were before
@@ -1720,8 +1720,8 @@ func TestNewFaloadInvalidSubscript(t *testing.T) {
 func TestFaLoadWhenNotAValidArray(t *testing.T) {
 	f := newFrame(opcodes.FALOAD)
 	badArray := []byte{1, 2, 3, 4, 5}
-	push(&f, badArray)  // push the reference to the array, here a raw byte array
-	push(&f, int64(20)) // get contents in array[20]
+	push(f, badArray)  // push the reference to the array, here a raw byte array
+	push(f, int64(20)) // get contents in array[20]
 
 	globals.InitGlobals("test")
 
@@ -1730,7 +1730,7 @@ func TestFaLoadWhenNotAValidArray(t *testing.T) {
 	os.Stderr = w
 
 	// execute the bytecode
-	ret := doFaload(&f, 0)
+	ret := doFaload(f, 0)
 
 	_ = w.Close()
 	msg, _ := io.ReadAll(r)
@@ -1751,12 +1751,12 @@ func TestFaLoadWhenNotAValidArray(t *testing.T) {
 // sum all the elements in the array, and test for a sum of 100.0
 func TestNewFastore(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                     // make the array 30 elements big
+	push(f, int64(30))                     // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_FLOAT) // make it an array of floats
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1770,14 +1770,14 @@ func TestNewFastore(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.FASTORE)
-	push(&f, ptr)       // push the reference to the array
-	push(&f, int64(20)) // in array[20]
-	push(&f, 100.0)     // the value we're storing
+	push(f, ptr)       // push the reference to the array
+	push(f, int64(20)) // in array[20]
+	push(f, 100.0)     // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	oa := ptr.FieldTable["value"]
@@ -1794,9 +1794,9 @@ func TestNewFastore(t *testing.T) {
 // FASTORE: Test error conditions: invalid array address
 func TestFastoreInvalidArrayAddress(t *testing.T) {
 	f := newFrame(opcodes.FASTORE)
-	push(&f, (*object.Object)(nil)) // this should point to an array, will here cause the error
-	push(&f, int64(30))             // the index into the array
-	push(&f, float64(20.0))         // the value to insert
+	push(f, (*object.Object)(nil)) // this should point to an array, will here cause the error
+	push(f, int64(30))             // the index into the array
+	push(f, float64(20.0))         // the value to insert
 
 	trace.Init()
 	globals.InitGlobals("test")
@@ -1809,7 +1809,7 @@ func TestFastoreInvalidArrayAddress(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1832,9 +1832,9 @@ func TestFastoreInvalidArrayType(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_INT, 10)
 	f := newFrame(opcodes.FASTORE)
-	push(&f, o)             // this should point to an array of floats, not ints, will here cause the error
-	push(&f, int64(30))     // the index into the array
-	push(&f, float64(20.0)) // the value to insert
+	push(f, o)             // this should point to an array of floats, not ints, will here cause the error
+	push(f, int64(30))     // the index into the array
+	push(f, float64(20.0)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1846,7 +1846,7 @@ func TestFastoreInvalidArrayType(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1869,9 +1869,9 @@ func TestFastoreInvalidIndexOutOfRange(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_FLOAT, 10)
 	f := newFrame(opcodes.FASTORE)
-	push(&f, o)             // an array of 10 ints, not floats
-	push(&f, int64(30))     // the index into the array: it's too big, causing error
-	push(&f, float64(20.0)) // the value to insert
+	push(f, o)             // an array of 10 ints, not floats
+	push(f, int64(30))     // the index into the array: it's too big, causing error
+	push(f, float64(20.0)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -1883,7 +1883,7 @@ func TestFastoreInvalidIndexOutOfRange(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -1905,11 +1905,11 @@ func TestFastoreInvalidIndexOutOfRange(t *testing.T) {
 func TestFastoreWithRawFloatArray(t *testing.T) {
 	f := newFrame(opcodes.FASTORE)
 	fArray := []float64{1.0, 2.0, 3.0, 4.0, 50.}
-	push(&f, fArray)   // push the reference to the array, here a raw byte array
-	push(&f, int64(2)) // in array[2]
-	push(&f, 100.0)    // the value we're storing
+	push(f, fArray)   // push the reference to the array, here a raw byte array
+	push(f, int64(2)) // in array[2]
+	push(f, 100.0)    // the value we're storing
 
-	ret := doFastore(&f, 0)
+	ret := doFastore(f, 0)
 
 	if fArray[2] != 100.0 {
 		t.Errorf("FASTORE: Expected array[2] to be 100.0, got: %f", fArray[2])
@@ -1931,11 +1931,11 @@ func TestFastoreWithRawNonArray(t *testing.T) {
 
 	f := newFrame(opcodes.FASTORE)
 	fArray := "non-array string"
-	push(&f, fArray)   // push the reference to the array, here a raw byte array
-	push(&f, int64(2)) // in array[2]
-	push(&f, 100.0)    // the value we're storing
+	push(f, fArray)   // push the reference to the array, here a raw byte array
+	push(f, int64(2)) // in array[2]
+	push(f, 100.0)    // the value we're storing
 
-	ret := doFastore(&f, 0)
+	ret := doFastore(f, 0)
 
 	// restore stderr and stdout to what they were before
 	_ = w.Close()
@@ -1956,12 +1956,12 @@ func TestFastoreWithRawNonArray(t *testing.T) {
 // IALOAD: Test fetching and pushing the value of an element in an int array
 func TestNewIaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                   // make the array 30 elements big
+	push(f, int64(30))                   // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of ints
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -1975,24 +1975,24 @@ func TestNewIaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.IASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.IALOAD) // now fetch the value in array[20]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if res != 100 {
 		t.Errorf("IALOAD: Expected loaded array value of 100, got: %d", res)
 	}
@@ -2012,10 +2012,10 @@ func TestNewIaloadNilArray(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.IALOAD)
-	push(&f, object.Null) // push the reference to the array, here nil
-	push(&f, int64(20))   // get contents in array[20]
+	push(f, object.Null) // push the reference to the array, here nil
+	push(f, int64(20))   // get contents in array[20]
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode -- should generate exception
 
 	// restore stderr to what they were before
@@ -2034,7 +2034,7 @@ func TestNewIaloadNilArray(t *testing.T) {
 // IALOAD: using an invalid subscript into the array
 func TestNewIaloadInvalidSubscript(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                   // make the array 30 elements big
+	push(f, int64(30))                   // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of ints
 
 	normalStderr := os.Stderr
@@ -2044,7 +2044,7 @@ func TestNewIaloadInvalidSubscript(t *testing.T) {
 	globals.InitGlobals("test")
 	trace.Init()
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -2058,21 +2058,21 @@ func TestNewIaloadInvalidSubscript(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.IASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.IALOAD) // now fetch the value
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(200))         // get contents in array[200] which is invalid
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(200))         // get contents in array[200] which is invalid
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// restore stderr to what they were before
@@ -2092,8 +2092,8 @@ func TestNewIaloadInvalidSubscript(t *testing.T) {
 func TestIaLoadWhenNotAValidArray(t *testing.T) {
 	f := newFrame(opcodes.IALOAD)
 	badArray := []byte{1, 2, 3, 4, 5}
-	push(&f, badArray)  // push the reference to the array, here a raw byte array
-	push(&f, int64(20)) // get contents in array[20]
+	push(f, badArray)  // push the reference to the array, here a raw byte array
+	push(f, int64(20)) // get contents in array[20]
 
 	globals.InitGlobals("test")
 
@@ -2102,7 +2102,7 @@ func TestIaLoadWhenNotAValidArray(t *testing.T) {
 	os.Stderr = w
 
 	// execute the bytecode
-	ret := doIaload(&f, 0)
+	ret := doIaload(f, 0)
 
 	_ = w.Close()
 	msg, _ := io.ReadAll(r)
@@ -2123,12 +2123,12 @@ func TestIaLoadWhenNotAValidArray(t *testing.T) {
 // sum all the elements in the array, and test for a sum of 100.
 func TestNewIastore(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                   // make the array 30 elements big
+	push(f, int64(30))                   // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of ints
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -2142,14 +2142,14 @@ func TestNewIastore(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.IASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	ao := ptr.FieldTable["value"].Fvalue
@@ -2167,9 +2167,9 @@ func TestNewIastore(t *testing.T) {
 func TestNewIastoreInvalid1(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.IASTORE)
-	push(&f, (*object.Object)(nil)) // this should point to an array, will here cause the error
-	push(&f, int64(30))             // the index into the array
-	push(&f, int64(20))             // the value to insert
+	push(f, (*object.Object)(nil)) // this should point to an array, will here cause the error
+	push(f, int64(30))             // the index into the array
+	push(f, int64(20))             // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -2181,7 +2181,7 @@ func TestNewIastoreInvalid1(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2205,9 +2205,9 @@ func TestNewIastoreInvalid2(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_FLOAT, 10)
 	f := newFrame(opcodes.IASTORE)
-	push(&f, o)         // this should point to an array of ints, not floats, will here cause the error
-	push(&f, int64(30)) // the index into the array
-	push(&f, int64(20)) // the value to insert
+	push(f, o)         // this should point to an array of ints, not floats, will here cause the error
+	push(f, int64(30)) // the index into the array
+	push(f, int64(20)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -2219,7 +2219,7 @@ func TestNewIastoreInvalid2(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2243,9 +2243,9 @@ func TestNewIastoreInvalid3(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_INT, 10)
 	f := newFrame(opcodes.IASTORE)
-	push(&f, o)         // an array of 10 ints, not floats
-	push(&f, int64(30)) // the index into the array: it's too big, causing error
-	push(&f, int64(20)) // the value to insert
+	push(f, o)         // an array of 10 ints, not floats
+	push(f, int64(30)) // the index into the array: it's too big, causing error
+	push(f, int64(20)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -2257,7 +2257,7 @@ func TestNewIastoreInvalid3(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2283,12 +2283,12 @@ func TestNewIastoreInt64Array(t *testing.T) {
 	int64Array := make([]int64, 30)
 
 	f := newFrame(opcodes.IASTORE)
-	push(&f, int64Array) // push the direct int64 array reference
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, int64Array) // push the direct int64 array reference
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// Verify the value was stored correctly
@@ -2312,9 +2312,9 @@ func TestNewIastoreInvalidType(t *testing.T) {
 	f := newFrame(opcodes.IASTORE)
 
 	// Push an unexpected type (e.g., a string instead of an array)
-	push(&f, "not an array") // this will trigger the default case
-	push(&f, int64(20))      // the index into the array
-	push(&f, int64(100))     // the value to insert
+	push(f, "not an array") // this will trigger the default case
+	push(f, int64(20))      // the index into the array
+	push(f, int64(100))     // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -2326,7 +2326,7 @@ func TestNewIastoreInvalidType(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2347,12 +2347,12 @@ func TestNewIastoreInvalidType(t *testing.T) {
 // LALOAD: Test fetching and pushing the value of an element into a long array
 func TestNewLaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_LONG) // make it an array of longs
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -2366,28 +2366,28 @@ func TestNewLaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.LASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.LALOAD) // now fetch the value in array[20]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	if f.TOS != 0 {
 		t.Errorf("LALOAD: Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if res != 100 {
 		t.Errorf("LALOAD: Expected loaded array value of 100, got: %d", res)
 	}
@@ -2403,10 +2403,10 @@ func TestNewLaloadNilArray(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.LALOAD)
-	push(&f, object.Null) // push the reference to the array, here nil
-	push(&f, int64(20))   // get contents in array[20]
+	push(f, object.Null) // push the reference to the array, here nil
+	push(f, int64(20))   // get contents in array[20]
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode -- should generate exception
 
 	// restore stderr to what they were before
@@ -2425,7 +2425,7 @@ func TestNewLaloadNilArray(t *testing.T) {
 // LALOAD: using an invalid subscript into the array
 func TestNewLaloadInvalidSubscript(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_LONG) // make it an array of longs
 
 	normalStderr := os.Stderr
@@ -2435,20 +2435,20 @@ func TestNewLaloadInvalidSubscript(t *testing.T) {
 	globals.InitGlobals("test")
 	trace.Init()
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.LALOAD) // now fetch the value
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(200))         // get contents in array[200] which is invalid
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(200))         // get contents in array[200] which is invalid
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	// restore stderr to what they were before
@@ -2468,12 +2468,12 @@ func TestNewLaloadInvalidSubscript(t *testing.T) {
 // See comments for IASTORE for the logic of this test
 func TestNewLastore(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                    // make the array 30 elements big
+	push(f, int64(30))                    // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_LONG) // make it an array of longs
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -2487,14 +2487,14 @@ func TestNewLastore(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.LASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 	if f.TOS != -1 {
 		t.Errorf("Top of stack, expected -1, got: %d", f.TOS)
@@ -2514,9 +2514,9 @@ func TestNewLastore(t *testing.T) {
 // LASTORE: Test error conditions: invalid array address
 func TestNewLastoreInvalid1(t *testing.T) {
 	f := newFrame(opcodes.LASTORE)
-	push(&f, (*object.Object)(nil)) // this should point to an array, will here cause the error
-	push(&f, int64(30))             // the index into the array
-	push(&f, int64(20))             // the value to insert
+	push(f, (*object.Object)(nil)) // this should point to an array, will here cause the error
+	push(f, int64(30))             // the index into the array
+	push(f, int64(20))             // the value to insert
 
 	trace.Init()
 	globals.InitGlobals("test")
@@ -2529,7 +2529,7 @@ func TestNewLastoreInvalid1(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2553,9 +2553,9 @@ func TestNewLastoreInvalid2(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_FLOAT, 10)
 	f := newFrame(opcodes.LASTORE)
-	push(&f, o)         // this should point to an array of ints, not floats, will here cause the error
-	push(&f, int64(30)) // the index into the array
-	push(&f, int64(20)) // the value to insert
+	push(f, o)         // this should point to an array of ints, not floats, will here cause the error
+	push(f, int64(30)) // the index into the array
+	push(f, int64(20)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -2567,7 +2567,7 @@ func TestNewLastoreInvalid2(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2591,9 +2591,9 @@ func TestNewLastoreInvalid3(t *testing.T) {
 	globals.InitGlobals("test")
 	o := object.Make1DimArray(object.T_INT, 10)
 	f := newFrame(opcodes.LASTORE)
-	push(&f, o)         // an array of 10 ints, not floats
-	push(&f, int64(30)) // the index into the array: it's too big, causing error
-	push(&f, int64(20)) // the value to insert
+	push(f, o)         // an array of 10 ints, not floats
+	push(f, int64(30)) // the index into the array: it's too big, causing error
+	push(f, int64(20)) // the value to insert
 
 	trace.Init()
 	normalStderr := os.Stderr
@@ -2605,7 +2605,7 @@ func TestNewLastoreInvalid3(t *testing.T) {
 	os.Stdout = wout
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// restore stderr and stdout to what they were before
@@ -2686,24 +2686,24 @@ func TestNew3DimArray1(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00) // this byte and next form index into CP
 	f.Meth = append(f.Meth, 0x02)
 	f.Meth = append(f.Meth, 0x03) // the number of dimensions
-	push(&f, int64(0x03))         // size of the three dimensions: 4x3x2
-	push(&f, int64(0x03))
-	push(&f, int64(0x04))
+	push(f, int64(0x03))         // size of the three dimensions: 4x3x2
+	push(f, int64(0x03))
+	push(f, int64(0x04))
 	f.CP = &CP
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 	if f.TOS != 0 {
 		t.Errorf("MULTIANEWARRAY: Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	arrayPtr := pop(&f)
+	arrayPtr := pop(f)
 	if arrayPtr == nil {
 		t.Error("MULTIANEWARRAY: Expected a pointer to an array, got nil")
 	}
 
-	topLevelArray := *(arrayPtr.(*object.Object))
+	topLevelArray := arrayPtr.(*object.Object)
 	if topLevelArray.FieldTable["value"].Ftype != "[L" {
 		t.Errorf("MULTIANEWARRAY: Expected 1st dim to be type '[L', got %s",
 			topLevelArray.FieldTable["value"].Ftype)
@@ -2771,13 +2771,13 @@ func TestNew3DimArray2(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00) // this byte and next form index into CP
 	f.Meth = append(f.Meth, 0x02)
 	f.Meth = append(f.Meth, 0x03) // the number of dimensions
-	push(&f, int64(0x03))         // size of the three dimensions: 4x0x3
-	push(&f, int64(0x00))
-	push(&f, int64(0x04))
+	push(f, int64(0x03))         // size of the three dimensions: 4x0x3
+	push(f, int64(0x00))
+	push(f, int64(0x04))
 	f.CP = &CP
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	_ = w.Close()
@@ -2787,12 +2787,12 @@ func TestNew3DimArray2(t *testing.T) {
 		t.Errorf("MULTIANEWARRAY: Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	arrayPtr := pop(&f)
+	arrayPtr := pop(f)
 	if arrayPtr == nil {
 		t.Error("MULTIANEWARRAY: Expected a pointer to an array, got nil")
 	}
 
-	topLevelArray := *(arrayPtr.(*object.Object))
+	topLevelArray := arrayPtr.(*object.Object)
 	if topLevelArray.FieldTable["value"].Ftype != "[I" {
 		t.Errorf("MULTIANEWARRAY: Expected 1st dim to be type '[I', got %s",
 			topLevelArray.FieldTable["value"].Ftype)
@@ -2808,13 +2808,13 @@ func TestNew3DimArray2(t *testing.T) {
 // NEWARRAY: creation of array for primitive values
 func TestNewNewrray(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(13))                    // make the array 13 elements big
+	push(f, int64(13))                    // make the array 13 elements big
 	f.Meth = append(f.Meth, object.T_LONG) // make it an array of longs
 
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -2844,13 +2844,13 @@ func TestNewNewrrayForByteArray(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(13))                    // size
+	push(f, int64(13))                    // size
 	f.Meth = append(f.Meth, object.T_BYTE) // make it an array of bytes
 
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -2863,7 +2863,7 @@ func TestNewNewrrayForByteArray(t *testing.T) {
 		t.Errorf("NEWARRAY: Got unexpected error: %s", errMsg)
 	}
 
-	arrayPtr := pop(&f).(*object.Object)
+	arrayPtr := pop(f).(*object.Object)
 	array := arrayPtr.FieldTable["value"].Fvalue.([]types.JavaByte)
 	if len(array) != 13 {
 		t.Errorf("NEWARRAY: Got unexpected array size: %d", len(array))
@@ -2878,13 +2878,13 @@ func TestNewNewArrayInvalidSize(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(-13))                   // invalid size (less than 0)
+	push(f, int64(-13))                   // invalid size (less than 0)
 	f.Meth = append(f.Meth, object.T_LONG) // make it an array of longs
 
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -2910,13 +2910,13 @@ func TestNewNewrrayInvalidTypeError(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(13))                     // size
+	push(f, int64(13))                     // size
 	f.Meth = append(f.Meth, object.T_ERROR) // invalid type
 
 	globals.InitGlobals("test")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	globals.GetGlobalRef().FuncThrowException = exceptions.ThrowExNil
 	interpret(fs)
 
@@ -2943,11 +2943,11 @@ func TestNewNewrrayInvalidTypeRef(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(13))         // size
+	push(f, int64(13))         // size
 	f.Meth = append(f.Meth, 86) // invalid type
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	globals.GetGlobalRef().FuncThrowException = exceptions.ThrowExNil
 	interpret(fs)
 
@@ -2970,12 +2970,12 @@ func TestNewNewrrayInvalidTypeRef(t *testing.T) {
 // SALOAD: Test fetching and pushing the value of an element in a short array
 func TestNewSaload(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                   // make the array 30 elements big
+	push(f, int64(30))                   // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of ints
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -2989,24 +2989,24 @@ func TestNewSaload(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.SASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	f = newFrame(opcodes.SALOAD) // now fetch the value in array[30]
-	push(&f, ptr)                // push the reference to the array
-	push(&f, int64(20))          // get contents in array[20]
+	push(f, ptr)                // push the reference to the array
+	push(f, int64(20))          // get contents in array[20]
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if res != 100 {
 		t.Errorf("SALOAD: Expected loaded array value of 100, got: %d", res)
 	}
@@ -3020,12 +3020,12 @@ func TestNewSaload(t *testing.T) {
 // See comments for IASTORE for the logic of this test
 func TestNewSastore(t *testing.T) {
 	f := newFrame(opcodes.NEWARRAY)
-	push(&f, int64(30))                   // make the array 30 elements big
+	push(f, int64(30))                   // make the array 30 elements big
 	f.Meth = append(f.Meth, object.T_INT) // make it an array of ints
 
 	globals.InitGlobals("test")
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
@@ -3039,14 +3039,14 @@ func TestNewSastore(t *testing.T) {
 	}
 
 	// now, get the reference to the array
-	ptr := pop(&f).(*object.Object)
+	ptr := pop(f).(*object.Object)
 
 	f = newFrame(opcodes.SASTORE)
-	push(&f, ptr)        // push the reference to the array
-	push(&f, int64(20))  // in array[20]
-	push(&f, int64(100)) // the value we're storing
+	push(f, ptr)        // push the reference to the array
+	push(f, int64(20))  // in array[20]
+	push(f, int64(100)) // the value we're storing
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)    // execute the bytecode
 
 	array := ptr.FieldTable["value"].Fvalue.([]int64)

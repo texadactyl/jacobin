@@ -251,7 +251,7 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 		t.Errorf("Expected IS_STRUCT_ADDR, got %d", cp.RetType)
 	}
 
-	struc := *cp.AddrVal
+	struc := cp.AddrVal
 	if struc.entry1 != uint16(4) || struc.entry2 != 2 {
 		t.Errorf("Expected returned struc to contain 4 and 2, got %d and %d",
 			struc.entry1, struc.entry2)
@@ -269,7 +269,7 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 		t.Errorf("Expected IS_STRUCT_ADDR, got %d", cp.RetType)
 	}
 
-	struc = *cp.AddrVal
+	struc = cp.AddrVal
 	if struc.entry1 != uint16(5) || struc.entry2 != uint16(3) {
 		t.Errorf("Expected returned struc to contain 5 and 3, got %d and %d",
 			struc.entry1, struc.entry2)
@@ -287,7 +287,7 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 		t.Errorf("Expected IS_STRUCT_ADDR, got %d", cp.RetType)
 	}
 
-	struc = *cp.AddrVal
+	struc = cp.AddrVal
 	if struc.entry1 != uint16(20) || struc.entry2 != uint16(21) {
 		t.Errorf("Expected returned struc to contain 20 and 21, got %d and %d",
 			struc.entry1, struc.entry2)
@@ -305,7 +305,7 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 		t.Errorf("Expected IS_STRUCT_ADDR, got %d", cp.RetType)
 	}
 
-	struc = *cp.AddrVal
+	struc = cp.AddrVal
 	if struc.entry1 != uint16(8) || struc.entry2 != uint16(9) {
 		t.Errorf("Expected returned struc to contain 8 and 9, got %d and %d",
 			struc.entry1, struc.entry2)
@@ -323,7 +323,7 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 		t.Errorf("Expected IS_STRUCT_ADDR, got %d", cp.RetType)
 	}
 
-	struc = *cp.AddrVal
+	struc = cp.AddrVal
 	if struc.entry1 != uint16(10) || struc.entry2 != uint16(11) {
 		t.Errorf("Expected returned struc to contain 10 and 11, got %d and %d",
 			struc.entry1, struc.entry2)
@@ -341,7 +341,7 @@ func TestFetchCPentriesThatAreStructAddresses(t *testing.T) {
 		t.Errorf("Expected IS_STRUCT_ADDR, got %d", cp.RetType)
 	}
 
-	struc = *cp.AddrVal
+	struc = cp.AddrVal
 	if struc.entry1 != uint16(12) || struc.entry2 != uint16(13) {
 		t.Errorf("Expected returned struc to contain 12 and 13, got %d and %d",
 			struc.entry1, struc.entry2)

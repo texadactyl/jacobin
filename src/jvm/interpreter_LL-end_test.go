@@ -40,9 +40,9 @@ func TestLload(t *testing.T) {
 	f.Locals = append(f.Locals, int64(0x1234562)) // put value in locals[4]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	x := pop(&f).(int64)
+	x := pop(f).(int64)
 	if x != 0x1234562 {
 		t.Errorf("LLOAD: Expecting 0x1234562 on stack, got: 0x%x", x)
 	}
@@ -60,10 +60,10 @@ func TestLload0(t *testing.T) {
 	f.Locals = append(f.Locals, int64(0x12345678)) // put value in locals[0]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	x := pop(&f).(int64)
+	x := pop(f).(int64)
 	if x != 0x12345678 {
 		t.Errorf("LLOAD_0: Expecting 0x12345678 on stack, got: 0x%x", x)
 	}
@@ -80,9 +80,9 @@ func TestLload1(t *testing.T) {
 	f.Locals = append(f.Locals, int64(0x12345678)) // put value in locals[1]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	x := pop(&f).(int64)
+	x := pop(f).(int64)
 
 	if x != 0x12345678 {
 		t.Errorf("LLOAD_1: Expecting 0x12345678 on stack, got: 0x%x", x)
@@ -101,9 +101,9 @@ func TestLload2(t *testing.T) {
 	f.Locals = append(f.Locals, int64(0x12345678)) // put value in locals[2]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	x := pop(&f).(int64)
+	x := pop(f).(int64)
 
 	if x != 0x12345678 {
 		t.Errorf("LLOAD_2: Expecting 0x12345678 on stack, got: 0x%x", x)
@@ -127,9 +127,9 @@ func TestLload3(t *testing.T) {
 	f.Locals = append(f.Locals, int64(0x12345678)) // put value in locals[3]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	x := pop(&f).(int64)
+	x := pop(f).(int64)
 	if x != 0x12345678 {
 		t.Errorf("LLOAD_3: Expecting 0x12345678 on stack, got: 0x%x", x)
 	}
@@ -142,18 +142,18 @@ func TestLload3(t *testing.T) {
 // LMUL: pop 2 longs, multiply them, push result
 func TestLmul(t *testing.T) {
 	f := newFrame(opcodes.LMUL)
-	push(&f, int64(10))
-	push(&f, int64(7))
+	push(f, int64(10))
+	push(f, int64(7))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 0 {
 		t.Errorf("LMUL, Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 70 {
 		t.Errorf("LMUL: Expected popped value to be 70, got: %d", value)
 	}
@@ -162,17 +162,17 @@ func TestLmul(t *testing.T) {
 // LNEG: negate a long
 func TestLneg(t *testing.T) {
 	f := newFrame(opcodes.LNEG)
-	push(&f, int64(10))
+	push(f, int64(10))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 0 {
 		t.Errorf("LNEG, Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != -10 {
 		t.Errorf("LNEG: Expected popped value to be -10, got: %d", value)
 	}
@@ -183,7 +183,7 @@ func TestLookupswitch_MatchCase(t *testing.T) {
 
 	f := newFrame(opcodes.LOOKUPSWITCH)
 	// key to match
-	push(&f, int64(10))
+	push(f, int64(10))
 
 	// Align: with PC==0 for the opcode, padding is 3 bytes (so PC+1 becomes 4)
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -201,7 +201,7 @@ func TestLookupswitch_MatchCase(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x1E) // 30
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 30 {
@@ -218,7 +218,7 @@ func TestLookupswitch_DefaultNoMatch(t *testing.T) {
 
 	f := newFrame(opcodes.LOOKUPSWITCH)
 	// key that does not match any pair
-	push(&f, int64(99))
+	push(f, int64(99))
 
 	// padding
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -236,7 +236,7 @@ func TestLookupswitch_DefaultNoMatch(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x1E)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 100 {
@@ -252,7 +252,7 @@ func TestLookupswitch_ZeroPairs_Default(t *testing.T) {
 	globals.InitGlobals("test")
 
 	f := newFrame(opcodes.LOOKUPSWITCH)
-	push(&f, int64(12345)) // any key; there are zero pairs
+	push(f, int64(12345)) // any key; there are zero pairs
 
 	// padding
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -263,7 +263,7 @@ func TestLookupswitch_ZeroPairs_Default(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x00)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 42 {
@@ -279,7 +279,7 @@ func TestLookupswitch_NegativeJump(t *testing.T) {
 	globals.InitGlobals("test")
 
 	f := newFrame(opcodes.LOOKUPSWITCH)
-	push(&f, int64(1)) // match key 1
+	push(f, int64(1)) // match key 1
 
 	// padding
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -301,7 +301,7 @@ func TestLookupswitch_NegativeJump(t *testing.T) {
 	f.MethType = "()V"
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 
 	t.Log("Expected exception: \"LOOKUPSWITCH ... impossible jump\"")
 	interpret(fs)
@@ -317,14 +317,14 @@ func TestLookupswitch_NegativeJump(t *testing.T) {
 // LOR: Logical OR of two longs
 func TestLor(t *testing.T) {
 	f := newFrame(opcodes.LOR)
-	push(&f, int64(21))
-	push(&f, int64(22))
+	push(f, int64(21))
+	push(f, int64(22))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64) // longs require two slots, so popped twice
+	value := pop(f).(int64) // longs require two slots, so popped twice
 
 	if value != 23 { // 21 | 22 = 23
 		t.Errorf("LOR: expected a result of 23, but got: %d", value)
@@ -338,18 +338,18 @@ func TestLor(t *testing.T) {
 // LREM: remainder of long division (the % operator)
 func TestLrem(t *testing.T) {
 	f := newFrame(opcodes.LREM)
-	push(&f, int64(74))
-	push(&f, int64(6))
+	push(f, int64(74))
+	push(f, int64(6))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 0 {
 		t.Errorf("LREM, Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 2 {
 		t.Errorf("LREM: Expected popped value to be 2, got: %d", value)
 	}
@@ -365,11 +365,11 @@ func TestLremDivideByZero(t *testing.T) {
 	os.Stderr = w
 
 	f := newFrame(opcodes.LREM)
-	push(&f, int64(6))
-	push(&f, int64(0))
+	push(f, int64(6))
+	push(f, int64(0))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// reset stderr to its normal stream
@@ -386,13 +386,13 @@ func TestLremDivideByZero(t *testing.T) {
 // LRETURN: Return a long from a function
 func TestLreturn(t *testing.T) {
 	f0 := newFrame(0)
-	push(&f0, int64(20))
+	push(f0, int64(20))
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f0)
+	fs.PushFront(f0)
 	f1 := newFrame(opcodes.LRETURN)
-	push(&f1, int64(21))
+	push(f1, int64(21))
 
-	fs.PushFront(&f1)
+	fs.PushFront(f1)
 	interpret(fs) // LRETURN pops the topmost frame it's returning from
 
 	f3 := fs.Front().Value.(*frames.Frame)
@@ -405,14 +405,14 @@ func TestLreturn(t *testing.T) {
 // LSHL: Left shift of long
 func TestLshl(t *testing.T) {
 	f := newFrame(opcodes.LSHL)
-	push(&f, int64(22))
-	push(&f, int64(3)) // shift left 3 bits
+	push(f, int64(22))
+	push(f, int64(3)) // shift left 3 bits
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64) // longs require two slots, so popped twice
+	value := pop(f).(int64) // longs require two slots, so popped twice
 
 	if value != 176 { // 22 << 3 = 176
 		t.Errorf("LSHL: expected a result of 176, but got: %d", value)
@@ -425,15 +425,15 @@ func TestLshl(t *testing.T) {
 // LSHR: Right shift of long
 func TestLshr(t *testing.T) {
 	f := newFrame(opcodes.LSHR)
-	push(&f, int64(200))
+	push(f, int64(200))
 
-	push(&f, int64(3)) // shift left 3 bits
+	push(f, int64(3)) // shift left 3 bits
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64) // longs require two slots, so popped twice
+	value := pop(f).(int64) // longs require two slots, so popped twice
 
 	if value != 25 { // 200 >> 3 = 25
 		t.Errorf("LSHR: expected a result of 25, but got: %d", value)
@@ -451,10 +451,10 @@ func TestLstore(t *testing.T) {
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero)
-	push(&f, int64(0x22223))
+	push(f, int64(0x22223))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[2] != int64(0x22223) {
@@ -471,10 +471,10 @@ func TestLstore0(t *testing.T) {
 	f := newFrame(opcodes.LSTORE_0)
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero) // LSTORE instructions fill two local variables (with the same value)
-	push(&f, int64(0x12345678))
+	push(f, int64(0x12345678))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[0] != int64(0x12345678) {
@@ -492,10 +492,10 @@ func TestLstore1(t *testing.T) {
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero)
-	push(&f, int64(0x12345678))
+	push(f, int64(0x12345678))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[1] != int64(0x12345678) {
@@ -514,10 +514,10 @@ func TestLstore2(t *testing.T) {
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero) // LSTORE instructions fill two local variables (with the same value)
-	push(&f, int64(0x12345678))
+	push(f, int64(0x12345678))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[2] != int64(0x12345678) {
@@ -537,10 +537,10 @@ func TestLstore3(t *testing.T) {
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero)
 	f.Locals = append(f.Locals, zero) // LSTORE instructions fill two local variables (with the same value)
-	push(&f, int64(0x12345678))
+	push(f, int64(0x12345678))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[3] != int64(0x12345678) {
@@ -555,14 +555,14 @@ func TestLstore3(t *testing.T) {
 // LSUB: Subtract two longs
 func TestLsub(t *testing.T) {
 	f := newFrame(opcodes.LSUB)
-	push(&f, int64(10))
-	push(&f, int64(7))
+	push(f, int64(10))
+	push(f, int64(7))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 
 	if f.TOS != -1 {
 		t.Errorf("LSUB, Top of stack, expected -1, got: %d", f.TOS)
@@ -576,14 +576,14 @@ func TestLsub(t *testing.T) {
 // LUSHR: Right unsigned shift of long
 func TestLushr(t *testing.T) {
 	f := newFrame(opcodes.LUSHR)
-	push(&f, int64(200))
-	push(&f, int64(3)) // shift left 3 bits
+	push(f, int64(200))
+	push(f, int64(3)) // shift left 3 bits
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64) // longs require two slots, so popped twice
+	value := pop(f).(int64) // longs require two slots, so popped twice
 
 	if value != 25 { // 200 >> 3 = 25
 		t.Errorf("LUSHR: expected a result of 25, but got: %d", value)
@@ -596,14 +596,14 @@ func TestLushr(t *testing.T) {
 // LXOR: Logical XOR of two longs
 func TestLxor(t *testing.T) {
 	f := newFrame(opcodes.LXOR)
-	push(&f, int64(21))
-	push(&f, int64(22))
+	push(f, int64(21))
+	push(f, int64(22))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64) // longs require two slots, so popped twice
+	value := pop(f).(int64) // longs require two slots, so popped twice
 
 	if value != 3 { // 21 ^ 22 = 3
 		t.Errorf("LXOR: expected a result of 3, but got: %d", value)
@@ -618,10 +618,10 @@ func TestMonitorEnter(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.MONITORENTER)
 	obj := object.MakeEmptyObject()
-	push(&f, obj) // push an object and make sure it gets popped off
+	push(f, obj) // push an object and make sure it gets popped off
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != -1 {
@@ -642,7 +642,7 @@ func TestMonitorEnter_StackUnderflow(t *testing.T) {
 	// no operand pushed -> TOS stays -1
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -665,10 +665,10 @@ func TestMonitorEnter_InvalidRefType(t *testing.T) {
 
 	f := newFrame(opcodes.MONITORENTER)
 	// push a non-object (string) to trigger type assertion failure
-	push(&f, "not-an-object")
+	push(f, "not-an-object")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -700,10 +700,10 @@ func TestMonitorEnter_ObjLockError_GCMarked(t *testing.T) {
 	obj := object.MakeEmptyObject()
 	object.SetLockState(obj, 0b11) // lockStateGCMarked
 
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -723,10 +723,10 @@ func TestMonitorEnter_Success_LocksObject(t *testing.T) {
 
 	f := newFrame(opcodes.MONITORENTER)
 	obj := object.MakeEmptyObject()
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.TOS != -1 {
@@ -743,10 +743,10 @@ func TestMonitorExit(t *testing.T) {
 	f := newFrame(opcodes.MONITOREXIT)
 	obj := object.MakeEmptyObject()
 	_ = obj.ObjLock(int32(f.Thread))
-	push(&f, obj) // push a locked object and make sure it gets popped off
+	push(f, obj) // push a locked object and make sure it gets popped off
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != -1 {
@@ -766,7 +766,7 @@ func TestMonitorExit_StackUnderflow(t *testing.T) {
 	// nothing pushed; TOS remains -1
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -789,10 +789,10 @@ func TestMonitorExit_InvalidRefType(t *testing.T) {
 
 	f := newFrame(opcodes.MONITOREXIT)
 	// push a non-object (string) to trigger type assertion failure
-	push(&f, "not-an-object")
+	push(f, "not-an-object")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -817,10 +817,10 @@ func TestMonitorExit_Success_UnlocksObject(t *testing.T) {
 		t.Fatalf("setup: ObjLock failed: %v", err)
 	}
 
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.TOS != -1 {
@@ -845,10 +845,10 @@ func TestMonitorExit_AlreadyUnlocked(t *testing.T) {
 	f.MethType = "()V"
 
 	obj := object.MakeEmptyObject() // unlocked by default
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -879,10 +879,10 @@ func TestMonitorExit_FatLocked_MonitorNil(t *testing.T) {
 	// Force header to fat-locked but leave Monitor nil to trigger error path
 	object.SetObjectFatLocked(obj)
 
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -1067,19 +1067,19 @@ func TestPeekWithStackUnderflowStrictJDK(t *testing.T) {
 // POP: pop item off stack and discard it
 func TestPop(t *testing.T) {
 	f := newFrame(opcodes.POP)
-	push(&f, int64(34)) // push three different values
-	push(&f, int64(21))
-	push(&f, int64(0))
+	push(f, int64(34)) // push three different values
+	push(f, int64(21))
+	push(f, int64(0))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 1 {
 		t.Errorf("POP: Expected stack with 2 items, but got a tos of: %d", f.TOS)
 	}
 
-	top := pop(&f).(int64)
+	top := pop(f).(int64)
 
 	if top != 21 {
 		t.Errorf("POP: expected top's value to be 21, but got: %d", top)
@@ -1089,12 +1089,12 @@ func TestPop(t *testing.T) {
 // POP with tracing enabled
 func TestPopWithTracing(t *testing.T) {
 	f := newFrame(opcodes.POP)
-	push(&f, int64(34)) // push three different values
-	push(&f, int64(21))
-	push(&f, int64(0))
+	push(f, int64(34)) // push three different values
+	push(f, int64(21))
+	push(f, int64(0))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)         // push the new frame
+	fs.PushFront(f)         // push the new frame
 	globals.TraceInst = true // turn on tracing
 	interpret(fs)
 
@@ -1102,7 +1102,7 @@ func TestPopWithTracing(t *testing.T) {
 		t.Errorf("POP: Expected stack with 2 items, but got a tos of: %d", f.TOS)
 	}
 
-	top := pop(&f).(int64)
+	top := pop(f).(int64)
 
 	if top != 21 {
 		t.Errorf("POP: expected top's value to be 21, but got: %d", top)
@@ -1212,7 +1212,7 @@ func TestPopBytecodrUnderflow(t *testing.T) {
 
 	f := newFrame(opcodes.POP)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1231,19 +1231,19 @@ func TestPop2(t *testing.T) {
 
 	f := newFrame(opcodes.POP2)
 	// push three different values; 34 at bottom
-	push(&f, int64(34)) // fload_0 : Load float from local variable
-	push(&f, int64(21)) // iload : Load int from local variable
-	push(&f, int64(10)) // lconst_1 : Push long constant
+	push(f, int64(34)) // fload_0 : Load float from local variable
+	push(f, int64(21)) // iload : Load int from local variable
+	push(f, int64(10)) // lconst_1 : Push long constant
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 1 {
 		t.Errorf("POP2: Expected stack with 1 item, but got a tos of: %d", f.TOS)
 	}
 
-	top := pop(&f).(int64)
+	top := pop(f).(int64)
 
 	if top != 21 {
 		t.Errorf("POP2: expected top's value to be 21, but got: %d", top)
@@ -1254,12 +1254,12 @@ func TestPop2(t *testing.T) {
 func TestPop2WithTrace(t *testing.T) {
 	f := newFrame(opcodes.POP2)
 	// push three different values; 34 at bottom
-	push(&f, int64(34)) // fload_0 : Load float from local variable
-	push(&f, int64(21)) // iload : Load int from local variable
-	push(&f, int64(10)) // lconst_1 : Push long constant
+	push(f, int64(34)) // fload_0 : Load float from local variable
+	push(f, int64(21)) // iload : Load int from local variable
+	push(f, int64(10)) // lconst_1 : Push long constant
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)         // push the new frame
+	fs.PushFront(f)         // push the new frame
 	globals.TraceInst = true // turn on tracing
 	interpret(fs)
 
@@ -1267,7 +1267,7 @@ func TestPop2WithTrace(t *testing.T) {
 		t.Errorf("POP2: Expected stack with 1 item, but got a tos of: %d", f.TOS)
 	}
 
-	top := pop(&f).(int64)
+	top := pop(f).(int64)
 
 	if top != 21 {
 		t.Errorf("POP2: expected top's value to be 21, but got: %d", top)
@@ -1289,7 +1289,7 @@ func TestPop2Underflow(t *testing.T) {
 
 	f := newFrame(opcodes.POP2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1425,12 +1425,12 @@ func TestPutFieldSimpleInt(t *testing.T) {
 		Ftype:  types.Int,
 		Fvalue: int64(42),
 	}
-	push(&f, obj)
+	push(f, obj)
 
-	push(&f, int64(26)) // update the field to 26
+	push(f, int64(26)) // update the field to 26
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1485,12 +1485,12 @@ func TestPutFieldDouble(t *testing.T) {
 		Ftype:  types.Double,
 		Fvalue: float64(42.0),
 	}
-	push(&f, obj)
+	push(f, obj)
 
-	push(&f, float64(26.8)) // update the field to 26.8
+	push(f, float64(26.8)) // update the field to 26.8
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1548,12 +1548,12 @@ func TestPutFieldErrorUpdatingStatic(t *testing.T) {
 		Ftype:  types.Static + types.Int,
 		Fvalue: int64(42),
 	}
-	push(&f, obj)
+	push(f, obj)
 
-	push(&f, int64(26)) // update the field to 26
+	push(f, int64(26)) // update the field to 26
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1583,7 +1583,7 @@ func TestPutStaticInt(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, int64(420))
+	push(f, int64(420))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1609,7 +1609,7 @@ func TestPutStaticInt(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1639,7 +1639,7 @@ func TestPutStaticIntWithTrace(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, int64(420))
+	push(f, int64(420))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1665,7 +1665,7 @@ func TestPutStaticIntWithTrace(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1695,7 +1695,7 @@ func TestPutStaticBool(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, types.JavaBoolTrue)
+	push(f, types.JavaBoolTrue)
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1721,7 +1721,7 @@ func TestPutStaticBool(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1751,7 +1751,7 @@ func TestPutStaticByte(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, byte('A'))
+	push(f, byte('A'))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1777,7 +1777,7 @@ func TestPutStaticByte(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1807,7 +1807,7 @@ func TestPutStaticJavaByte(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, types.JavaByte('A'))
+	push(f, types.JavaByte('A'))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1833,7 +1833,7 @@ func TestPutStaticJavaByte(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1863,7 +1863,7 @@ func TestPutStaticByteAsInt64(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, int64('A'))
+	push(f, int64('A'))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1889,7 +1889,7 @@ func TestPutStaticByteAsInt64(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1919,7 +1919,7 @@ func TestPutStaticFloat(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, float64(420.1))
+	push(f, float64(420.1))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1945,7 +1945,7 @@ func TestPutStaticFloat(t *testing.T) {
 	})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -1978,7 +1978,7 @@ func TestPutStaticInvalidNoSuchClass(t *testing.T) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00)
 	f.Meth = append(f.Meth, 0x01) // Go to slot 0x0001 in the CP
-	push(&f, float64(420.1))
+	push(f, float64(420.1))
 
 	CP := classloader.CPool{}
 	CP.CpIndex = make([]classloader.CpEntry, 10, 10)
@@ -1997,7 +1997,7 @@ func TestPutStaticInvalidNoSuchClass(t *testing.T) {
 	}
 	f.CP = &CP
 
-	ret := doPutStatic(&f, 0)
+	ret := doPutStatic(f, 0)
 
 	_ = w.Close()
 	msg, _ := io.ReadAll(r)
@@ -2015,7 +2015,7 @@ func TestPutStaticInvalidNoSuchClass(t *testing.T) {
 
 // Helper: sets up a frame and constant pool so bytecodes 0..2 form: PUTSTATIC, 0x00, 0x01
 // CP[1] -> FieldRef slot 0 with (className,fldName,fldSig)
-func setupPutStaticFrame(className, fldName, fldSig string) (frames.Frame, *classloader.CPool) {
+func setupPutStaticFrame(className, fldName, fldSig string) (*frames.Frame, *classloader.CPool) {
 	f := newFrame(opcodes.PUTSTATIC)
 	f.Meth = append(f.Meth, 0x00, 0x01)
 
@@ -2045,8 +2045,8 @@ func TestPutStaticStoreBoolean_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Bool, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Bool)
-	push(&f, int64(3)) // doPutStatic will mask with & 0x01
-	ret := doPutStatic(&f, 0)
+	push(f, int64(3)) // doPutStatic will mask with & 0x01
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2069,8 +2069,8 @@ func TestPutStaticStoreChar_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Char, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Char)
-	push(&f, int64(65))
-	ret := doPutStatic(&f, 0)
+	push(f, int64(65))
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2093,8 +2093,8 @@ func TestPutStaticStoreShort_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Short, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Short)
-	push(&f, int64(-123))
-	ret := doPutStatic(&f, 0)
+	push(f, int64(-123))
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2117,8 +2117,8 @@ func TestPutStaticStoreInt_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Int, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Int)
-	push(&f, int64(42))
-	ret := doPutStatic(&f, 0)
+	push(f, int64(42))
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2141,8 +2141,8 @@ func TestPutStaticStoreLong_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Long, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Long)
-	push(&f, int64(9876543210))
-	ret := doPutStatic(&f, 0)
+	push(f, int64(9876543210))
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2165,8 +2165,8 @@ func TestPutStaticStoreByteFromInt64_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Byte, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Byte)
-	push(&f, int64(-7))
-	_ = doPutStatic(&f, 0)
+	push(f, int64(-7))
+	_ = doPutStatic(f, 0)
 	if v := statics.Statics[key].Value.(int64); v != -7 {
 		t.Fatalf("expected -7, got %d", v)
 	}
@@ -2182,8 +2182,8 @@ func TestPutStaticStoreByteFromUint8_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Byte, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Byte)
-	push(&f, uint8(250))
-	_ = doPutStatic(&f, 0)
+	push(f, uint8(250))
+	_ = doPutStatic(f, 0)
 	if v := statics.Statics[key].Value.(int64); v != 250 {
 		t.Fatalf("expected 250, got %d", v)
 	}
@@ -2199,8 +2199,8 @@ func TestPutStaticStoreByteFromJavaByte_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Byte, Value: int64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Byte)
-	push(&f, types.JavaByte(-120))
-	_ = doPutStatic(&f, 0)
+	push(f, types.JavaByte(-120))
+	_ = doPutStatic(f, 0)
 	if v := statics.Statics[key].Value.(int64); v != -120 {
 		t.Fatalf("expected -120, got %d", v)
 	}
@@ -2216,8 +2216,8 @@ func TestPutStaticStoreFloat_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Float, Value: float64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Float)
-	push(&f, float64(3.5))
-	ret := doPutStatic(&f, 0)
+	push(f, float64(3.5))
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2240,8 +2240,8 @@ func TestPutStaticStoreDouble_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Double, Value: float64(0)})
 
 	f, _ := setupPutStaticFrame(cls, fld, types.Double)
-	push(&f, float64(-42.25))
-	ret := doPutStatic(&f, 0)
+	push(f, float64(-42.25))
+	ret := doPutStatic(f, 0)
 	if ret != 3 {
 		t.Fatalf("expected ret=3, got %d", ret)
 	}
@@ -2264,8 +2264,8 @@ func TestPutStaticStoreRefNil_NoTable_NoTypesType(t *testing.T) {
 	statics.AddStatic(key, statics.Static{Type: types.Ref, Value: object.Null})
 
 	f, _ := setupPutStaticFrame(cls, fld, "Ljava/lang/Object;")
-	push(&f, nil)
-	_ = doPutStatic(&f, 0)
+	push(f, nil)
+	_ = doPutStatic(f, 0)
 	st := statics.Statics[key]
 	if st.Type != types.Ref {
 		t.Fatalf("type mismatch: %v", st.Type)
@@ -2286,8 +2286,8 @@ func TestPutStaticStoreRefObject_NoTable_NoTypesType(t *testing.T) {
 
 	f, _ := setupPutStaticFrame(cls, fld, "Ljava/lang/Object;")
 	obj := object.MakeEmptyObject()
-	push(&f, obj)
-	_ = doPutStatic(&f, 0)
+	push(f, obj)
+	_ = doPutStatic(f, 0)
 	st := statics.Statics[key]
 	if st.Type != types.Ref {
 		t.Fatalf("type mismatch: %v", st.Type)
@@ -2308,8 +2308,8 @@ func TestPutStaticClassNotFound_NoTable_NoTypesType(t *testing.T) {
 	os.Stderr = w
 
 	f, _ := setupPutStaticFrame("no/such/Class", "x", types.Int)
-	push(&f, int64(1))
-	ret := doPutStatic(&f, 0)
+	push(f, int64(1))
+	ret := doPutStatic(f, 0)
 
 	_ = w.Close()
 	_, _ = io.ReadAll(r) // drain
@@ -2330,7 +2330,7 @@ func TestRET(t *testing.T) {
 	f.PC = 0
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(0), int64(0), int64(456))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.PC-1 != 455 { // -1 because PC++ after processing RET
@@ -2348,7 +2348,7 @@ func TestReturn(t *testing.T) {
 
 	f := newFrame(opcodes.RETURN)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != -1 {
 		t.Errorf("Top of stack, expected -1, got: %d", f.TOS)
@@ -2371,12 +2371,12 @@ func TestSipush(t *testing.T) {
 	f.Meth = append(f.Meth, 0x01)
 	f.Meth = append(f.Meth, 0x02)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("BIPUSH: Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 258 {
 		t.Errorf("SIPUSH: Expected popped value to be 258, got: %d", value)
 	}
@@ -2393,12 +2393,12 @@ func TestSipushNegative(t *testing.T) {
 	f.Meth = append(f.Meth, byte(val))
 	f.Meth = append(f.Meth, 0x02)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("BIPUSH: Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value >= 0 {
 		t.Errorf("SIPUSH: Expected popped value to be negative, got: %d", value)
 	}
@@ -2413,15 +2413,15 @@ func TestSwap(t *testing.T) {
 	// set the logger to low granularity, so that logging messages are not also captured in this test
 
 	f := newFrame(opcodes.SWAP)
-	push(&f, int64(34)) // push two different values
-	push(&f, int64(21)) // TOS now = 21
+	push(f, int64(34)) // push two different values
+	push(f, int64(21)) // TOS now = 21
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	top := pop(&f).(int64)
-	next := pop(&f).(int64)
+	top := pop(f).(int64)
+	next := pop(f).(int64)
 
 	if top != 34 {
 		t.Errorf("SWAP: expected top's value to be 34, but got: %d", top)
@@ -2441,7 +2441,7 @@ func TestTableswitchMatchHigh(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.TABLESWITCH)
 
-	push(&f, int64(7)) // matches high value
+	push(f, int64(7)) // matches high value
 
 	// Padding bytes
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -2461,7 +2461,7 @@ func TestTableswitchMatchHigh(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x3C) // case 7: jump 60
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 60 {
@@ -2478,7 +2478,7 @@ func TestTableswitchMatchMiddle(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.TABLESWITCH)
 
-	push(&f, int64(6)) // matches middle value
+	push(f, int64(6)) // matches middle value
 
 	// Padding bytes
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -2498,7 +2498,7 @@ func TestTableswitchMatchMiddle(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x3C) // case 7: jump 60
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 40 {
@@ -2515,7 +2515,7 @@ func TestTableswitchDefaultBelowLow(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.TABLESWITCH)
 
-	push(&f, int64(3)) // below low value, should use default
+	push(f, int64(3)) // below low value, should use default
 
 	// Padding bytes
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -2535,7 +2535,7 @@ func TestTableswitchDefaultBelowLow(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x3C) // case 7: jump 60
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 100 {
@@ -2552,7 +2552,7 @@ func TestTableswitchDefaultAboveHigh(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.TABLESWITCH)
 
-	push(&f, int64(10)) // above high value, should use default
+	push(f, int64(10)) // above high value, should use default
 
 	// Padding bytes
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -2572,7 +2572,7 @@ func TestTableswitchDefaultAboveHigh(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x3C) // case 7: jump 60
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 100 {
@@ -2589,7 +2589,7 @@ func TestTableswitchSingleCase(t *testing.T) {
 	globals.InitGlobals("test")
 	f := newFrame(opcodes.TABLESWITCH)
 
-	push(&f, int64(5)) // only case
+	push(f, int64(5)) // only case
 
 	// Padding bytes
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -2607,7 +2607,7 @@ func TestTableswitchSingleCase(t *testing.T) {
 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x2A) // case 5: jump 42
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	if f.PC != 42 {
@@ -2628,7 +2628,7 @@ func TestTableswitchSingleCase(t *testing.T) {
 // 	globals.InitGlobals("test")
 // 	f := newFrame(opcodes.TABLESWITCH)
 //
-// 	push(&f, int64(1)) // match case 1
+// 	push(f, int64(1)) // match case 1
 //
 // 	// Padding bytes
 // 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00)
@@ -2648,7 +2648,7 @@ func TestTableswitchSingleCase(t *testing.T) {
 // 	f.Meth = append(f.Meth, 0x00, 0x00, 0x00, 0x0F) // case 2: jump 15
 //
 // 	fs := frames.CreateFrameStack()
-// 	fs.PushFront(&f)
+// 	fs.PushFront(f)
 // 	interpret(fs)
 //
 // 	if f.PC != -5 {
@@ -2670,10 +2670,10 @@ func TestWideDLOAD(t *testing.T) {
 	f.Meth = append(f.Meth, 0x01)
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, float64(0), float64(33.3), float64(0))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	ret := pop(&f).(float64)
+	ret := pop(f).(float64)
 	if ret != 33.3 {
 		t.Errorf("WIDE,DLOAD: expected return of 33.3, got: %f", ret)
 	}
@@ -2692,7 +2692,7 @@ func TestWideDSTORE(t *testing.T) {
 	f.OpStack[1] = float64(26.2)
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, float64(0), float64(0), float64(0))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	ret := f.Locals[1]
@@ -2714,7 +2714,7 @@ func TestWideIINC(t *testing.T) {
 	f.Meth = append(f.Meth, 0x24)
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(10), int64(20), int64(30))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[2] != int64(66) {
@@ -2732,9 +2732,9 @@ func TestWideILOAD(t *testing.T) {
 	f.Meth = append(f.Meth, 0x02)
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(10), int64(20), int64(30))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	ret := pop(&f).(int64)
+	ret := pop(f).(int64)
 	if ret != int64(30) {
 		t.Errorf("WIDE,ILOAD: expected return of 30, got: %d", ret)
 	}
@@ -2752,7 +2752,7 @@ func TestWideISTORE(t *testing.T) {
 	f.OpStack[0] = int64(25)
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(0), int64(0), int64(0))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	ret := f.Locals[2]
@@ -2772,10 +2772,10 @@ func TestWideLLOAD(t *testing.T) {
 
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(33), int64(33), int64(0))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	ret := pop(&f).(int64)
+	ret := pop(f).(int64)
 	if ret != 33 {
 		t.Errorf("WIDE,DLOAD: expected return of 33, got: %d", ret)
 	}
@@ -2794,7 +2794,7 @@ func TestWideLSTORE(t *testing.T) {
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(0), int64(0), int64(0))
 
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	ret := f.Locals[1]
@@ -2815,7 +2815,7 @@ func TestWideRET(t *testing.T) {
 
 	fs := frames.CreateFrameStack()
 	f.Locals = append(f.Locals, int64(0), int64(0), int64(123456))
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.PC != 123457 { // 123456 + 1 for the WIDE bytecode, which takes up 1 byte
@@ -2834,7 +2834,7 @@ func TestInvalidInstruction(t *testing.T) {
 	f := newFrame(252) // an invalid bytecode
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)          // push the new frame
+	fs.PushFront(f)          // push the new frame
 	globals.TraceInst = false // turn off tracing
 	interpret(fs)
 

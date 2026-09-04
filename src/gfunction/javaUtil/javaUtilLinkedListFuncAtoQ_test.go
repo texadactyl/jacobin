@@ -27,7 +27,7 @@ func assertJavaBoolLL(t *testing.T, got interface{}, want int64, msg string) {
 	if !ok {
 		switch got.(type) {
 		case *ghelpers.GErrBlk:
-			errBlk := *got.(*ghelpers.GErrBlk)
+			errBlk := got.(*ghelpers.GErrBlk)
 			t.Fatalf("%s: expected Java boolean (int64), got ghelpers.GErrBlk %d (%s)", msg, errBlk.ExceptionType, errBlk.ErrMsg)
 		}
 		t.Fatalf("%s: expected Java boolean (int64), got %T", msg, got)

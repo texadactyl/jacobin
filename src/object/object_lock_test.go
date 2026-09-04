@@ -321,13 +321,17 @@ func TestObjLock_TwoThreads_ThinLockContentionAndHandoff(t *testing.T) {
 	// Thread 2 attempts to lock while thin-locked by thread 1
 	go func() {
 		if err := obj.ObjLock(2); err != nil {
-			t.Fatalf("thread 2 ObjLock (thin contention) returned error: %v", err)
+			t.Errorf("thread 2 ObjLock (thin contention) returned error: %v", err)
+			close(done)
+			return
 		}
 		t.Log("Thread 2 locked object successfully (thin).")
 		close(acquired)
 		// Release and finish
 		if err := obj.ObjUnlock(2); err != nil {
-			t.Fatalf("thread 2 ObjUnlock after thin handoff returned error: %v", err)
+			t.Errorf("thread 2 ObjUnlock after thin handoff returned error: %v", err)
+			close(done)
+			return
 		}
 		t.Log("Thread 2 released object successfully (thin).")
 		close(done)
@@ -392,13 +396,15 @@ func TestObjLock_EightThreads_ThinLockContentionAndHandoff(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			if err := obj.ObjLock(tid); err != nil {
-				t.Fatalf("contender %d ObjLock (thin) returned error: %v", tid, err)
+				t.Errorf("contender %d ObjLock (thin) returned error: %v", tid, err)
+				return
 			}
 			t.Logf("Thread %d locked object successfully (thin).", tid)
 			// Record acquisition
 			acquiredCh <- int(tid)
 			if err := obj.ObjUnlock(tid); err != nil {
-				t.Fatalf("contender %d ObjUnlock (thin) returned error: %v", tid, err)
+				t.Errorf("contender %d ObjUnlock (thin) returned error: %v", tid, err)
+				return
 			}
 			t.Logf("Thread %d released object successfully (thin).", tid)
 		}()

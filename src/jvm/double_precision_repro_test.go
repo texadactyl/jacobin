@@ -13,14 +13,14 @@ func TestDoublePrecision(t *testing.T) {
 	f := newFrame(opcodes.DADD)
 	v1 := 1.0
 	v2 := 1e-15
-	push(&f, v1)
-	push(&f, v2)
+	push(f, v1)
+	push(f, v2)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	res := pop(&f).(float64)
+	res := pop(f).(float64)
 	fmt.Printf("DADD result: %v\n", res)
 	if res == 1.0 {
 		t.Errorf("DADD: lost precision, 1.0 + 1e-15 resulted in 1.0")
@@ -28,12 +28,12 @@ func TestDoublePrecision(t *testing.T) {
 
 	// DREM precision test
 	f = newFrame(opcodes.DREM)
-	push(&f, 1.0)
-	push(&f, 0.3)
+	push(f, 1.0)
+	push(f, 0.3)
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
-	res = pop(&f).(float64)
+	res = pop(f).(float64)
 	fmt.Printf("DREM result: %v\n", res)
 	// 1.0 % 0.3 should be 0.1 (roughly)
 	if float32(res) != float32(1.0-0.9) {
@@ -45,13 +45,13 @@ func TestD2fConversion(t *testing.T) {
 	f := newFrame(opcodes.D2F)
 	// A value that changes when converted to float32
 	v := 1.0000000000000002
-	push(&f, v)
+	push(f, v)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	res := pop(&f).(float64)
+	res := pop(f).(float64)
 	fmt.Printf("D2F result: %v\n", res)
 	if res == v {
 		t.Errorf("D2F: failed to round to float32 precision")
@@ -70,14 +70,14 @@ func TestF2dConversion(t *testing.T) {
 	f := newFrame(opcodes.FADD)
 	v1 := float64(float32(1.0))
 	v2 := float64(float32(1e-16))
-	push(&f, v1)
-	push(&f, v2)
+	push(f, v1)
+	push(f, v2)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	res := pop(&f).(float64)
+	res := pop(f).(float64)
 	if res != 1.0 {
 		t.Errorf("FADD: expected 1.0 due to float32 precision limits, got %v", res)
 	}

@@ -32,12 +32,12 @@ func TestIaddBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.IADD)
-			push(&f, int64(tt.v1))
-			push(&f, int64(tt.v2))
+			push(f, int64(tt.v1))
+			push(f, int64(tt.v2))
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -61,12 +61,12 @@ func TestIsubBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.ISUB)
-			push(&f, int64(tt.v1))
-			push(&f, int64(tt.v2))
+			push(f, int64(tt.v1))
+			push(f, int64(tt.v2))
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -89,12 +89,12 @@ func TestImulBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.IMUL)
-			push(&f, int64(tt.v1))
-			push(&f, int64(tt.v2))
+			push(f, int64(tt.v1))
+			push(f, int64(tt.v2))
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -116,11 +116,11 @@ func TestInegBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.INEG)
-			push(&f, int64(tt.v))
+			push(f, int64(tt.v))
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -144,12 +144,12 @@ func TestIshlBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.ISHL)
-			push(&f, int64(tt.v))
-			push(&f, tt.dist)
+			push(f, int64(tt.v))
+			push(f, tt.dist)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -174,12 +174,12 @@ func TestIshrBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.ISHR)
-			push(&f, int64(tt.v))
-			push(&f, tt.dist)
+			push(f, int64(tt.v))
+			push(f, tt.dist)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -203,12 +203,12 @@ func TestIushrBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.IUSHR)
-			push(&f, int64(tt.v))
-			push(&f, tt.dist)
+			push(f, int64(tt.v))
+			push(f, tt.dist)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if int32(res) != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, int32(res))
 			}
@@ -219,36 +219,36 @@ func TestIushrBoundary(t *testing.T) {
 func TestIbitwiseBoundary(t *testing.T) {
 	t.Run("IAND Neg", func(t *testing.T) {
 		f := newFrame(opcodes.IAND)
-		push(&f, int64(-1))
-		push(&f, int64(123))
+		push(f, int64(-1))
+		push(f, int64(123))
 		fs := frames.CreateFrameStack()
-		fs.PushFront(&f)
+		fs.PushFront(f)
 		interpret(fs)
-		res := pop(&f).(int64)
+		res := pop(f).(int64)
 		if int32(res) != 123 {
 			t.Errorf("IAND: expected 123, got %d", int32(res))
 		}
 	})
 	t.Run("IOR Neg", func(t *testing.T) {
 		f := newFrame(opcodes.IOR)
-		push(&f, int64(-1))
-		push(&f, int64(123))
+		push(f, int64(-1))
+		push(f, int64(123))
 		fs := frames.CreateFrameStack()
-		fs.PushFront(&f)
+		fs.PushFront(f)
 		interpret(fs)
-		res := pop(&f).(int64)
+		res := pop(f).(int64)
 		if int32(res) != -1 {
 			t.Errorf("IOR: expected -1, got %d", int32(res))
 		}
 	})
 	t.Run("IXOR Neg", func(t *testing.T) {
 		f := newFrame(opcodes.IXOR)
-		push(&f, int64(-1))
-		push(&f, int64(0))
+		push(f, int64(-1))
+		push(f, int64(0))
 		fs := frames.CreateFrameStack()
-		fs.PushFront(&f)
+		fs.PushFront(f)
 		interpret(fs)
-		res := pop(&f).(int64)
+		res := pop(f).(int64)
 		if int32(res) != -1 {
 			t.Errorf("IXOR: expected -1, got %d", int32(res))
 		}
@@ -271,11 +271,11 @@ func TestI2bBoundary(t *testing.T) {
 
 	for _, tt := range tests {
 		f := newFrame(opcodes.I2B)
-		push(&f, int64(tt.v))
+		push(f, int64(tt.v))
 		fs := frames.CreateFrameStack()
-		fs.PushFront(&f)
+		fs.PushFront(f)
 		interpret(fs)
-		res := pop(&f).(int64)
+		res := pop(f).(int64)
 		if int8(res) != tt.expected {
 			t.Errorf("I2B(%d): expected %d, got %d", tt.v, tt.expected, int8(res))
 		}
@@ -294,11 +294,11 @@ func TestI2cBoundary(t *testing.T) {
 
 	for _, tt := range tests {
 		f := newFrame(opcodes.I2C)
-		push(&f, int64(tt.v))
+		push(f, int64(tt.v))
 		fs := frames.CreateFrameStack()
-		fs.PushFront(&f)
+		fs.PushFront(f)
 		interpret(fs)
-		res := pop(&f).(int64)
+		res := pop(f).(int64)
 		if uint16(res) != tt.expected {
 			t.Errorf("I2C(%d): expected %d, got %d", tt.v, tt.expected, uint16(res))
 		}
@@ -319,11 +319,11 @@ func TestI2sBoundary(t *testing.T) {
 
 	for _, tt := range tests {
 		f := newFrame(opcodes.I2S)
-		push(&f, int64(tt.v))
+		push(f, int64(tt.v))
 		fs := frames.CreateFrameStack()
-		fs.PushFront(&f)
+		fs.PushFront(f)
 		interpret(fs)
-		res := pop(&f).(int64)
+		res := pop(f).(int64)
 		if int16(res) != tt.expected {
 			t.Errorf("I2S(%d): expected %d, got %d", tt.v, tt.expected, int16(res))
 		}
@@ -344,12 +344,12 @@ func TestLaddBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.LADD)
-			push(&f, tt.v1)
-			push(&f, tt.v2)
+			push(f, tt.v1)
+			push(f, tt.v2)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if res != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, res)
 			}
@@ -372,12 +372,12 @@ func TestLshlBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.LSHL)
-			push(&f, tt.v)
-			push(&f, tt.dist)
+			push(f, tt.v)
+			push(f, tt.dist)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if res != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, res)
 			}
@@ -400,12 +400,12 @@ func TestLshrBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.LSHR)
-			push(&f, tt.v)
-			push(&f, tt.dist)
+			push(f, tt.v)
+			push(f, tt.dist)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if res != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, res)
 			}
@@ -428,12 +428,12 @@ func TestLushrBoundary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFrame(opcodes.LUSHR)
-			push(&f, tt.v)
-			push(&f, tt.dist)
+			push(f, tt.v)
+			push(f, tt.dist)
 			fs := frames.CreateFrameStack()
-			fs.PushFront(&f)
+			fs.PushFront(f)
 			interpret(fs)
-			res := pop(&f).(int64)
+			res := pop(f).(int64)
 			if res != tt.expected {
 				t.Errorf("%s: expected %d, got %d", tt.name, tt.expected, res)
 			}
@@ -448,12 +448,12 @@ func TestIaloadBoundary(t *testing.T) {
 	f := newFrame(opcodes.IALOAD)
 	arr := []int64{1, 2, 3}
 	obj := object.MakePrimitiveObject(types.IntArray, types.IntArray, arr)
-	push(&f, obj)
-	push(&f, int64(1))
+	push(f, obj)
+	push(f, int64(1))
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
-	res := pop(&f).(int64)
+	res := pop(f).(int64)
 	if int32(res) != 2 {
 		t.Errorf("IALOAD: expected 2, got %d", int32(res))
 	}
@@ -462,12 +462,12 @@ func TestIaloadBoundary(t *testing.T) {
 	f = newFrame(opcodes.SALOAD)
 	sarr := []int64{-1, 2, 3}
 	sobj := object.MakePrimitiveObject(types.ShortArray, types.ShortArray, sarr)
-	push(&f, sobj)
-	push(&f, int64(0))
+	push(f, sobj)
+	push(f, int64(0))
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
-	res = pop(&f).(int64)
+	res = pop(f).(int64)
 	if int32(res) != -1 {
 		t.Errorf("SALOAD: expected -1, got %d", int32(res))
 	}
@@ -476,12 +476,12 @@ func TestIaloadBoundary(t *testing.T) {
 	f = newFrame(opcodes.CALOAD)
 	carr := []int64{0xFFFF, 2, 3}
 	cobj := object.MakePrimitiveObject(types.CharArray, types.CharArray, carr)
-	push(&f, cobj)
-	push(&f, int64(0))
+	push(f, cobj)
+	push(f, int64(0))
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
-	res = pop(&f).(int64)
+	res = pop(f).(int64)
 	if int32(res) != 65535 {
 		t.Errorf("CALOAD: expected 65535, got %d", int32(res))
 	}
@@ -494,11 +494,11 @@ func TestIastoreBoundary(t *testing.T) {
 	f := newFrame(opcodes.IASTORE)
 	arr := []int64{0, 0, 0}
 	obj := object.MakePrimitiveObject(types.IntArray, types.IntArray, arr)
-	push(&f, obj)
-	push(&f, int64(1))
-	push(&f, int64(-123))
+	push(f, obj)
+	push(f, int64(1))
+	push(f, int64(-123))
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 	if arr[1] != -123 {
 		t.Errorf("IASTORE: expected -123, got %d", arr[1])
@@ -508,11 +508,11 @@ func TestIastoreBoundary(t *testing.T) {
 	f = newFrame(opcodes.SASTORE)
 	sarr := []int64{0, 0, 0}
 	sobj := object.MakePrimitiveObject(types.ShortArray, types.ShortArray, sarr)
-	push(&f, sobj)
-	push(&f, int64(2))
-	push(&f, int64(0x12345678)) // should be truncated to 0x5678
+	push(f, sobj)
+	push(f, int64(2))
+	push(f, int64(0x12345678)) // should be truncated to 0x5678
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 	if sarr[2] != 0x5678 {
 		t.Errorf("SASTORE: expected 0x5678, got 0x%x", sarr[2])
@@ -522,11 +522,11 @@ func TestIastoreBoundary(t *testing.T) {
 	f = newFrame(opcodes.CASTORE)
 	carr := []int64{0, 0, 0}
 	cobj := object.MakePrimitiveObject(types.CharArray, types.CharArray, carr)
-	push(&f, cobj)
-	push(&f, int64(0))
-	push(&f, int64(-1)) // should be truncated to 0xFFFF
+	push(f, cobj)
+	push(f, int64(0))
+	push(f, int64(-1)) // should be truncated to 0xFFFF
 	fs = frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 	if carr[0] != 0xFFFF {
 		t.Errorf("CASTORE: expected 0xFFFF, got 0x%x", carr[0])
