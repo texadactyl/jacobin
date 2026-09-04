@@ -454,7 +454,7 @@ func FillInStackTrace(params []interface{}) interface{} {
 
 	args := []interface{}{objRef}
 	stackData := getOurStackTrace(args)
-	throwable := *objRef
+	var throwable = objRef
 
 	stackTraceField := object.Field{
 		Ftype:  types.Ref,
