@@ -66,64 +66,64 @@ import (
 // LoadOptionsTable loads the table with all the options Jacobin recognizes.
 func LoadOptionsTable(Global *globals.Globals) {
 
-	classpath := globals.Option{true, false, 4, getClasspath}
+	classpath := globals.Option{Supported: true, Set: false, ArgStyle: 4, Action: getClasspath}
 	Global.Options["-classpath"] = classpath
 	Global.Options["--class-path"] = classpath
 	Global.Options["-cp"] = classpath
 	classpath.Set = true
 
-	client := globals.Option{true, false, 0, clientVM}
+	client := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: clientVM}
 	Global.Options["-client"] = client
 	client.Set = true
 
 	// --dry-run option is a valid HotSpot option, but not supported in Jacobin.
 	// including it here so that we can test the unsupported option.
 	// in Hotpot, it is used to run the VM without actually running the main method.
-	dryRun := globals.Option{false, false, 0, notSupported}
+	dryRun := globals.Option{Supported: false, Set: false, ArgStyle: 0, Action: notSupported}
 	Global.Options["--dry-run"] = dryRun
 	dryRun.Set = true
 
-	ea := globals.Option{false, false, 0, enableAssertions}
+	ea := globals.Option{Supported: false, Set: false, ArgStyle: 0, Action: enableAssertions}
 	Global.Options["-ea"] = ea
 	Global.Options["-enableassertions"] = ea
 
-	help := globals.Option{true, false, 0, showHelpStderrAndExit}
+	help := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: showHelpStderrAndExit}
 	Global.Options["-h"] = help
 	Global.Options["-help"] = help
 	Global.Options["-?"] = help
 
-	helpp := globals.Option{true, false, 0, showHelpStdoutAndExit}
+	helpp := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: showHelpStdoutAndExit}
 	Global.Options["--help"] = helpp
 
-	jarFile := globals.Option{true, false, 4, getJarFilename}
+	jarFile := globals.Option{Supported: true, Set: false, ArgStyle: 4, Action: getJarFilename}
 	Global.Options["-jar"] = jarFile
 	jarFile.Set = true
 
-	showversion := globals.Option{true, false, 0, showVersionStderr}
+	showversion := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: showVersionStderr}
 	Global.Options["-showversion"] = showversion
 
-	show_Version := globals.Option{true, false, 0, showVersionStdout}
+	show_Version := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: showVersionStdout}
 	Global.Options["--show-version"] = show_Version
 
-	strictJdk := globals.Option{true, false, 0, strictJDK}
+	strictJdk := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: strictJDK}
 	Global.Options["-strictJDK"] = strictJdk
 
-	cachedMethods := globals.Option{true, false, 0, disableCachedMethods}
+	cachedMethods := globals.Option{Supported: true, Set: false, ArgStyle: 0, Action: disableCachedMethods}
 	Global.Options["-cacheMethods"] = cachedMethods
 
-	traceInstruction := globals.Option{true, false, 10, enableTrace}
+	traceInstruction := globals.Option{Supported: true, Set: false, ArgStyle: 10, Action: enableTrace}
 	Global.Options["-trace"] = traceInstruction
 
-	JJ := globals.Option{true, false, 10, enableJJ}
+	JJ := globals.Option{Supported: true, Set: false, ArgStyle: 10, Action: enableJJ}
 	Global.Options["-JJ"] = JJ
 
-	version := globals.Option{true, false, 1, versionStderrThenExit}
+	version := globals.Option{Supported: true, Set: false, ArgStyle: 1, Action: versionStderrThenExit}
 	Global.Options["-version"] = version
 
-	vversion := globals.Option{true, false, 1, versionStdoutThenExit}
+	vversion := globals.Option{Supported: true, Set: false, ArgStyle: 1, Action: versionStdoutThenExit}
 	Global.Options["--version"] = vversion
 
-	xx := globals.Option{true, false, 10, handleXXoptions} // all advanced options
+	xx := globals.Option{Supported: true, Set: false, ArgStyle: 10, Action: handleXXoptions} // all advanced options
 	Global.Options["-XX"] = xx
 }
 

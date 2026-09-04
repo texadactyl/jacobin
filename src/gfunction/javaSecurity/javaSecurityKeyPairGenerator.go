@@ -374,7 +374,7 @@ func keypairgeneratorInitializeWithParmSpec(params []any) any {
 				"DHParameterSpec missing P field",
 			)
 		}
-		kpgObj.FieldTable["p"] = object.Field{pField.Ftype, pField.Fvalue}
+		kpgObj.FieldTable["p"] = object.Field{Ftype: pField.Ftype, Fvalue: pField.Fvalue}
 
 		// Extract key size from G parameter
 		gField, exists := paramSpecObj.FieldTable["g"]
@@ -384,7 +384,7 @@ func keypairgeneratorInitializeWithParmSpec(params []any) any {
 				"DHParameterSpec missing G field",
 			)
 		}
-		kpgObj.FieldTable["g"] = object.Field{gField.Ftype, gField.Fvalue}
+		kpgObj.FieldTable["g"] = object.Field{Ftype: gField.Ftype, Fvalue: gField.Fvalue}
 
 		// Extract key size from L parameter
 		lField, exists := paramSpecObj.FieldTable["l"]
@@ -394,7 +394,7 @@ func keypairgeneratorInitializeWithParmSpec(params []any) any {
 				"DHParameterSpec missing L field",
 			)
 		}
-		kpgObj.FieldTable["l"] = object.Field{lField.Ftype, lField.Fvalue}
+		kpgObj.FieldTable["l"] = object.Field{Ftype: lField.Ftype, Fvalue: lField.Fvalue}
 
 	case "EdDSA":
 		// Accept only NamedParameterSpec

@@ -254,8 +254,8 @@ func of(params []interface{}) interface{} {
 // by repeated calls to initStackTraceElement() below.
 // Returns nothing.
 func initStackTraceElements(params []interface{}) interface{} {
-	arrayObjPtr := params[0].(*object.Object) // the array of stackTraceElements we'll fill in
-	arrayObj := *arrayObjPtr
+	arrayObj := params[0].(*object.Object) // the array of stackTraceElements we'll fill in
+	// arrayObj := *arrayObjPtr
 	rawSteArray := arrayObj.FieldTable["value"].Fvalue.([]*object.Object)
 
 	throwable := params[1].(*object.Object) // pointer to the Throwable object
@@ -376,7 +376,7 @@ func searchLineNumberTable(attrContent []byte, PC int) int {
 		sourceLineNumber := uint16(attrContent[loc+2])*256 + uint16(attrContent[loc+3])
 		loc += 4
 
-		tableEntry := BytecodeToSourceLine{bytecodeNumber, sourceLineNumber}
+		tableEntry := BytecodeToSourceLine{BytecodePos: bytecodeNumber, SourceLine: sourceLineNumber}
 		table = append(table, tableEntry)
 	}
 
