@@ -33,13 +33,13 @@ import (
 // F2D: test convert float to double
 func TestNewF2d(t *testing.T) {
 	f := newFrame(opcodes.F2D)
-	push(&f, 2.0)
+	push(f, 2.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	val := pop(&f).(float64)
+	val := pop(f).(float64)
 	if val != 2.0 {
 		t.Errorf("F2D: expected a result of 2.0, but got: %f", val)
 	}
@@ -51,13 +51,13 @@ func TestNewF2d(t *testing.T) {
 // F2I: test convert float to int
 func TestNewF2iPositive(t *testing.T) {
 	f := newFrame(opcodes.F2I)
-	push(&f, 2.9)
+	push(f, 2.9)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	val := pop(&f).(int64)
+	val := pop(f).(int64)
 	if val != 2 {
 		t.Errorf("F2I: expected a result of 2, but got: %d", val)
 	}
@@ -68,13 +68,13 @@ func TestNewF2iPositive(t *testing.T) {
 
 func TestNewF2iNegative(t *testing.T) {
 	f := newFrame(opcodes.F2I)
-	push(&f, -2.9)
+	push(f, -2.9)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	val := pop(&f).(int64)
+	val := pop(f).(int64)
 	if val != -2 {
 		t.Errorf("F2I: expected a result of 2, but got: %d", val)
 	}
@@ -86,13 +86,13 @@ func TestNewF2iNegative(t *testing.T) {
 // F2L: test convert float to long
 func TestNewF2l(t *testing.T) {
 	f := newFrame(opcodes.F2L)
-	push(&f, 2.0)
+	push(f, 2.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	val := pop(&f).(int64)
+	val := pop(f).(int64)
 	if val != 2 {
 		t.Errorf("F2L: expected a result of 2.0, but got: %d", val)
 	}
@@ -104,12 +104,12 @@ func TestNewF2l(t *testing.T) {
 // FADD: Add two floats
 func TestNewFadd(t *testing.T) {
 	f := newFrame(opcodes.FADD)
-	push(&f, 2.1)
-	push(&f, 3.1)
+	push(f, 2.1)
+	push(f, 3.1)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if math.Abs(value-5.2) > maxFloatDiff {
 		t.Errorf("FADD: expected a result of 5.2, but got: %f", value)
 	}
@@ -121,14 +121,14 @@ func TestNewFadd(t *testing.T) {
 // FCMPG: compare two floats
 func TestNewFcmpg1(t *testing.T) {
 	f := newFrame(opcodes.FCMPG)
-	push(&f, 3.0)
-	push(&f, 2.0)
+	push(f, 3.0)
+	push(f, 2.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 
 	if value != 1 {
 		t.Errorf("FCMPG: Expected value to be 1, got: %d", value)
@@ -142,14 +142,14 @@ func TestNewFcmpg1(t *testing.T) {
 // FCMPG: compare two floats
 func TestNewFcmpgMinus1(t *testing.T) {
 	f := newFrame(opcodes.FCMPG)
-	push(&f, 2.0)
-	push(&f, 3.0)
+	push(f, 2.0)
+	push(f, 3.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 
 	if value != -1 {
 		t.Errorf("FCMPG: Expected value to be -1, got: %d", value)
@@ -163,14 +163,14 @@ func TestNewFcmpgMinus1(t *testing.T) {
 // FCMPG: compare two floats
 func TestNewFcmpg0(t *testing.T) {
 	f := newFrame(opcodes.FCMPG)
-	push(&f, 3.0)
-	push(&f, 3.0)
+	push(f, 3.0)
+	push(f, 3.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 
 	if value != 0 {
 		t.Errorf("FCMPG: Expected value to be 0, got: %d", value)
@@ -184,14 +184,14 @@ func TestNewFcmpg0(t *testing.T) {
 // FCMPG
 func TestNewFcmpgNan(t *testing.T) {
 	f := newFrame(opcodes.FCMPG)
-	push(&f, math.NaN())
-	push(&f, 3.0)
+	push(f, math.NaN())
+	push(f, 3.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 
 	if value != 1 {
 		t.Errorf("FCMPG: Expected value to be 1, got: %d", value)
@@ -205,14 +205,14 @@ func TestNewFcmpgNan(t *testing.T) {
 // FCMPL
 func TestNewFcmplNan(t *testing.T) {
 	f := newFrame(opcodes.FCMPL)
-	push(&f, math.NaN())
-	push(&f, 3.0)
+	push(f, math.NaN())
+	push(f, 3.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 
 	if value != -1 {
 		t.Errorf("FCMPL: Expected value to be -1, got: %d", value)
@@ -227,12 +227,12 @@ func TestNewFcmplNan(t *testing.T) {
 func TestNewFconst0(t *testing.T) {
 	f := newFrame(opcodes.FCONST_0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 0.0 {
 		t.Errorf("FCONST_0: Expected popped value to be 0.0, got: %f", value)
 	}
@@ -242,12 +242,12 @@ func TestNewFconst0(t *testing.T) {
 func TestNewFconst1(t *testing.T) {
 	f := newFrame(opcodes.FCONST_1)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 1.0 {
 		t.Errorf("FCONST_1: Expected popped value to be 1.0, got: %f", value)
 	}
@@ -257,12 +257,12 @@ func TestNewFconst1(t *testing.T) {
 func TestNewFconst2(t *testing.T) {
 	f := newFrame(opcodes.FCONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 2.0 {
 		t.Errorf("FCONST_2: Expected popped value to be 2.0, got: %f", value)
 	}
@@ -271,12 +271,12 @@ func TestNewFconst2(t *testing.T) {
 // FDIV: float divide of.TOS-1 by tos, push result
 func TestNewFdiv(t *testing.T) {
 	f := newFrame(opcodes.FDIV)
-	push(&f, 3.0)
-	push(&f, 2.0)
+	push(f, 3.0)
+	push(f, 2.0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 1.5 {
 		t.Errorf("FDIV: expected a result of 1.5, but got: %f", value)
 	}
@@ -285,13 +285,13 @@ func TestNewFdiv(t *testing.T) {
 // FDIV: with divide zero by zero, should = NaN
 func TestNewFdivDivideZeroByZero(t *testing.T) {
 	f := newFrame(opcodes.FDIV)
-	push(&f, float64(0))
-	push(&f, float64(0))
+	push(f, float64(0))
+	push(f, float64(0))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	ret := pop(&f)
+	ret := pop(f)
 
 	if !math.IsNaN(ret.(float64)) {
 		t.Errorf("FDIV: Did not get an expected NaN")
@@ -301,13 +301,13 @@ func TestNewFdivDivideZeroByZero(t *testing.T) {
 // FDIV: with divide positive number by zero, should = +Inf
 func TestNewFdivDividePosNumberByZero(t *testing.T) {
 	f := newFrame(opcodes.FDIV)
-	push(&f, float64(10))
-	push(&f, float64(0))
+	push(f, float64(10))
+	push(f, float64(0))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	ret := pop(&f)
+	ret := pop(f)
 
 	if !math.IsInf(ret.(float64), 1) {
 		t.Errorf("FDIV: Did not get an expected +Infinity")
@@ -325,9 +325,9 @@ func TestNewFload(t *testing.T) {
 	f.Locals = append(f.Locals, float64(0x1234562)) // put value in locals[4]
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	x := pop(&f).(float64)
+	x := pop(f).(float64)
 	if x != float64(0x1234562) {
 		t.Errorf("FLOAD: Expecting 0x1234562 on stack, got: 0x%x", x)
 	}
@@ -344,12 +344,12 @@ func TestNewFload0(t *testing.T) {
 	f := newFrame(opcodes.FLOAD_0)
 	f.Locals = append(f.Locals, 1.2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 1.2 {
 		t.Errorf("FLOAD_0: Expected popped value to be 1.2, got: %f", value)
 	}
@@ -361,12 +361,12 @@ func TestNewFload1(t *testing.T) {
 	f.Locals = append(f.Locals, 1.1)
 	f.Locals = append(f.Locals, 1.2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 1.2 {
 		t.Errorf("FLOAD_1: Expected popped value to be 1.2, got: %f", value)
 	}
@@ -379,12 +379,12 @@ func TestNewFload2(t *testing.T) {
 	f.Locals = append(f.Locals, 1.1)
 	f.Locals = append(f.Locals, 1.2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 1.2 {
 		t.Errorf("FLOAD_2: Expected popped value to be 1.2, got: %f", value)
 	}
@@ -398,12 +398,12 @@ func TestNewFload3(t *testing.T) {
 	f.Locals = append(f.Locals, 1.1)
 	f.Locals = append(f.Locals, 1.2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 1.2 {
 		t.Errorf("FLOAD_3: Expected popped value to be 1.2, got: %f", value)
 	}
@@ -412,15 +412,15 @@ func TestNewFload3(t *testing.T) {
 // FMUL (pop 2 floats, multiply them, push result)
 func TestNewFmul(t *testing.T) {
 	f := newFrame(opcodes.FMUL)
-	push(&f, 1.5)
-	push(&f, 2.0)
+	push(f, 1.5)
+	push(f, 2.0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("FMUL, Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 3.0 {
 		t.Errorf("FMUL: Expected popped value to be 3.0, got: %f", value)
 	}
@@ -429,17 +429,17 @@ func TestNewFmul(t *testing.T) {
 // FNEG: negate a float
 func TestNewFneg(t *testing.T) {
 	f := newFrame(opcodes.FNEG)
-	push(&f, 10.0)
+	push(f, 10.0)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 0 {
 		t.Errorf("FNEG, Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != -10.0 {
 		t.Errorf("FNEG: Expected popped value to be -10.0, got: %f", value)
 	}
@@ -448,19 +448,19 @@ func TestNewFneg(t *testing.T) {
 // FREM: remainder of float division (the % operator)
 func TestNewFrem(t *testing.T) {
 	f := newFrame(opcodes.FREM)
-	push(&f, 23.5)
+	push(f, 23.5)
 
-	push(&f, 3.3)
+	push(f, 3.3)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.TOS != 0 {
 		t.Errorf("FREM, Top of stack, expected 0, got: %d", f.TOS)
 	}
 
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if math.Abs(value-0.40000033) > maxFloatDiff {
 		t.Errorf("FREM: Expected popped value to be 0.40000033, got: %f", value)
 	}
@@ -474,10 +474,10 @@ func TestNewFstore(t *testing.T) {
 	f.Locals = append(f.Locals, zerof)
 	f.Locals = append(f.Locals, zerof)
 	f.Locals = append(f.Locals, zerof)
-	push(&f, float64(0x22223))
+	push(f, float64(0x22223))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.Locals[2] != float64(0x22223) {
@@ -493,9 +493,9 @@ func TestNewFstore(t *testing.T) {
 func TestNewFstore0(t *testing.T) {
 	f := newFrame(opcodes.FSTORE_0)
 	f.Locals = append(f.Locals, 0.0)
-	push(&f, 1.0)
+	push(f, 1.0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Locals[0].(float64) != 1.0 {
 		t.Errorf("FSTORE_0: expected lcoals[0] to be 1.0, got: %f", f.Locals[0].(float64))
@@ -510,9 +510,9 @@ func TestNewFstore1(t *testing.T) {
 	f := newFrame(opcodes.FSTORE_1)
 	f.Locals = append(f.Locals, 0.0)
 	f.Locals = append(f.Locals, 0.0)
-	push(&f, 1.0)
+	push(f, 1.0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Locals[1].(float64) != 1.0 {
 		t.Errorf("FSTORE_1: expected lcoals[1] to be 1.0, got: %f", f.Locals[1].(float64))
@@ -528,9 +528,9 @@ func TestNewFstore2(t *testing.T) {
 	f.Locals = append(f.Locals, 0.0)
 	f.Locals = append(f.Locals, 0.0)
 	f.Locals = append(f.Locals, 0.0)
-	push(&f, 1.0)
+	push(f, 1.0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Locals[2].(float64) != 1.0 {
 		t.Errorf("FSTORE_2: expected lcoals[2] to be 1.0, got: %f", f.Locals[2].(float64))
@@ -548,9 +548,9 @@ func TestNewFstore3(t *testing.T) {
 	f.Locals = append(f.Locals, 0.0)
 	f.Locals = append(f.Locals, 0.0)
 	f.Locals = append(f.Locals, 0.0)
-	push(&f, 1.0)
+	push(f, 1.0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Locals[3].(float64) != 1.0 {
 		t.Errorf("FSTORE_3: expected lcoals[3] to be 1.0, got: %f", f.Locals[3].(float64))
@@ -563,14 +563,14 @@ func TestNewFstore3(t *testing.T) {
 // FSUB:float subtraction
 func TestNewFsub(t *testing.T) {
 	f := newFrame(opcodes.FSUB)
-	push(&f, 1.0)
-	push(&f, 0.7)
+	push(f, 1.0)
+	push(f, 0.7)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 
 	if math.Abs(value-0.3) > maxFloatDiff {
 		t.Errorf("FSUB: Expected popped value to be 0.3, got: %f", value)
@@ -624,14 +624,14 @@ func TestNewGetField(t *testing.T) {
 		Fvalue: "hello",
 	}
 
-	push(&f, str)
+	push(f, str)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// preceding should mean that the field value is on the stack
-	ret := pop(&f)
+	ret := pop(f)
 	s := object.GoStringFromStringObject(ret.(*object.Object))
 	if s != "hello" {
 		t.Errorf("GETFIELD: did not get expected pointer to a string 'hello'")
@@ -669,14 +669,14 @@ func TestNewGetFieldWithLong(t *testing.T) {
 
 	// push the string whose field[0] we'll be getting
 	obj := object.MakePrimitiveObject("java/lang/Long", types.Long, int64(222))
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	// preceding should mean that the field value is on the stack
-	ret := pop(&f).(int64)
+	ret := pop(f).(int64)
 	if ret != 222 {
 		t.Errorf("GETFIELD: expected popped value of 222, got: %d", ret)
 	}
@@ -706,10 +706,10 @@ func TestGetFieldInvalidRefType(t *testing.T) {
 	f.CP = &CP
 
 	// push an invalid ref type (string instead of *object.Object)
-	push(&f, "not an object")
+	push(f, "not an object")
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	// restore stderr
@@ -741,10 +741,10 @@ func TestGetFieldNullRef(t *testing.T) {
 	CP.FieldRefs[0] = classloader.ResolvedFieldEntry{FldName: "value"}
 	f.CP = &CP
 
-	push(&f, object.Null)
+	push(f, object.Null)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -777,10 +777,10 @@ func TestGetFieldMissingField(t *testing.T) {
 
 	// object without the requested field
 	obj := object.MakeEmptyObject()
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -812,13 +812,13 @@ func TestGetFieldStringIndex(t *testing.T) {
 
 	obj := object.MakeEmptyObject()
 	obj.FieldTable["value"] = object.Field{Ftype: types.StringIndex, Fvalue: idx}
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	ret := pop(&f).(*string)
+	ret := pop(f).(*string)
 	if ret == nil || *ret != s {
 		t.Errorf("GETFIELD StringIndex: expected %q, got %#v", s, ret)
 	}
@@ -844,13 +844,13 @@ func TestGetFieldStringClassRefBytes(t *testing.T) {
 	// StringClassRef with []byte payload
 	obj := object.MakeEmptyObject()
 	obj.FieldTable["value"] = object.Field{Ftype: types.StringClassRef, Fvalue: []byte{'h', 'i'}}
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	ret := pop(&f).(*object.Object)
+	ret := pop(f).(*object.Object)
 	if object.GoStringFromStringObject(ret) != "hi" {
 		t.Errorf("GETFIELD StringClassRef([]byte): expected 'hi', got %q", object.GoStringFromStringObject(ret))
 	}
@@ -876,13 +876,13 @@ func TestGetFieldStringClassRefJavaBytes(t *testing.T) {
 	jb := []types.JavaByte{types.JavaByte('b'), types.JavaByte('y'), types.JavaByte('e')}
 	obj := object.MakeEmptyObject()
 	obj.FieldTable["value"] = object.Field{Ftype: types.StringClassRef, Fvalue: jb}
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	ret := pop(&f).(*object.Object)
+	ret := pop(f).(*object.Object)
 	if object.GoStringFromStringObject(ret) != "bye" {
 		t.Errorf("GETFIELD StringClassRef(JavaByte[]): expected 'bye', got %q", object.GoStringFromStringObject(ret))
 	}
@@ -908,13 +908,13 @@ func TestGetFieldArrayWrap(t *testing.T) {
 	arr := []int64{10, 20, 30}
 	obj := object.MakeEmptyObject()
 	obj.FieldTable["value"] = object.Field{Ftype: types.IntArray, Fvalue: arr}
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	ret := pop(&f).(*object.Object)
+	ret := pop(f).(*object.Object)
 	fv, ok := ret.FieldTable["value"]
 	if !ok || fv.Ftype != types.IntArray {
 		t.Fatalf("GETFIELD array wrap: expected wrapped array field type %q, got %#v", types.IntArray, fv)
@@ -946,13 +946,13 @@ func TestGetFieldObjectWrapsArray(t *testing.T) {
 	// Field type is Object, but value is an int64 slice. doGetfield should wrap this
 	// into an Object whose field("value").Ftype is inferred to an array descriptor
 	obj.FieldTable["value"] = object.Field{Ftype: "Ljava/lang/Object;", Fvalue: payload}
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	ret := pop(&f).(*object.Object)
+	ret := pop(f).(*object.Object)
 	fv, ok := ret.FieldTable["value"]
 	if !ok || fv.Ftype != types.IntArray {
 		t.Fatalf("GETFIELD Object-wrap: expected inferred array type %q, got %#v", types.IntArray, fv)
@@ -1013,12 +1013,12 @@ func TestGetStaticInt(t *testing.T) {
 	// Push the frame onto the frame stack
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 
 	interpret(fs)
 
 	// Verify the result
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 42 {
 		t.Errorf("doGetstatic: expected value 42, got %d", value)
 	}
@@ -1051,10 +1051,10 @@ func TestGetStaticBoolNormalization(t *testing.T) {
 	_ = statics.AddStatic("TestClass.boolField", statics.Static{Type: types.Bool, Value: true})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	v := pop(&f).(int64)
+	v := pop(f).(int64)
 	if v != 1 {
 		t.Fatalf("GETSTATIC bool normalization: expected 1, got %d", v)
 	}
@@ -1085,10 +1085,10 @@ func TestGetStaticBytePromotion(t *testing.T) {
 	_ = statics.AddStatic("TestClass.byteField", statics.Static{Type: types.Byte, Value: byte(7)})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	v := pop(&f).(int64)
+	v := pop(f).(int64)
 	if v != 7 {
 		t.Fatalf("GETSTATIC byte promotion: expected 7, got %d", v)
 	}
@@ -1119,10 +1119,10 @@ func TestGetStaticDefaultPathInt64(t *testing.T) {
 	_ = statics.AddStatic("TestClass.i64Field", statics.Static{Type: types.Long, Value: int64(99)})
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
-	v := pop(&f).(int64)
+	v := pop(f).(int64)
 	if v != 99 {
 		t.Fatalf("GETSTATIC default path (int64): expected 99, got %d", v)
 	}
@@ -1165,7 +1165,7 @@ func TestGetStaticClassNotFound(t *testing.T) {
 	f.CP = &CP
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -1212,7 +1212,7 @@ func TestGetStaticMissingFieldAfterInstantiate(t *testing.T) {
 	f.CP = &CP
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -1234,7 +1234,7 @@ func TestNewGotoForward(t *testing.T) {
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN {
 		t.Errorf("GOTO forward: Expected PC to point to RETURN, but instead it points to : %s", opcodes.BytecodeNames[f.Meth[f.PC]])
@@ -1250,7 +1250,7 @@ func TestNewGotoBackward(t *testing.T) {
 	f.Meth = append(f.Meth, opcodes.BIPUSH)
 	f.PC = 1 // skip over the return instruction to start, catch it on the backward goto
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN {
 		t.Errorf("GOTO backward: Expected PC to point to RETURN, but instead it points to : %s", opcodes.BytecodeNames[f.Meth[f.PC]])
@@ -1268,7 +1268,7 @@ func TestNewGotowForward(t *testing.T) {
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN {
 		t.Errorf("GOTO_W forward: Expected PC to point to RETURN, but instead it points to : %s", opcodes.BytecodeNames[f.Meth[f.PC]])
@@ -1286,7 +1286,7 @@ func TestNewGotowBackward(t *testing.T) {
 	f.Meth = append(f.Meth, opcodes.BIPUSH)
 	f.PC = 1 // skip over the return instruction to start, catch it on the backward goto
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN {
 		t.Errorf("GOTO_W backward: Expected PC to point to RETURN, but instead it points to : %s", opcodes.BytecodeNames[f.Meth[f.PC]])
@@ -1296,12 +1296,12 @@ func TestNewGotowBackward(t *testing.T) {
 // I2B: convert int to Java char (16-bit value)
 func TestNewI2B(t *testing.T) {
 	f := newFrame(opcodes.I2B)
-	push(&f, int64(2100))
+	push(f, int64(2100))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 52 {
 		t.Errorf("I2B: expected a result of 52, but got: %d", value)
 	}
@@ -1313,12 +1313,12 @@ func TestNewI2B(t *testing.T) {
 // I2B: convert int to Java char (16-bit value) using a negative value
 func TestNewI2Bneg(t *testing.T) { // TODO: check that this matches Java result
 	f := newFrame(opcodes.I2B)
-	push(&f, int64(-2100))
+	push(f, int64(-2100))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != -52 {
 		t.Errorf("I2B: expected a result of -52, but got: %d", value)
 	}
@@ -1330,12 +1330,12 @@ func TestNewI2Bneg(t *testing.T) { // TODO: check that this matches Java result
 // I2C: convert int to Java char (16-bit value)
 func TestNewI2C(t *testing.T) {
 	f := newFrame(opcodes.I2C)
-	push(&f, int64(21))
+	push(f, int64(21))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 21 {
 		t.Errorf("I2C: expected a result of 21, but got: %d", value)
 	}
@@ -1349,12 +1349,12 @@ func TestNewI2C(t *testing.T) {
 // doubles use two slots.
 func TestNewI2D(t *testing.T) {
 	f := newFrame(opcodes.I2D)
-	push(&f, int64(21))
+	push(f, int64(21))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 21.0 {
 		t.Errorf("I2D: expected a result of 21.0, but got: %f", value)
 	}
@@ -1366,12 +1366,12 @@ func TestNewI2D(t *testing.T) {
 // I2F: convert int to short
 func TestNewI2f(t *testing.T) {
 	f := newFrame(opcodes.I2F)
-	push(&f, int64(21))
+	push(f, int64(21))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(float64)
+	value := pop(f).(float64)
 	if value != 21.0 {
 		t.Errorf("I2F: expected a result of 21.0, but got: %f", value)
 	}
@@ -1386,12 +1386,12 @@ func TestNewI2f(t *testing.T) {
 // slot, longs use two slots. So this is the primary test here.
 func TestNewI2l(t *testing.T) {
 	f := newFrame(opcodes.I2L)
-	push(&f, int64(21))
+	push(f, int64(21))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 21 {
 		t.Errorf("I2L: expected a result of 21, but got: %d", value)
 	}
@@ -1403,12 +1403,12 @@ func TestNewI2l(t *testing.T) {
 // I2S: convert int to short
 func TestNewI2s(t *testing.T) {
 	f := newFrame(opcodes.I2S)
-	push(&f, int64(21))
+	push(f, int64(21))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 21 {
 		t.Errorf("I2S: expected a result of 21, but got: %d", value)
 	}
@@ -1420,12 +1420,12 @@ func TestNewI2s(t *testing.T) {
 // IADD: Add two integers
 func TestNewIadd(t *testing.T) {
 	f := newFrame(opcodes.IADD)
-	push(&f, int64(21))
-	push(&f, int64(22))
+	push(f, int64(21))
+	push(f, int64(22))
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 43 {
 		t.Errorf("IADD: expected a result of 43, but got: %d", value)
 	}
@@ -1437,14 +1437,14 @@ func TestNewIadd(t *testing.T) {
 // IAND: Logical and of two ints, push result
 func TestNewIand(t *testing.T) {
 	f := newFrame(opcodes.IAND)
-	push(&f, int64(21))
-	push(&f, int64(22))
+	push(f, int64(21))
+	push(f, int64(22))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
-	value := pop(&f).(int64) // longs require two slots, so popped twice
+	value := pop(f).(int64) // longs require two slots, so popped twice
 
 	if value != 20 { // 21 & 22 = 20
 		t.Errorf("IAND: expected a result of 20, but got: %d", value)
@@ -1458,12 +1458,12 @@ func TestNewIand(t *testing.T) {
 func TestNewIconstN1(t *testing.T) {
 	f := newFrame(opcodes.ICONST_M1)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	var value = pop(&f).(int64)
+	var value = pop(f).(int64)
 	if value != -1 {
 		t.Errorf("ICONST_M1: Expected popped value to be -1, got: %d", value)
 	}
@@ -1473,12 +1473,12 @@ func TestNewIconstN1(t *testing.T) {
 func TestNewIconst0(t *testing.T) {
 	f := newFrame(opcodes.ICONST_0)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 0 {
 		t.Errorf("ICONST_0: Expected popped value to be 0, got: %d", value)
 	}
@@ -1488,12 +1488,12 @@ func TestNewIconst0(t *testing.T) {
 func TestNewIconst1(t *testing.T) {
 	f := newFrame(opcodes.ICONST_1)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 1 {
 		t.Errorf("ICONST_1: Expected popped value to be 1, got: %d", value)
 	}
@@ -1503,12 +1503,12 @@ func TestNewIconst1(t *testing.T) {
 func TestNewIconst2(t *testing.T) {
 	f := newFrame(opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 2 {
 		t.Errorf("ICONST_2: Expected popped value to be 2, got: %d", value)
 	}
@@ -1518,12 +1518,12 @@ func TestNewIconst2(t *testing.T) {
 func TestNewIconst3(t *testing.T) {
 	f := newFrame(opcodes.ICONST_3)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 3 {
 		t.Errorf("ICONST_3: Expected popped value to be 3, got: %d", value)
 	}
@@ -1533,12 +1533,12 @@ func TestNewIconst3(t *testing.T) {
 func TestNewIconst4(t *testing.T) {
 	f := newFrame(opcodes.ICONST_4)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 4 {
 		t.Errorf("ICONST_4: Expected popped value to be 4, got: %d", value)
 	}
@@ -1548,12 +1548,12 @@ func TestNewIconst4(t *testing.T) {
 func TestNewIconst5(t *testing.T) {
 	f := newFrame(opcodes.ICONST_5)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.TOS != 0 {
 		t.Errorf("Top of stack, expected 0, got: %d", f.TOS)
 	}
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 5 {
 		t.Errorf("ICONST_5: Expected popped value to be 5, got: %d", value)
 	}
@@ -1562,12 +1562,12 @@ func TestNewIconst5(t *testing.T) {
 // IDIV: integer divide of.TOS-1 by tos, push result
 func TestNewIdiv(t *testing.T) {
 	f := newFrame(opcodes.IDIV)
-	push(&f, int64(220))
-	push(&f, int64(22))
+	push(f, int64(220))
+	push(f, int64(22))
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
-	value := pop(&f).(int64)
+	value := pop(f).(int64)
 	if value != 10 {
 		t.Errorf("IDIV: expected a result of 10, but got: %d", value)
 	}
@@ -1578,15 +1578,15 @@ func TestNewIdiv(t *testing.T) {
 // IF_ACMPEQ: jump if two addresses are equal
 func TestNewIfAcmpEq(t *testing.T) {
 	f := newFrame(opcodes.IF_ACMPEQ)
-	push(&f, int64(0xFF8899))
-	push(&f, int64(0xFF8899))
+	push(f, int64(0xFF8899))
+	push(f, int64(0xFF8899))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.ICONST_1)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_ACMPEQ: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1597,15 +1597,15 @@ func TestNewIfAcmpEq(t *testing.T) {
 // IF_ACMPEQ: jump if two addresses are equal (this tests addresses being unequal)
 func TestNewIfAcmpeqFail(t *testing.T) {
 	f := newFrame(opcodes.IF_ACMPEQ)
-	push(&f, int64(0xFF8899))
-	push(&f, int64(0xFF889A))
+	push(f, int64(0xFF8899))
+	push(f, int64(0xFF889A))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST_2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN) // the failed test should drop to this
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN { // b/c we return directly, we don't subtract 1 from pc
 		t.Errorf("IF_ICMPEQ: expecting fall-through to RETURN instuction, got: %s",
@@ -1616,15 +1616,15 @@ func TestNewIfAcmpeqFail(t *testing.T) {
 // IF_ACMPNE: jump if two addresses are not equal
 func TestNewIfAcmpNe(t *testing.T) {
 	f := newFrame(opcodes.IF_ACMPNE)
-	push(&f, int64(0xFF8899))
-	push(&f, int64(0xFF889A))
+	push(f, int64(0xFF8899))
+	push(f, int64(0xFF889A))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.ICONST_1)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_ACMPNE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1635,15 +1635,15 @@ func TestNewIfAcmpNe(t *testing.T) {
 // IF_ACMPNE: jump if two addresses are equal (this tests addresses being equal)
 func TestNewIfAcmpneFail(t *testing.T) {
 	f := newFrame(opcodes.IF_ACMPNE)
-	push(&f, int64(0xFF8899))
-	push(&f, int64(0xFF8899))
+	push(f, int64(0xFF8899))
+	push(f, int64(0xFF8899))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST_2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN) // the failed test should drop to this
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN { // b/c we return directly, we don't subtract 1 from pc
 		t.Errorf("IF_ICMPNE: expecting fall-through to RETURN instuction, got: %s",
@@ -1654,15 +1654,15 @@ func TestNewIfAcmpneFail(t *testing.T) {
 // IF_ICMPEQ: jump if val1 == val2 (both ints, both popped off stack)
 func TestNewIfIcmpeq(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPEQ)
-	push(&f, int64(9)) // pushed two equal values, so jump should be made.
-	push(&f, int64(9))
+	push(f, int64(9)) // pushed two equal values, so jump should be made.
+	push(f, int64(9))
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("ICMPEQ: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1673,11 +1673,11 @@ func TestNewIfIcmpeq(t *testing.T) {
 // IF_ICMPEQ: jump if val1 == val2; here test with unequal value
 func TestNewIfIcmpeqUnequal(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPEQ)
-	push(&f, int64(9)) // pushed two unequal values, so no jump should be made.
-	push(&f, int64(-9))
+	push(f, int64(9)) // pushed two unequal values, so no jump should be made.
+	push(f, int64(-9))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.PC != 3 { // 2 for the jump due to inequality above, +1 for fetch of next bytecode
@@ -1692,15 +1692,15 @@ func TestNewIfIcmpeqUnequal(t *testing.T) {
 // IF_CMPGE: if integer compare val 1 >= val 2. Here test for = (next test for >)
 func TestNewIfIcmpge1(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPGE)
-	push(&f, int64(9))
-	push(&f, int64(9))
+	push(f, int64(9))
+	push(f, int64(9))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.ICONST_1)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("ICMPGE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1711,15 +1711,15 @@ func TestNewIfIcmpge1(t *testing.T) {
 // IF_ICMPGE: if integer compare val 1 >= val 2. Here test for > (previous test for =)
 func TestNewIfIcmpge2(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPGE)
-	push(&f, int64(9))
-	push(&f, int64(8))
+	push(f, int64(9))
+	push(f, int64(8))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.ICONST_1)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("ICMPGE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1730,15 +1730,15 @@ func TestNewIfIcmpge2(t *testing.T) {
 // IF_ICMPGE: if integer compare val 1 >= val 2 //test when condition fails
 func TestNewIfIcmgetFail(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPGE)
-	push(&f, int64(8))
-	push(&f, int64(9))
+	push(f, int64(8))
+	push(f, int64(9))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN) // the failed test should drop to this
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN { // b/c we return directly, we don't subtract 1 from pc
 		t.Errorf("ICMPGE: expecting fall-through to RETURN instuction, got: %s",
@@ -1749,15 +1749,15 @@ func TestNewIfIcmgetFail(t *testing.T) {
 // IF_ICMPGT: jump if val1 > val2 (both ints, both popped off stack)
 func TestIfIcmpgt(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPGT)
-	push(&f, int64(9)) // val1 > val2, so jump should be made.
-	push(&f, int64(8))
+	push(f, int64(9)) // val1 > val2, so jump should be made.
+	push(f, int64(8))
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_ICMPGT: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1768,9 +1768,9 @@ func TestIfIcmpgt(t *testing.T) {
 // IF_ICMPGT: jump if val1 > val2 (both ints, both popped off stack)
 func TestIfIcmpgtWithLessThan(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPGT)
-	push(&f, int64(8)) // val1 > val2, so jump should be made.
-	push(&f, int64(9))
-	ret := doIficmpgt(&f, 0)
+	push(f, int64(8)) // val1 > val2, so jump should be made.
+	push(f, int64(9))
+	ret := doIficmpgt(f, 0)
 
 	if ret != 3 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_ICMPGT: expecting to jump over opcode (so, PC +3), got: %d", ret)
@@ -1780,15 +1780,15 @@ func TestIfIcmpgtWithLessThan(t *testing.T) {
 // IF_ICMPLE: if integer compare val 1 ! <= val 2 //test when condition fails
 func TestNewIfIcmpletFail(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPLE)
-	push(&f, int64(9))
-	push(&f, int64(8))
+	push(f, int64(9))
+	push(f, int64(8))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN) // the failed test should drop to this
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN { // b/c we return directly, we don't subtract 1 from pc
 		t.Errorf("IF_ICMPLE: expecting fall-through to RETURN instuction, got: %s",
@@ -1799,15 +1799,15 @@ func TestNewIfIcmpletFail(t *testing.T) {
 // IF_ICMPLE: if integer compare val 1 <= val 2. Here testing for =
 func TestNewIfIcmple1(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPLE)
-	push(&f, int64(9))
-	push(&f, int64(9))
+	push(f, int64(9))
+	push(f, int64(9))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.ICONST_1)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_CMPLE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1818,15 +1818,15 @@ func TestNewIfIcmple1(t *testing.T) {
 // IF_ICMPLT: if integer compare val 1 < val 2
 func TestNewIfIcmplt(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPLT)
-	push(&f, int64(8))
-	push(&f, int64(9))
+	push(f, int64(8))
+	push(f, int64(9))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.ICONST_1)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_ICMPLT: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1837,15 +1837,15 @@ func TestNewIfIcmplt(t *testing.T) {
 // IF_ICMPLT: if integer compare val 1 < val 2 //test when condition fails
 func TestNewIfIcmpltFail(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPLT)
-	push(&f, int64(9))
-	push(&f, int64(9))
+	push(f, int64(9))
+	push(f, int64(9))
 	// note that the byte passed in newframe() is at f.Meth[0]
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN) // the failed test should drop to this
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC] != opcodes.RETURN { // b/c we return directly, we don't subtract 1 from pc
 		t.Errorf("IF_ICMPLT: expecting fall-through to RETURN instuction, got: %s",
@@ -1856,15 +1856,15 @@ func TestNewIfIcmpltFail(t *testing.T) {
 // IF_ICMPNE: jump if val1 != val2 (both ints, both popped off stack)
 func TestNewIfIcmpne(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPNE)
-	push(&f, int64(9)) // pushed two unequal values, so jump should be made.
-	push(&f, int64(8))
+	push(f, int64(9)) // pushed two unequal values, so jump should be made.
+	push(f, int64(8))
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IF_ICMPNE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1875,11 +1875,11 @@ func TestNewIfIcmpne(t *testing.T) {
 // IF_ICMPNE: jump if val1 != val2 Here tests when they are equal
 func TestNewIfIcmpneAreEqual(t *testing.T) {
 	f := newFrame(opcodes.IF_ICMPNE)
-	push(&f, int64(9)) // pushed two equal values, so jump should not be made.
-	push(&f, int64(9))
+	push(f, int64(9)) // pushed two equal values, so jump should not be made.
+	push(f, int64(9))
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	if f.PC != 3 { // PC+= 2 when test fails, +1 for the next bytecode
@@ -1893,14 +1893,14 @@ func TestNewIfIcmpneAreEqual(t *testing.T) {
 // IFEQ: jump if int popped off TOS is = 0
 func TestNewIfeq(t *testing.T) {
 	f := newFrame(opcodes.IFEQ)
-	push(&f, int64(0)) // pushed 0, so jump should be made.
+	push(f, int64(0)) // pushed 0, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFEQ: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1911,14 +1911,14 @@ func TestNewIfeq(t *testing.T) {
 // IFEQ: jump if int popped off TOS is = 0; here != 0
 func TestNewIfeqFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFEQ)
-	push(&f, int64(23)) // pushed 23, so jump should not be made.
+	push(f, int64(23)) // pushed 23, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFEQ: Invalid fall-through, got: %s",
@@ -1929,14 +1929,14 @@ func TestNewIfeqFallThrough(t *testing.T) {
 // IFGE: jump if int popped off TOS is >= 0
 func TestNewIfge(t *testing.T) {
 	f := newFrame(opcodes.IFGE)
-	push(&f, int64(66)) // pushed 66, so jump should be made.
+	push(f, int64(66)) // pushed 66, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFGE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1947,14 +1947,14 @@ func TestNewIfge(t *testing.T) {
 // IFGE: jump if int popped off TOS is >= 0, here = 0
 func TestNewIfgeEqual0(t *testing.T) {
 	f := newFrame(opcodes.IFGE)
-	push(&f, int64(0)) // pushed 0, so jump should be made.
+	push(f, int64(0)) // pushed 0, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFGE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -1965,14 +1965,14 @@ func TestNewIfgeEqual0(t *testing.T) {
 // IFGE: jump if int popped off TOS is >= 0; here < 0
 func TestNewIfgeFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFGE)
-	push(&f, int64(-1)) // pushed -1, so jump should not be made.
+	push(f, int64(-1)) // pushed -1, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFGE: Invalid fall-through, got: %s",
@@ -1983,14 +1983,14 @@ func TestNewIfgeFallThrough(t *testing.T) {
 // IFGT: jump if int popped off TOS is > 0
 func TestNewIfgt(t *testing.T) {
 	f := newFrame(opcodes.IFGT)
-	push(&f, int64(66)) // pushed 66, so jump should be made.
+	push(f, int64(66)) // pushed 66, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFGT: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2001,14 +2001,14 @@ func TestNewIfgt(t *testing.T) {
 // IFGT: jump if int popped off TOS is > 0; here = 0
 func TestNewIfgtFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFGT)
-	push(&f, int64(0)) // pushed 0, so jump should not be made.
+	push(f, int64(0)) // pushed 0, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0)
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFGT: Invalid fall-through, got: %s",
@@ -2019,14 +2019,14 @@ func TestNewIfgtFallThrough(t *testing.T) {
 // IFLE: jump if int popped off TOS is <= 0
 func TestNewIfle(t *testing.T) {
 	f := newFrame(opcodes.IFLE)
-	push(&f, int64(-66)) // pushed -66, so jump should be made.
+	push(f, int64(-66)) // pushed -66, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFLE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2037,14 +2037,14 @@ func TestNewIfle(t *testing.T) {
 // IFLE: jump if int popped off TOS is <= 0; here = 0
 func TestNewIfleTest0(t *testing.T) {
 	f := newFrame(opcodes.IFLE)
-	push(&f, int64(0)) // pushed 0, so jump should be made.
+	push(f, int64(0)) // pushed 0, so jump should be made.
 
 	f.Meth = append(f.Meth, 0)
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFLE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2055,14 +2055,14 @@ func TestNewIfleTest0(t *testing.T) {
 // IFLE: jump if int popped off TOS is <= 0; here > 0, so no jump
 func TestNewIfleFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFLE)
-	push(&f, int64(66)) // pushed 66, so jump should not be made.
+	push(f, int64(66)) // pushed 66, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0)
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFLE: Invalid jump when expecting fall-through, got: %s",
@@ -2073,14 +2073,14 @@ func TestNewIfleFallThrough(t *testing.T) {
 // IFLT: jump if int popped off TOS is < 0
 func TestNewIflt(t *testing.T) {
 	f := newFrame(opcodes.IFLT)
-	push(&f, int64(-66)) // pushed -66, so jump should be made.
+	push(f, int64(-66)) // pushed -66, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFLT: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2091,14 +2091,14 @@ func TestNewIflt(t *testing.T) {
 // IFLT: jump if int popped off TOS is < 0; here = 0
 func TestNewIfltFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFLT)
-	push(&f, int64(0)) // pushed 0, so jump should not be made.
+	push(f, int64(0)) // pushed 0, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0)
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFLT: Invalid fall-through, got: %s",
@@ -2109,14 +2109,14 @@ func TestNewIfltFallThrough(t *testing.T) {
 // IFNE: jump if int popped off TOS is != 0
 func TestNewIfne(t *testing.T) {
 	f := newFrame(opcodes.IFNE)
-	push(&f, int64(1)) // pushed 1, so jump should be made.
+	push(f, int64(1)) // pushed 1, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFNE: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2127,14 +2127,14 @@ func TestNewIfne(t *testing.T) {
 // IFNE: jump if int popped off TOS is != 0; here it is = 0
 func TestNewIfneFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFNE)
-	push(&f, int64(0)) // pushed 0, so jump should not be made.
+	push(f, int64(0)) // pushed 0, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFNE: Invalid fall-through, got: %s",
@@ -2146,14 +2146,14 @@ func TestNewIfneFallThrough(t *testing.T) {
 func TestNewIfnonnull(t *testing.T) {
 	f := newFrame(opcodes.IFNONNULL)
 	o := object.NewStringObject()
-	push(&f, o) // pushed a valid address, so jump should be made.
+	push(f, o) // pushed a valid address, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFNONNULL: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2166,13 +2166,13 @@ func TestNewIfnonnullFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFNONNULL)
 	var oAddr *object.Object
 	oAddr = object.Null
-	push(&f, oAddr)
+	push(f, oAddr)
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Logf("IFNONNULL: Invalid fall-through, got: %s", opcodes.BytecodeNames[f.PC])
@@ -2185,14 +2185,14 @@ func TestNewIfnull(t *testing.T) {
 	f := newFrame(opcodes.IFNULL)
 	var oAddr *object.Object
 	oAddr = nil     // note either nil or object.Null will give same result
-	push(&f, oAddr) // pushed null, so jump should be made.
+	push(f, oAddr) // pushed null, so jump should be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.NOP)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] != opcodes.ICONST_2 { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFNULL: expecting a jump to ICONST_2 instuction, got: %s",
@@ -2204,14 +2204,14 @@ func TestNewIfnull(t *testing.T) {
 func TestNewIfnullFallThrough(t *testing.T) {
 	f := newFrame(opcodes.IFNULL)
 	o := object.MakeEmptyObject()
-	push(&f, o) // pushed non-null address, so jump should not be made.
+	push(f, o) // pushed non-null address, so jump should not be made.
 
 	f.Meth = append(f.Meth, 0) // where we are jumping to, byte 4 = ICONST2
 	f.Meth = append(f.Meth, 4)
 	f.Meth = append(f.Meth, opcodes.RETURN)
 	f.Meth = append(f.Meth, opcodes.ICONST_2)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 	if f.Meth[f.PC-1] == opcodes.IFNULL { // -1 b/c the run loop adds 1 before exiting
 		t.Errorf("IFNULL: Invalid fall-through, got: %s",

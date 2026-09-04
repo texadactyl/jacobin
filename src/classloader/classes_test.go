@@ -239,7 +239,6 @@ func TestFetchMethodAndCP_FoundInClassMethodTable(t *testing.T) {
 
 	klassName := "com/example/Owner"
 	// Build a class whose MethodTable contains the method
-
 	kData := &ClData{
 		Name:        klassName,
 		MethodTable: make(map[string]*Method),

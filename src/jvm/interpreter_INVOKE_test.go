@@ -43,10 +43,10 @@ func TestInvokeInterface_NotPointingToInterface(t *testing.T) {
 	f.CP = &CP
 
 	// push a dummy object (won't be used because we fail earlier)
-	push(&f, object.MakeEmptyObject())
+	push(f, object.MakeEmptyObject())
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -79,10 +79,10 @@ func TestInvokeInterface_NonZeroZeroByte(t *testing.T) {
 	CP.InterfaceRefs[0] = classloader.InterfaceRefEntry{ClassIndex: 0, NameAndType: 0}
 	f.CP = &CP
 
-	push(&f, object.MakeEmptyObject())
+	push(f, object.MakeEmptyObject())
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -132,10 +132,10 @@ func TestInvokeInterface_NullObjectRef(t *testing.T) {
 	f.CP = &CP
 
 	// Push a nil interface{} directly, so objRef == nil triggers
-	push(&f, nil)
+	push(f, nil)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -189,10 +189,10 @@ func TestInvokeInterface_ObjectClassNotFound(t *testing.T) {
 	bogusClass := "no/such/Class"
 	obj := object.MakeEmptyObject()
 	obj.KlassName = stringPool.GetStringIndex(&bogusClass)
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -251,10 +251,10 @@ func TestInvokeInterface_TargetNotAnInterface(t *testing.T) {
 	someClass := "pkg/SomeClass"
 	obj := object.MakeEmptyObject()
 	obj.KlassName = stringPool.GetStringIndex(&someClass)
-	push(&f, obj)
+	push(f, obj)
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f)
+	fs.PushFront(f)
 	interpret(fs)
 
 	_ = w.Close()
@@ -315,9 +315,9 @@ func TestNewInvokeSpecialJavaLangObject(t *testing.T) {
 	f.CP = &CP
 	classloader.ResolveCPmethRefs(&CP)
 	classname := "java/lang/Object"
-	push(&f, object.MakeEmptyObjectWithClassName(&classname))
+	push(f, object.MakeEmptyObjectWithClassName(&classname))
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 
 	interpret(fs)
 
@@ -387,10 +387,10 @@ func TestNewInvokeSpecialGmethodNoParams(t *testing.T) {
 	f.CP = &CP
 	classloader.ResolveCPmethRefs(&CP)
 	obj := object.MakeEmptyObject()
-	push(&f, obj) // INVOKESPECIAL expects a pointer to an object on the op stack
+	push(f, obj) // INVOKESPECIAL expects a pointer to an object on the op stack
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -458,10 +458,10 @@ func TestNewInvokeSpecialGmethodNoParamsReturnsD(t *testing.T) {
 	f.CP = &CP
 	classloader.ResolveCPmethRefs(&CP)
 	obj := object.MakeEmptyObject()
-	push(&f, obj) // INVOKESPECIAL expects a pointer to an object on the op stack
+	push(f, obj) // INVOKESPECIAL expects a pointer to an object on the op stack
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -529,11 +529,11 @@ func TestNewInvokeSpecialGmethodErrorReturn(t *testing.T) {
 	f.CP = &CP
 	classloader.ResolveCPmethRefs(&CP)
 	obj := object.MakeEmptyObject()
-	push(&f, obj)        // INVOKESPECIAL expects a pointer to an object on the op stack
-	push(&f, int64(999)) // push the one param
+	push(f, obj)        // INVOKESPECIAL expects a pointer to an object on the op stack
+	push(f, int64(999)) // push the one param
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -636,7 +636,7 @@ func TestNewInvokeStaticGmethodNoParams(t *testing.T) {
 
 	classloader.MethAreaInsert(className, &k)
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
@@ -704,7 +704,7 @@ func TestNewInvokeStaticGmethodErrorReturn(t *testing.T) {
 	f.CP = &CP
 	classloader.ResolveCPmethRefs(&CP)
 
-	push(&f, int64(999)) // push the one param
+	push(f, int64(999)) // push the one param
 
 	// INVOKESTATIC needs a parsed/loaded object in the MethArea to function
 	clData := classloader.ClData{
@@ -738,7 +738,7 @@ func TestNewInvokeStaticGmethodErrorReturn(t *testing.T) {
 	// classloader.JLCmap[className] = &jlc
 
 	fs := frames.CreateFrameStack()
-	fs.PushFront(&f) // push the new frame
+	fs.PushFront(f) // push the new frame
 	interpret(fs)
 
 	_ = w.Close()
