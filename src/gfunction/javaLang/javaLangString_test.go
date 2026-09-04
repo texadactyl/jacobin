@@ -164,7 +164,7 @@ func TestSprintf_2(t *testing.T) {
 
 	switch result.(type) {
 	case *ghelpers.GErrBlk:
-		geptr := *(result.(*ghelpers.GErrBlk))
+		geptr := result.(*ghelpers.GErrBlk)
 		errMsg := geptr.ErrMsg
 		t.Errorf("TestSprintf_2: %s\n", errMsg)
 	case *object.Object:
@@ -213,7 +213,7 @@ func TestSprintf_3(t *testing.T) {
 
 	switch result.(type) {
 	case *ghelpers.GErrBlk:
-		geptr := *(result.(*ghelpers.GErrBlk))
+		geptr := result.(*ghelpers.GErrBlk)
 		errMsg := geptr.ErrMsg
 		t.Errorf("TestSprintf_2: %s\n", errMsg)
 	case *object.Object:
@@ -791,7 +791,7 @@ func TestStringStripTrailing(t *testing.T) {
 
 	outputRaw := stringStripTrailing([]interface{}{input})
 
-	output := *outputRaw.(*object.Object)
+	output := outputRaw.(*object.Object)
 	strippedString :=
 		object.GoStringFromJavaByteArray(output.FieldTable["value"].Fvalue.([]types.JavaByte))
 	// strippedString := string(output.FieldTable["value"].Fvalue.([]byte))
