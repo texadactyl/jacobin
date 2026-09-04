@@ -27,12 +27,12 @@ var TestGfunctionsLoaded = false
 
 // GMeth is the entry in the MTable for Go functions. See MTable comments for details.
 //   - ParamSlots - the number of user parameters in a G function. E.g. For atan2, this would be 2.
-//   - GFunction - a go function. All go functions accept a possibly empty slice of interface{} and
-//     return an interface{} which might be nil (E.g. Java void).
+//   - GFunction - a go function. All go functions accept a possibly empty slice of any and
+//     return an any which might be nil (E.g. Java void).
 //   - NeedsContext - does this method need a pointer to the frame stack? Defaults to false.
 type GMeth struct {
 	ParamSlots   int
-	GFunction    func([]interface{}) interface{}
+	GFunction    func([]any) any
 	NeedsContext bool
 }
 
@@ -51,11 +51,11 @@ func GetGErrBlk(exceptionType int, errMsg string) *GErrBlk {
 }
 
 // File I/O and stream Field keys:
-var FileStatus string = "status"     // using this value in case some member function is looking at it
-var FilePath string = "FilePath"     // full absolute path of a file aka canonical path
-var FileHandle string = "FileHandle" // *os.File
-var FileMark string = "FileMark"     // file position relative to beginning (0)
-var FileAtEOF string = "FileAtEOF"   // file at EOF
+var FileStatus = "status"     // using this value in case some member function is looking at it
+var FilePath = "FilePath"     // full absolute path of a file aka canonical path
+var FileHandle = "FileHandle" // *os.File
+var FileMark = "FileMark"     // file position relative to beginning (0)
+var FileAtEOF = "FileAtEOF"   // file at EOF
 
 // File I/O constants:
 var CreateFilePermissions os.FileMode = 0664 // When creating, read and write for user and group, others read-only
@@ -69,36 +69,36 @@ var MaxIntValue int64 = 2147483647
 var MinIntValue int64 = -2147483648
 
 // ClinitGeneric is a do-nothing Go function shared by several source files
-func ClinitGeneric([]interface{}) interface{} {
+func ClinitGeneric([]any) any {
 	return nil
 }
 
 // JustReturn is a do-nothing Go function shared by several source files
-func JustReturn([]interface{}) interface{} {
+func JustReturn([]any) any {
 	return nil
 }
 
 // ReturnNull returns a Java null reference.
-func ReturnNull([]interface{}) interface{} {
+func ReturnNull([]any) any {
 	return object.Null
 }
 
 // ReturnNullObject returns a null object.
-func ReturnNullObject([]interface{}) interface{} {
+func ReturnNullObject([]any) any {
 	return object.Null
 }
 
-func ReturnCharsetName([]interface{}) interface{} {
+func ReturnCharsetName([]any) any {
 	return object.StringObjectFromGoString(globals.GetCharsetName())
 }
 
 // ReturnFalse returns false.
-func ReturnFalse([]interface{}) interface{} {
+func ReturnFalse([]any) any {
 	return types.JavaBoolFalse
 }
 
 // ReturnTrue returns true.
-func ReturnTrue([]interface{}) interface{} {
+func ReturnTrue([]any) any {
 	return types.JavaBoolTrue
 }
 
@@ -135,7 +135,7 @@ func InitBigIntegerField(obj *object.Object, argValue int64) {
 }
 
 // ReturnRandomLong returns a random long.
-func ReturnRandomLong([]interface{}) interface{} {
+func ReturnRandomLong([]any) any {
 	// Generate random int64.
 	var result int64
 	byteArray := make([]byte, 8) // int64 is 8 bytes
@@ -163,7 +163,7 @@ func GetDefaultSecurityProvider() *object.Object {
 }
 
 // getLinkedListFromObject (internal function) extracts the *list.List from the object
-func GetLinkedListFromObject(self *object.Object) (*list.List, interface{}) {
+func GetLinkedListFromObject(self *object.Object) (*list.List, any) {
 	field, exists := self.FieldTable["value"]
 	if !exists {
 		return nil, GetGErrBlk(excNames.NullPointerException, "getLinkedListFromObject: LinkedList not initialized")
@@ -177,7 +177,7 @@ func GetLinkedListFromObject(self *object.Object) (*list.List, interface{}) {
 
 // Invoke invokes a G function without setting up a frame. It is used primarily for
 // calling constructors on libraries that are loaded as gfunctions.
-func Invoke(whichFunc string, params []interface{}) interface{} {
+func Invoke(whichFunc string, params []any) any {
 	_, ret := MethodSignatures[whichFunc]
 	if !ret {
 		errMsg := fmt.Sprintf("Invoke: G function %s not found", whichFunc)
@@ -190,11 +190,11 @@ func Invoke(whichFunc string, params []interface{}) interface{} {
 func ConvertArgsToParams(args ...any) []any {
 	if len(args) == 0 {
 		return make([]any, 0)
-	} else {
-		params := make([]any, len(args))
-		for i, arg := range args {
-			params[i] = arg
-		}
-		return params
 	}
+
+	params := make([]any, len(args))
+	for i, arg := range args {
+		params[i] = arg
+	}
+	return params
 }
