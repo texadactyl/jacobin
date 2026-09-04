@@ -16,15 +16,15 @@ import (
 )
 
 // Helper function to create a basic constant pool
-func createBasicCP() CPool {
+func createBasicCP() *CPool {
 	CP := CPool{}
 	CP.CpIndex = make([]CpEntry, 10)
 	CP.CpIndex[0] = CpEntry{Type: 0, Slot: 0}
-	return CP
+	return &CP
 }
 
 // Helper function to create a constant pool with specific entry types
-func createCPWithEntry(index int, entryType int) CPool {
+func createCPWithEntry(index int, entryType int) *CPool {
 	CP := createBasicCP()
 	if index < len(CP.CpIndex) {
 		CP.CpIndex[index] = CpEntry{Type: uint16(entryType), Slot: 0}
@@ -40,7 +40,7 @@ func TestCheckCodeValidity_NilCodePointer(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(nil, &cp, 5, af, nil)
+	err := CheckCodeValidity(nil, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for nil codePtr, but got none")
 	}
@@ -56,7 +56,7 @@ func TestCheckCodeValidity_EmptyCodeNonAbstract(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{ClassIsAbstract: false}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for empty code in non-abstract class, but got none")
 	}
@@ -72,7 +72,7 @@ func TestCheckCodeValidity_EmptyCodeAbstract(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{ClassIsAbstract: true}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("Expected no error for empty code in abstract class, but got: %s", err.Error())
 	}
@@ -115,7 +115,7 @@ func TestCheckCodeValidity_ValidCode(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("Expected no error for valid code, but got: %s", err.Error())
 	}
@@ -129,7 +129,7 @@ func TestCheckCodeValidity_InvalidBytecodeLength(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid bytecode length, but got none")
 	}
@@ -145,7 +145,7 @@ func TestArith_StackDecrement(t *testing.T) { // test whether this is recognized
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -225,7 +225,7 @@ func TestCheckAconstnull_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -279,7 +279,7 @@ func TestCheckBipush_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -309,7 +309,7 @@ func TestCheckBipush_InsufficientLength(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for insufficient BIPUSH length, but got none")
 	}
@@ -324,7 +324,7 @@ func TestDup_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -353,7 +353,7 @@ func TestDup2_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -366,7 +366,7 @@ func TestDup2_HighLevel2(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -517,7 +517,7 @@ func TestPushFloat0_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -591,7 +591,7 @@ func TestCheckGetfield_HighLevel(t *testing.T) {
 	cp := createCPWithEntry(1, int(FieldRef))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -602,7 +602,7 @@ func TestCheckGetfield_ValidFieldRef(t *testing.T) {
 	globals.InitGlobals("test")
 
 	cp := createCPWithEntry(1, FieldRef)
-	CP = &cp
+	CP = cp
 	Code = []byte{opcodes.GETFIELD, 0x00, 0x01}
 	PC = 0
 
@@ -621,7 +621,7 @@ func TestCheckGetfield_InvalidCPSlot(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid GETFIELD CP slot, but got none")
 	}
@@ -668,7 +668,7 @@ func TestCheckGetstatic_HighLevel(t *testing.T) {
 	cp := createCPWithEntry(1, int(FieldRef))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("GETSTATIC CheckCodeValidity failed: %v", err)
 	}
@@ -678,8 +678,7 @@ func TestCheckGetstatic_HighLevel(t *testing.T) {
 func TestCheckGetstatic_ValidFieldRef(t *testing.T) {
 	globals.InitGlobals("test")
 
-	cp := createCPWithEntry(1, FieldRef)
-	CP = &cp
+	CP = createCPWithEntry(1, FieldRef)
 	Code = []byte{opcodes.GETSTATIC, 0x00, 0x01}
 	PC = 0
 
@@ -698,7 +697,7 @@ func TestCheckGetstatic_InvalidCPSlot(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid GETSTATIC CP slot, but got none")
 	}
@@ -745,7 +744,7 @@ func TestCheckGoto_ValidJump(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -759,7 +758,7 @@ func TestCheckGoto_InvalidJumpNegative(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid GOTO jump, but got none")
 	}
@@ -773,7 +772,7 @@ func TestCheckGoto_InvalidJumpOutOfBounds(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for out-of-bounds GOTO jump, but got none")
 	}
@@ -865,7 +864,7 @@ func TestIconst0_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -879,7 +878,7 @@ func TestCheckIfAcmpeq_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -893,7 +892,7 @@ func TestCheckIfeq_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -935,8 +934,7 @@ func TestCheckInvokedynamic_Success(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidCPslot(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := createBasicCP() // CP with only 10 entries (0-9)
-	CP = &cp
+	CP = createBasicCP()                                         // CP with only 10 entries (0-9)
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0xFF, 0x00, 0x00} // Slot 255
 	PC = 0
 
@@ -948,8 +946,7 @@ func TestCheckInvokedynamic_InvalidCPslot(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidEntryType(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := createCPWithEntry(1, 99) // Type 99 (invalid)
-	CP = &cp
+	CP = createCPWithEntry(1, 99) // Type 99 (invalid)
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
 	PC = 0
 
@@ -961,11 +958,11 @@ func TestCheckInvokedynamic_InvalidEntryType(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidInvokeDynamicSlot(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := CPool{
+	CP = &CPool{
 		CpIndex:        []CpEntry{{0, 0}, {InvokeDynamic, 1}}, // Slot 1 is out of bounds
 		InvokeDynamics: []InvokeDynamicEntry{},                // Empty
 	}
-	CP = &cp
+
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
 	PC = 0
 
@@ -977,12 +974,11 @@ func TestCheckInvokedynamic_InvalidInvokeDynamicSlot(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidBootstrapIndex(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := CPool{
+	CP = &CPool{
 		CpIndex:        []CpEntry{{0, 0}, {InvokeDynamic, 0}},
 		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 5, NameAndType: 0}}, // BSM 5 out of bounds
 		Bootstraps:     []BootstrapMethod{},
 	}
-	CP = &cp
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
 	PC = 0
 
@@ -994,12 +990,11 @@ func TestCheckInvokedynamic_InvalidBootstrapIndex(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidNameAndTypeIndex(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := CPool{
+	CP = &CPool{
 		CpIndex:        []CpEntry{{0, 0}, {InvokeDynamic, 0}},
 		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 5}}, // NAT 5 out of bounds
 		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
 	}
-	CP = &cp
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
 	PC = 0
 
@@ -1011,7 +1006,7 @@ func TestCheckInvokedynamic_InvalidNameAndTypeIndex(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidNameAndTypeType(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := CPool{
+	CP = &CPool{
 		CpIndex: []CpEntry{
 			{0, 0},
 			{InvokeDynamic, 0}, // Slot 1 points to InvokeDynamic
@@ -1020,7 +1015,6 @@ func TestCheckInvokedynamic_InvalidNameAndTypeType(t *testing.T) {
 		InvokeDynamics: []InvokeDynamicEntry{{BootstrapIndex: 0, NameAndType: 2}},
 		Bootstraps:     []BootstrapMethod{{MethodRef: 0, Args: []uint16{}}},
 	}
-	CP = &cp
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
 	PC = 0
 
@@ -1032,7 +1026,7 @@ func TestCheckInvokedynamic_InvalidNameAndTypeType(t *testing.T) {
 
 func TestCheckInvokedynamic_InvalidNATDescriptorIndex(t *testing.T) {
 	globals.InitGlobals("test")
-	cp := CPool{
+	CP = &CPool{
 		CpIndex: []CpEntry{
 			{0, 0},
 			{InvokeDynamic, 0},
@@ -1045,7 +1039,6 @@ func TestCheckInvokedynamic_InvalidNATDescriptorIndex(t *testing.T) {
 		NameAndTypes:   []NameAndTypeEntry{{NameIndex: 3, DescIndex: 4}}, // DescIndex 4 doesn't point to a UTF8
 		Utf8Refs:       []string{"name"},
 	}
-	CP = &cp
 	Code = []byte{opcodes.INVOKEDYNAMIC, 0x00, 0x01, 0x00, 0x00}
 	PC = 0
 
@@ -1063,7 +1056,7 @@ func TestCheckInvokeinterface_HighLevel(t *testing.T) {
 	cp := createCPWithEntry(1, int(Interface))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1073,8 +1066,7 @@ func TestCheckInvokeinterface_HighLevel(t *testing.T) {
 func TestCheckInvokeinterface_ValidInterface(t *testing.T) {
 	globals.InitGlobals("test")
 
-	cp := createCPWithEntry(1, Interface)
-	CP = &cp
+	CP = createCPWithEntry(1, Interface)
 	Code = []byte{opcodes.INVOKEINTERFACE, 0x00, 0x01, 0x02, 0x00} // count=2, zero=0
 	PC = 0
 
@@ -1093,7 +1085,7 @@ func TestCheckInvokeinterface_InvalidCPSlot(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid INVOKEINTERFACE CP slot, but got none")
 	}
@@ -1107,7 +1099,7 @@ func TestCheckInvokeinterface_ZeroCountByte(t *testing.T) {
 	cp := createCPWithEntry(1, int(Interface))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for zero count byte in INVOKEINTERFACE, but got none")
 	}
@@ -1121,7 +1113,7 @@ func TestCheckInvokeinterface_NonZeroZeroByte(t *testing.T) {
 	cp := createCPWithEntry(1, int(Interface))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for non-zero zero byte in INVOKEINTERFACE, but got none")
 	}
@@ -1235,7 +1227,7 @@ func TestCheckInvokevirtual_HighLevel(t *testing.T) {
 	cp := createCPWithEntry(1, int(MethodRef))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1249,7 +1241,7 @@ func TestCheckInvokevirtual_InvalidCPSlot(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid INVOKEVIRTUAL CP slot, but got none")
 	}
@@ -1265,20 +1257,21 @@ func TestNewInvokevirtualInvalidMethRef(t *testing.T) {
 	os.Stderr = w
 
 	code := []byte{opcodes.INVOKEVIRTUAL, 0x00, 0x01} // INVOKEVIRTUAL pointing to slot 1
-	CP := CPool{}
-	CP.CpIndex = make([]CpEntry, 10)
-	CP.CpIndex[0] = CpEntry{Type: 0, Slot: 0}
-	CP.CpIndex[1] = CpEntry{Type: ClassRef, Slot: 0} // should be a method ref
+	cp := CPool{}
+	cp.CpIndex = make([]CpEntry, 10)
+	cp.CpIndex[0] = CpEntry{Type: 0, Slot: 0}
+	cp.CpIndex[1] = CpEntry{Type: ClassRef, Slot: 0} // should be a method ref
 	// now create the pointed-to FieldRef
-	CP.FieldRefs = make([]ResolvedFieldEntry, 1)
-	CP.FieldRefs[0] = ResolvedFieldEntry{
+	cp.FieldRefs = make([]ResolvedFieldEntry, 1)
+	cp.FieldRefs[0] = ResolvedFieldEntry{
 		ClName:  "testClass",
 		FldName: "testField",
 		FldType: "I",
 	}
+	CP = &cp
 
 	af := AccessFlags{}
-	err := CheckCodeValidity(&code, &CP, 5, af, nil)
+	err := CheckCodeValidity(&code, &cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("INVOKEVIRTUAL: Expected error but did not get one.")
 	}
@@ -1578,7 +1571,7 @@ func TestCheckMultianewarray_HighLevel(t *testing.T) {
 	cp := createCPWithEntry(1, int(ClassRef))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1588,8 +1581,7 @@ func TestCheckMultianewarray_HighLevel(t *testing.T) {
 func TestCheckMultianewarray_ValidClassRef(t *testing.T) {
 	globals.InitGlobals("test")
 
-	cp := createCPWithEntry(1, ClassRef)
-	CP = &cp
+	CP = createCPWithEntry(1, ClassRef)
 	Code = []byte{opcodes.MULTIANEWARRAY, 0x00, 0x01, 0x02} // dimensions = 2
 	PC = 0
 
@@ -1608,7 +1600,7 @@ func TestCheckMultianewarray_ZeroDimensions(t *testing.T) {
 	cp := createCPWithEntry(1, int(ClassRef))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for zero dimensions in MULTIANEWARRAY, but got none")
 	}
@@ -1627,6 +1619,7 @@ func TestNewInvalidReference(t *testing.T) {
 	cp.FieldRefs = make([]ResolvedFieldEntry, 1, 1)
 	cp.FieldRefs[0] = ResolvedFieldEntry{}
 	af := AccessFlags{}
+	CP = &cp
 
 	err := CheckCodeValidity(&code, &cp, 5, af, nil)
 	if err == nil {
@@ -1647,7 +1640,7 @@ func TestNop(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1661,7 +1654,7 @@ func TestCheckPop_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1690,7 +1683,7 @@ func TestCheckPop2_HighLevel(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1718,7 +1711,7 @@ func TestCheckPutstatic_HighLevel(t *testing.T) {
 	cp := createCPWithEntry(1, int(FieldRef))
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 
 		t.Errorf("CheckCodeValidity failed: %v", err)
@@ -1729,8 +1722,7 @@ func TestCheckPutstatic_HighLevel(t *testing.T) {
 func TestCheckPutstatic_ValidFieldRef(t *testing.T) {
 	globals.InitGlobals("test")
 
-	cp := createCPWithEntry(1, FieldRef)
-	CP = &cp
+	CP = createCPWithEntry(1, FieldRef)
 	Code = []byte{opcodes.PUTSTATIC, 0x00, 0x01}
 	PC = 0
 
@@ -1749,7 +1741,7 @@ func TestCheckPutstatic_InvalidCPSlot(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid PUTSTATIC CP slot, but got none")
 	}
@@ -1813,7 +1805,7 @@ func TestCheckSipush_ValidLength2(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1826,7 +1818,7 @@ func TestCheckSipush_InsufficientLength(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for insufficient SIPUSH length, but got none")
 	}
@@ -1850,7 +1842,7 @@ func TestCheckTableswitch_ValidRange(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err != nil {
 		t.Errorf("CheckCodeValidity failed: %v", err)
 	}
@@ -1870,7 +1862,7 @@ func TestCheckTableswitch_InvalidRange(t *testing.T) {
 	cp := createBasicCP()
 	af := AccessFlags{}
 
-	err := CheckCodeValidity(&code, &cp, 5, af, nil)
+	err := CheckCodeValidity(&code, cp, 5, af, nil)
 	if err == nil {
 		t.Errorf("Expected error for invalid TABLESWITCH range, but got none")
 	}
