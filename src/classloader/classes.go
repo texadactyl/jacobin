@@ -303,11 +303,11 @@ func FetchMethodAndCP(className, methName, methType string) (MTentry, error) {
 
 	// the class, k, has been found, so check the method table for the method. Then return the
 	// method along with a pointer to the CP
-	var m Method
+	var m *Method
 	searchName := methName + methType
 	methRef, ok := k.Data.MethodTable[searchName]
 	if ok {
-		m = *methRef
+		m = methRef
 
 		// create a Java method struct for this method. We know it's a Java method
 		// because if it were a native method it would have been found in the initial
@@ -372,7 +372,7 @@ func FetchMethodAndCP(className, methName, methType string) (MTentry, error) {
 		// Search for the method in the class method table.
 		methRef, ok = k.Data.MethodTable[searchName]
 		if ok {
-			m = *methRef
+			m = methRef
 
 			// create a Java method struct for this method. We know it's a Java method
 			// because if it were a native method it would have been found in the initial

@@ -98,7 +98,7 @@ func runJavaInitializer(m classloader.MData, k *classloader.Klass, fs *list.List
 	meth := m.(classloader.JmEntry)
 	f := frames.CreateFrame(meth.MaxStack)
 	if fs.Front() != nil {
-		parentFrame := *(fs.Front().Value.(*frames.Frame))
+		parentFrame := fs.Front().Value.(*frames.Frame)
 		f.Thread = parentFrame.Thread
 	}
 	f.MethName = "<clinit>"
