@@ -35,7 +35,7 @@ func threadCurrentThread(params []interface{}) any {
 		return ghelpers.GetGErrBlk(excNames.IllegalArgumentException, errMsg)
 	}
 
-	frame := *fStack.Front().Value.(*frames.Frame)
+	frame := fStack.Front().Value.(*frames.Frame)
 	thID := frame.Thread
 	gr := globals.GetGlobalRef()
 	gr.ThreadLock.RLock()
@@ -62,7 +62,7 @@ func threadDumpStack(params []interface{}) interface{} {
 		_, _ = fmt.Fprintln(os.Stderr, "java.lang.Exception: Stack trace")
 	} else { // TODO: add the source line numbers to both variants
 		// we print more data than HotSpot does, starting with the thread name
-		o := *jvmStack.Front().Value.(*frames.Frame)
+		o := jvmStack.Front().Value.(*frames.Frame)
 		threadID := o.Thread
 		globalRef.ThreadLock.RLock()
 		defer globalRef.ThreadLock.RUnlock()
@@ -73,7 +73,7 @@ func threadDumpStack(params []interface{}) interface{} {
 	}
 
 	for e := jvmStack.Front(); e != nil; e = e.Next() {
-		fr := *e.Value.(*frames.Frame)
+		fr := e.Value.(*frames.Frame)
 		if globalRef.StrictJDK {
 			_, _ = fmt.Fprintf(os.Stderr, "\tat %s.%s\n", fr.ClName, fr.MethName)
 		} else {
@@ -347,7 +347,7 @@ func threadJoin(params []interface{}) any {
 		errMsg := "threadJoin: Expected context data to be a frame stack"
 		return ghelpers.GetGErrBlk(excNames.IllegalArgumentException, errMsg)
 	}
-	frame := *fStack.Front().Value.(*frames.Frame)
+	frame := fStack.Front().Value.(*frames.Frame)
 	thID := frame.Thread
 	gr := globals.GetGlobalRef()
 	gr.ThreadLock.RLock()

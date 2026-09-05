@@ -286,8 +286,7 @@ func initStackTraceElements(params []interface{}) interface{} {
 // called only from initStackTraceElements(), so we don't need it to strictly
 // follow the HotSpot way of implementing it. Official definition:
 // initStackTraceElement(Ljava/lang/StackTraceElement;Ljava/lang/StackFrameInfo;)V
-func initStackTraceElement(ste *object.Object, frm *frames.Frame, isFirstFrame bool) {
-	frame := *frm
+func initStackTraceElement(ste *object.Object, frame *frames.Frame, isFirstFrame bool) {
 
 	// helper function to facilitate subsequent field updates
 	// (Thanks to JetBrains' AI Assistant for this suggestion)
@@ -306,7 +305,7 @@ func initStackTraceElement(ste *object.Object, frm *frames.Frame, isFirstFrame b
 	if methClass == nil {
 		errMsg := fmt.Sprintf("initStackTraceElement: MethAreaFetch(%s) returned nil",
 			util.ConvertInternalClassNameToUserFormat(frame.ClName))
-		_ = exceptions.ThrowEx(excNames.InternalException, errMsg, &frame)
+		_ = exceptions.ThrowEx(excNames.InternalException, errMsg, frame)
 	}
 	addField("classLoaderName", methClass.Loader)
 	addField("fileName", methClass.Data.SourceFile)
@@ -325,7 +324,7 @@ func initStackTraceElement(ste *object.Object, frm *frames.Frame, isFirstFrame b
 	if !ok {
 		errMsg := fmt.Sprintf("initStackTraceElement: %s.%s, Invalid operand type for rawMethod.Meth: %T",
 			util.ConvertInternalClassNameToUserFormat(frame.ClName), frame.MethName, rawMethod.Meth)
-		_ = exceptions.ThrowEx(excNames.InternalException, errMsg, &frame)
+		_ = exceptions.ThrowEx(excNames.InternalException, errMsg, frame)
 	}
 	for i := 0; i < len(method.Attribs); i++ {
 		index := method.Attribs[i].AttrName
