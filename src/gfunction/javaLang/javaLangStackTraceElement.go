@@ -255,7 +255,6 @@ func of(params []interface{}) interface{} {
 // Returns nothing.
 func initStackTraceElements(params []interface{}) interface{} {
 	arrayObj := params[0].(*object.Object) // the array of stackTraceElements we'll fill in
-	// arrayObj := *arrayObjPtr
 	rawSteArray := arrayObj.FieldTable["value"].Fvalue.([]*object.Object)
 
 	throwable := params[1].(*object.Object) // pointer to the Throwable object
@@ -289,7 +288,6 @@ func initStackTraceElements(params []interface{}) interface{} {
 // initStackTraceElement(Ljava/lang/StackTraceElement;Ljava/lang/StackFrameInfo;)V
 func initStackTraceElement(ste *object.Object, frm *frames.Frame, isFirstFrame bool) {
 	frame := *frm
-	stackTrace := *ste
 
 	// helper function to facilitate subsequent field updates
 	// (Thanks to JetBrains' AI Assistant for this suggestion)
@@ -297,7 +295,7 @@ func initStackTraceElement(ste *object.Object, frm *frames.Frame, isFirstFrame b
 		fld := object.Field{}
 		fld.Fvalue = value
 		fld.Ftype = types.GolangString
-		stackTrace.FieldTable[name] = fld
+		ste.FieldTable[name] = fld
 	}
 
 	addField("declaringClass", frame.ClName)
@@ -353,7 +351,6 @@ func initStackTraceElement(ste *object.Object, frm *frames.Frame, isFirstFrame b
 			}
 		}
 	}
-	// }
 }
 
 // get the source line number from the location of the bytecode where exception occurred
