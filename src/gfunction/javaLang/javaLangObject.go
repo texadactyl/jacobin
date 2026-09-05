@@ -133,98 +133,6 @@ func ObjectGetClass(params []interface{}) interface{} {
 		return ghelpers.GetGErrBlk(excNames.ClassNotLoadedException, errMsg)
 	}
 	return klass.Data.ClassObject
-
-	/*
-		jlc := classloader.JLCmap[*stringPool.GetStringPointer(objPtr.KlassName)]
-		if jlc == nil {
-			errMsg := fmt.Sprintf("java/lang/Object.getClass: Class %s not loaded",
-				object.GoStringFromStringPoolIndex(objPtr.KlassName))
-			return ghelpers.GetGErrBlk(excNames.ClassNotLoadedException, errMsg)
-		} else {
-			name := object.GoStringFromStringPoolIndex(objPtr.KlassName)
-
-			if strings.HasPrefix(name, types.Array) { // arrays are handled differently
-				arrClass := arrayGetClass(objPtr, name)
-				return arrClass
-			}
-
-			// get a pointer to the class contents from the method area
-			content := classloader.MethAreaFetch(name)
-			if content == nil {
-				errMsg := fmt.Sprintf("java/lang/Object.getClass: Class %s not loaded", name)
-				return ghelpers.GetGErrBlk(excNames.ClassNotLoadedException, errMsg)
-			}
-
-			// syntactic sugar
-			obj := *content
-
-			// if we've previously created the Class object, return it
-			if obj.Data.ClassObject != nil {
-				return obj.Data.ClassObject
-			}
-
-			// create the empty java.lang.Class structure
-			jlcObj := object.MakeEmptyObject()
-
-			// points to the internal metaspace representation of the class (in methArea)
-			// HotSpot uses a hidden field named _klass for this. So do we.
-			jlcObj.FieldTable = make(map[string]object.Field)
-			jlcObj.FieldTable["_klass"] = object.Field{
-				Ftype:  types.RawGoPointer,
-				Fvalue: jlc.KlassPtr,
-			}
-
-			className := util.ConvertInternalClassNameToUserFormat(name) // FQN uses . not /
-			jlcObj.FieldTable["name"] = object.Field{
-				Ftype:  types.Ref,
-				Fvalue: object.StringObjectFromGoString(className),
-			}
-
-			jlcObj.FieldTable["classLoader"] = object.Field{
-				Ftype:  types.Ref,
-				Fvalue: object.StringObjectFromGoString(obj.Loader),
-			}
-
-			objData := *obj.Data
-			jlcObj.FieldTable["constantPool"] = object.Field{
-				Ftype:  types.Struct,
-				Fvalue: objData.CP,
-			}
-
-			jlcObj.FieldTable["superClass"] = object.Field{
-				Ftype:  types.GolangString,
-				Fvalue: object.GoStringFromStringPoolIndex(objData.SuperclassIndex),
-			}
-
-			jlcObj.FieldTable["fields"] = object.Field{
-				Ftype:  types.Struct,
-				Fvalue: objData.Fields,
-			}
-
-			jlcObj.FieldTable["interfaces"] = object.Field{
-				Ftype:  types.Struct,
-				Fvalue: objData.Interfaces,
-			}
-
-			jlcObj.FieldTable["methods"] = object.Field{
-				Ftype:  types.Struct,
-				Fvalue: objData.MethodTable,
-			}
-
-			jlcObj.FieldTable["modifiers"] = object.Field{
-				Ftype:  types.Struct,
-				Fvalue: objData.Access,
-			}
-
-			jlcObj.FieldTable["statics"] = object.Field{
-				Ftype:  types.StringArray,
-				Fvalue: jlc.Statics,
-			}
-
-			return jlcObj
-		}
-
-	*/
 }
 
 // "java/lang/Object.toString()Ljava/lang/String;"
@@ -297,7 +205,7 @@ func objectWait(params []interface{}) interface{} {
 	}
 
 	// Get thread ID.
-	frame := *fs.Front().Value.(*frames.Frame)
+	frame := fs.Front().Value.(*frames.Frame)
 	thID := int32(frame.Thread)
 
 	// Get the object of the synchronized method.
@@ -351,7 +259,7 @@ func objectNotify(params []interface{}) interface{} {
 	}
 
 	// Get thread ID.
-	frame := *fs.Front().Value.(*frames.Frame)
+	frame := fs.Front().Value.(*frames.Frame)
 	thID := int32(frame.Thread)
 
 	// Get the object of the synchronized method.
@@ -378,7 +286,7 @@ func objectNotifyAll(params []interface{}) interface{} {
 	}
 
 	// Get thread ID.
-	frame := *fs.Front().Value.(*frames.Frame)
+	frame := fs.Front().Value.(*frames.Frame)
 	thID := int32(frame.Thread)
 
 	// Get the object of the synchronized method.
