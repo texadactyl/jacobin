@@ -230,6 +230,13 @@ func createAndInitNewFrame(
 	fram.Meth = append(fram.Meth, m.Code...) // copy the method's bytecodes over
 	fram.AccessFlags = m.AccessFlags
 
+	// Check if the class is part of the JDK and if so, trace it.
+	// TODO: Throw exception if the class is part of the JDK?
+	if util.IsClassPartOfJDK(fram.ClName) {
+		traceInfo := fmt.Sprintf("\tcreateAndInitNewFrame: Class %s is part of the JDK", fram.ClName)
+		trace.Warning(traceInfo)
+	}
+
 	// pop the parameters off the present stack and put them in
 	// the new frame's locals. This is done in reverse order so
 	// that the parameters are pushed in the right order to be
@@ -366,12 +373,6 @@ func createAndInitNewFrame(
 		traceInfo := fmt.Sprintf("\tcreateAndInitNewFrame: lenArgList=%d, lenLocals=%d, stackSize=%d",
 			lenArgList, lenLocals, stackSize)
 		trace.Trace(traceInfo)
-	}
-
-	// TODO: Check if the class is part of the JDK and if so, trace it. Do something else tomorrow!
-	if util.IsClassPartOfJDK(fram.ClName) {
-		traceInfo := fmt.Sprintf("\tcreateAndInitNewFrame: Class %s is part of the JDK", fram.ClName)
-		trace.Warning(traceInfo)
 	}
 
 	ptpx := 0
