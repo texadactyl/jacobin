@@ -368,6 +368,12 @@ func createAndInitNewFrame(
 		trace.Trace(traceInfo)
 	}
 
+	// TODO: Check if the class is part of the JDK and if so, trace it. Do something else tomorrow!
+	if util.IsClassPartOfJDK(fram.ClName) {
+		traceInfo := fmt.Sprintf("\tcreateAndInitNewFrame: Class %s is part of the JDK", fram.ClName)
+		trace.Warning(traceInfo)
+	}
+
 	ptpx := 0
 	for j := lenArgList - 1; j >= 0; j-- {
 		fram.Locals[destLocal] = argList[j]
